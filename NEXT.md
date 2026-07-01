@@ -9,8 +9,10 @@
 - [x] Attribute-based dedup
 - [x] Static Jinja2 HTML render with 3 sort modes
 - [x] pytest suite (score / valuation / normalize) green
+- [x] **Collection framework**: Idealista + Imovirtual adapters (search-URL builders + row→raw mapping), PT-format parsing (thousands-dot vs decimal-comma), idempotent `listings.jsonl` store, tests
+- [ ] **Collection — live**: connect logged-in Chrome → validate the URL schemes against the live sites → extract rendered cards → `--ingest` into `listings.jsonl`
 - [ ] **Streamlit app** — filters + sort modes + 👍/👎 (listing & area) → `preferences.json`
-- [ ] **Collection**: Idealista + Imovirtual browser-session adapters → `listings.jsonl`
 - [ ] **Enrichment**: Nominatim geocode → Overpass beaches → OpenRouteService walk-time → ruralness, cached by lat/lng
 - [ ] Photo-hash dedup (optional enhancement)
-- [ ] `git init`, first commit, push to `Xidorian/Quintal`
+- [x] `git init`, first commit (local; no GitHub remote yet)
+- [ ] Create `Xidorian/Quintal` on GitHub + push

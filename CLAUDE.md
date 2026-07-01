@@ -58,9 +58,19 @@ collect (browser session)  →  data/listings.jsonl
 ```
 . .venv/bin/activate
 python -m quintal.pipeline --input data/sample_listings.jsonl --html out/listings.html   # build the ranked page
+python -m quintal.collect.run --print-urls                                                # search URLs to open in Chrome
+python -m quintal.collect.run --site idealista --ingest rows.json                         # map extracted cards → listings.jsonl
 pytest                                                                                    # run the brain's tests
 streamlit run app.py                                                                      # interactive UI (post step-1)
 ```
+
+## Collection flow (Phase 2)
+Browser-session based, no scraping infra. `collect.run --print-urls` emits the search URLs
+→ open them in your logged-in Chrome → extract the visible cards (via the browser tools)
+into a JSON array of `ExtractedRow` → feed back with `--ingest`, which maps each row to a
+canonical raw dict (`collect/base.py: row_to_raw`) and upserts idempotently by source URL.
+The site URL schemes in `collect/idealista.py` / `collect/imovirtual.py` are best-effort and
+**must be validated against the live sites on first run** — portals change their params.
 
 ## Licensing
 Proprietary / all rights reserved (private personal tool).

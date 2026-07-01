@@ -21,3 +21,11 @@ is stubbed — walk distances currently come from the sample data, not OSM.
 
 **Left off:** brain proven. Next real work is collection (Idealista + Imovirtual via
 browser session) and wiring live enrichment. See NEXT.md.
+
+**2026-07-01 (later) — Phase 2 collection framework built.**
+`src/quintal/collect/`: Idealista + Imovirtual adapters (search-URL builders with per-site
+region slugs, shared `row_to_raw` mapper), robust PT-format parsing (the thousands-dot vs
+decimal-comma trap), and an idempotent `listings.jsonl` store keyed by source URL. 12 new
+tests (29 total, all green). The durable core is done and tested **offline** — what remains
+needs a browser: connect logged-in Chrome, validate the live URL schemes (flagged best-effort
+in the adapters), extract rendered cards, `--ingest`. No Chrome was connected this session.
