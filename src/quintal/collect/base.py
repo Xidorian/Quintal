@@ -69,6 +69,13 @@ def row_to_raw(source: str, row: ExtractedRow) -> dict:
     """
     location = row.get("location")
     description = " ".join(filter(None, [row.get("title"), row.get("description")]))
+    # Try each source in turn — the first that yields a number wins (a truthy-but-
+    # typology-less title must not shadow a "T3" in rooms_text).
+    bedrooms = None
+    for src in (row.get("rooms_text"), row.get("typology"), row.get("title")):
+        bedrooms = parse_bedrooms(src)
+        if bedrooms is not None:
+            break
     return {
         "source": source,
         "source_url": row.get("url"),
@@ -77,9 +84,7 @@ def row_to_raw(source: str, row: ExtractedRow) -> dict:
         "description_raw": description,
         "price_eur_month": parse_price(row.get("price_text")),
         "size_m2": parse_area(row.get("area_text")),
-        "bedrooms": parse_bedrooms(
-            row.get("typology") or row.get("title") or row.get("rooms_text")
-        ),
+        "bedrooms": bedrooms,
         "bathrooms": parse_bathrooms(row.get("rooms_text")),
         "concelho": concelho_from_location(location),
         "freguesia": freguesia_from_location(location),

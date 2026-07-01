@@ -12,9 +12,9 @@ isolated so adding a site = adding a file. (Casa Sapo / BPI later.)
 Geocode (Nominatim) → beach walk-time (Overpass + OpenRouteService) → ruralness
 (nearest town centroid). Bounded, cached by lat/lng, observable fallback chain.
 
-## Phase 4 — The interactive tool
-Streamlit UI: filters, 3 sort modes (best fit / best deal / blend), 👍/👎 per listing
-and per area, persisted to `preferences.json`. This is the thing we actually use daily.
+## Phase 4 — The interactive tool ✅
+Streamlit UI (`app.py`): filters, 3 sort modes (best fit / best deal / fit+deal), 👍/👎
+per listing and per area, persisted to `preferences.json`. This is the thing we use daily.
 
 ## Phase 5 — AI review layer (opt-in)
 Local Ollama pass that re-verifies keyword-derived features and drafts a plain-language

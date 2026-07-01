@@ -67,6 +67,18 @@ def test_pagination_produces_distinct_pages():
 
 
 # --- Extraction row → raw → normalized Listing (end to end) ---
+def test_bedrooms_from_rooms_text_when_title_lacks_typology():
+    # Regression: a truthy title without "T3" must not shadow the typology in rooms_text.
+    row = {
+        "url": "https://x/1",
+        "title": "Moradia independente na Vale Garifo, Luz",
+        "rooms_text": "T3",
+        "price_text": "1.425 €/mês",
+        "location": "Luz",
+    }
+    assert idealista.to_raw(row)["bedrooms"] == 3
+
+
 def test_extracted_row_maps_and_normalizes():
     row = {
         "url": "https://www.idealista.pt/imovel/1",

@@ -1,5 +1,19 @@
 # Status — Quintal
 
+**2026-07-01 (latest) — Phase 4 Streamlit app: the MVP is complete.**
+`app.py` — the interactive tool. Runs the full brain (screen → enrich → value → score)
+over the real pool and gives sidebar filters (price, beds, yard, pets, band, concelho,
+max beach-walk), three sort modes (best fit / best deal / fit+deal), and 👍/👎/hide per
+listing plus 👍/👎 per **area**, all persisted to `data/preferences.json`. Verified live:
+the app renders, filters, and a 👍 click writes through to preferences. `preferences.py`
++ tests. **All five build-order phases' core is now in place** (collect → screen → enrich
+→ value/score → interactive UI); remaining work is depth/polish (more listings, Imovirtual,
+ORS routing, optional AI review), not new capability.
+Live UI surfaced + fixed a real bug: `row_to_raw` picked the first *truthy* of
+typology/title/rooms_text and parsed only that, so titles without a "T3" shadowed the real
+bedroom count (→ null beds, which also corrupted valuation peer-grouping). Now tries each
+source in turn. Run it: `streamlit run app.py`.
+
 **2026-07-01 — Step 1 (the brain) built on synthetic data.**
 
 Fresh project. Stack agreed as **Python** (pandas / scikit-learn / Jinja2 + Streamlit

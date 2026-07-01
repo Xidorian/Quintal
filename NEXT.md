@@ -17,7 +17,7 @@
 - [ ] **Per-listing amenity enrichment** — open detail pages for the structured "Características" list (pool/yard/furnished/etc.), richer than the ~300-char card preview
 - [ ] **Imovirtual live run** — validate its URL scheme + card selectors against the live site
 - [ ] **Ingest ergonomics** — the chunked-rows workaround is manual; wire a cleaner extract→store path
-- [ ] **Streamlit app** — filters + sort modes + 👍/👎 (listing & area) → `preferences.json`
+- [x] **Streamlit app** — filters + sort modes + 👍/👎 (listing & area) → `preferences.json` (`app.py`)
 - [x] **Enrichment (Phase 3)**: Nominatim geocode → nearest-beach walk-time → ruralness; region features fetched once (295 beaches/106 towns) + cached; `--enrich` flag
 - [ ] **OpenRouteService key** → real routed walk-time instead of straight-line estimate (optional upgrade)
 - [ ] **Improve geocode hit-rate** — 3/13 missed on locality name; consider a second geocoder / better query fallback
