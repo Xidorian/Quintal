@@ -18,6 +18,7 @@ from .normalize import normalize
 from .render_html import render
 from .schema import Listing
 from .score import score_listing
+from .screening import Blocklist, screen
 from .valuation import value_pool
 
 log = get_logger()
@@ -44,6 +45,7 @@ def run(
     html_out: str | Path | None = None,
     *,
     synthetic: bool = False,
+    blocklist_path: str | Path = "data/blocklist.json",
 ) -> list[Listing]:
     raw_rows = load_jsonl(input_path)
 
@@ -58,6 +60,15 @@ def run(
     log.info(
         "normalized listings",
         extra={"event": "normalized", "ctx_kept": len(listings), "ctx_seen": len(raw_rows)},
+    )
+
+    # Purge short-term / holiday rentals and remember them (they poison the valuation pool).
+    blocklist = Blocklist(blocklist_path)
+    listings, purged = screen(listings, blocklist)
+    blocklist.save()
+    log.info(
+        "screened short-term rentals",
+        extra={"event": "screened", "ctx_purged": purged, "ctx_kept": len(listings)},
     )
 
     listings = dedup(listings)

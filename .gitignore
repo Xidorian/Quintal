@@ -13,6 +13,7 @@ __pycache__/
 data/listings.jsonl
 data/preferences.json
 data/enrichment_cache.json
+data/blocklist.json
 
 # Build output
 out/

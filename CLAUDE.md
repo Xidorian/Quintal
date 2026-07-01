@@ -65,12 +65,24 @@ streamlit run app.py                                                            
 ```
 
 ## Collection flow (Phase 2)
-Browser-session based, no scraping infra. `collect.run --print-urls` emits the search URLs
-→ open them in your logged-in Chrome → extract the visible cards (via the browser tools)
-into a JSON array of `ExtractedRow` → feed back with `--ingest`, which maps each row to a
-canonical raw dict (`collect/base.py: row_to_raw`) and upserts idempotently by source URL.
-The site URL schemes in `collect/idealista.py` / `collect/imovirtual.py` are best-effort and
-**must be validated against the live sites on first run** — portals change their params.
+Browser-session based, no scraping infra. Open the search in logged-in Chrome, extract the
+cards, map each `ExtractedRow` via `collect/base.py: row_to_raw`, upsert idempotently by
+source URL into `data/listings.jsonl`. Then `screening.py` purges short-term/holiday (AL)
+rentals into a persistent blocklist, and the pipeline runs as normal.
+
+### Transport (learned the hard way, 2026-07-01)
+Two dead ends: the `javascript_tool` return caps ~1 KB, and Chrome **Private Network Access**
+blocks a public page from POSTing to the local `receiver.py` (kept, but unreachable from
+idealista.pt). **What works:** in-page JS extracts all cards to a JSON array, replaces
+`document.body` with a single `<article><p>…JSON…</p></article>`, then `get_page_text`
+returns the whole thing in one call (readability picks the sole article). Bulk, no chunking.
+
+### Caveats
+- Idealista's long-term search leaks Spacest.com "Reserve em linha" medium-term listings and
+  AL/holiday lets — `screening.py` catches them; extend its patterns as new ones appear.
+- The filter-URL schemes in the adapters are best-effort; the guessed price/bedroom path 404s
+  and still needs discovering from the live UI.
+- Search cards give ~300-char description previews; full amenities need per-listing detail pages.
 
 ## Licensing
 Proprietary / all rights reserved (private personal tool).

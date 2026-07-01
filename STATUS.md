@@ -22,6 +22,16 @@ is stubbed — walk distances currently come from the sample data, not OSM.
 **Left off:** brain proven. Next real work is collection (Idealista + Imovirtual via
 browser session) and wiring live enrichment. See NEXT.md.
 
+**2026-07-01 (night) — screening + full-description transport solved.**
+Added `screening.py`: detects short-term/holiday/AL rentals (incl. Spacest.com "Reserve em
+linha" medium-term platform listings) and purges them into a persistent `data/blocklist.json`
+shitlist; wired into the pipeline right after normalize. Solved the transport wall — in-page
+JS dumps all cards into a single `<article>` and `get_page_text` returns the lot in one call
+(full descriptions, no chunking). Re-ran on the real Idealista batch: **17/30 purged, 13
+genuine long-term kept**, and full descriptions mean amenities now register (3 yards, 1
+bathtub detected — top matches are all yard properties). Pool is finally meaningful, though
+small (n=13 → low-confidence valuations until we collect more pages/sites). 36 tests green.
+
 **2026-07-01 (evening) — first LIVE collection run (Idealista).**
 Drove the searcher's logged-in Chrome, extracted 30 real Faro-district listings, ingested
 to `data/listings.jsonl`, ran the full pipeline on real data end-to-end (30 → 29 after
