@@ -42,6 +42,15 @@ SHORT_TERM_PATTERNS = [
     "reserve online",
     "book online",
     "booking.com",
+    # seasonal / academic-year lets (not year-round) — we need a permanent home
+    "outubro a maio",
+    "outubro a junho",
+    "setembro a maio",
+    "setembro a junho",
+    "a final de maio",
+    "a final de junho",
+    "epoca baixa",
+    "temporada baixa",
 ]
 # Alojamento Local registration, e.g. "151506/AL".
 _AL_REGISTRATION = re.compile(r"\b\d{3,6}\s*/\s*al\b")

@@ -13,6 +13,7 @@
 - [x] **Collection — live (Idealista)**: extracted 30 real Faro listings, ingested, ran full pipeline on real data
 - [x] **Exclude holiday/AL rentals** — `screening.py` purges short-term + Spacest "reserve em linha" into a persistent blocklist (17/30 purged on first real batch)
 - [x] **Full-description transport** — body-swap + `get_page_text` returns all cards in one call (yards/bathtubs now detected)
+- [ ] **Real Idealista pagination** — `?pagina=N` overlaps page 1 (returns ~same set); use the `/pagina-N.htm` path instead
 - [ ] **Discover Idealista filter-URL format** from the UI (price cap + bedrooms) — my guessed path 404s
 - [ ] **Per-listing amenity enrichment** — open detail pages for the structured "Características" list (pool/yard/furnished/etc.), richer than the ~300-char card preview
 - [ ] **Imovirtual live run** — validate its URL scheme + card selectors against the live site

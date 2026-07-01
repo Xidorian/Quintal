@@ -15,6 +15,11 @@ def test_detects_holiday_phrasing():
     assert is_short_term(_l("Arrendamento por semana, ótimo para temporada.")) is not None
 
 
+def test_detects_seasonal_academic_year():
+    assert is_short_term(_l("Arrendamento de Outubro a Maio.")) is not None
+    assert is_short_term(_l("Disponível de 5 de Setembro a final de Junho.")) is not None
+
+
 def test_passes_long_term_listing():
     assert is_short_term(_l("Moradia T2 com quintal para arrendamento anual.")) is None
 
