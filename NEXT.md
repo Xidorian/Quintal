@@ -18,7 +18,10 @@
 - [ ] **Imovirtual live run** — validate its URL scheme + card selectors against the live site
 - [ ] **Ingest ergonomics** — the chunked-rows workaround is manual; wire a cleaner extract→store path
 - [ ] **Streamlit app** — filters + sort modes + 👍/👎 (listing & area) → `preferences.json`
-- [ ] **Enrichment**: Nominatim geocode → Overpass beaches → OpenRouteService walk-time → ruralness, cached by lat/lng
+- [x] **Enrichment (Phase 3)**: Nominatim geocode → nearest-beach walk-time → ruralness; region features fetched once (295 beaches/106 towns) + cached; `--enrich` flag
+- [ ] **OpenRouteService key** → real routed walk-time instead of straight-line estimate (optional upgrade)
+- [ ] **Improve geocode hit-rate** — 3/13 missed on locality name; consider a second geocoder / better query fallback
+- [ ] **Persist enriched fields** back to the store so non-`--enrich` runs keep geo (currently enrichment is per-run + cached)
 - [ ] Photo-hash dedup (optional enhancement)
 - [x] `git init`, first commit (local; no GitHub remote yet)
 - [ ] Create `Xidorian/Quintal` on GitHub + push

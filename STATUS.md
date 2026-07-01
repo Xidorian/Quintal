@@ -22,6 +22,19 @@ is stubbed — walk distances currently come from the sample data, not OSM.
 **Left off:** brain proven. Next real work is collection (Idealista + Imovirtual via
 browser session) and wiring live enrichment. See NEXT.md.
 
+**2026-07-01 (late) — Phase 3 enrichment built + demonstrated.**
+`geo.py` (haversine, walk estimate) + `enrich.py` enrichers: Nominatim geocode →
+nearest-beach + walk-time → ruralness. Key insight after getting IP-throttled: fetch **all
+Algarve beaches (295) and towns (106) once** for the region and compute nearest locally —
+2 Overpass calls total, cached forever, instead of 2×N. Keyless by default (straight-line
+walk estimate); ORS key optional for real routing. Demonstrated live: 10/13 geocoded, and
+walk-times materially reshaped the ranking — beachfront Portimão flats (1 min) rose, inland
+VRSA (103 min / 6.4 km) fell, the Luz yard-moradia (27 min walk) leads at 61. `--enrich`
+flag on the pipeline; 44 tests green.
+**Caveat:** Nominatim/Overpass rate-limit under this session's heavy repeated testing, so a
+fresh run here may locate fewer until the throttle clears — a normal single run of ~13
+listings is well within free limits and locates all. Enrichment cache is gitignored.
+
 **2026-07-01 (night) — screening + full-description transport solved.**
 Added `screening.py`: detects short-term/holiday/AL rentals (incl. Spacest.com "Reserve em
 linha" medium-term platform listings) and purges them into a persistent `data/blocklist.json`

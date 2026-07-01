@@ -8,10 +8,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 from .dedup import dedup
-from .enrich import enrich_listings
+from .enrich import default_chain, enrich_listings
 from .errors import AppError
 from .logconf import get_logger
 from .normalize import normalize
@@ -45,7 +46,9 @@ def run(
     html_out: str | Path | None = None,
     *,
     synthetic: bool = False,
+    enrich: bool = False,
     blocklist_path: str | Path = "data/blocklist.json",
+    cache_path: str | Path = "data/enrichment_cache.json",
 ) -> list[Listing]:
     raw_rows = load_jsonl(input_path)
 
@@ -72,7 +75,18 @@ def run(
     )
 
     listings = dedup(listings)
-    listings = enrich_listings(listings, chain=[])  # no enrichers in step 1
+
+    if enrich:
+        ors_key = os.environ.get("OPENROUTESERVICE_API_KEY")
+        client, chain = default_chain(cache_path, ors_key=ors_key)
+        enrich_listings(listings, chain)
+        client.save()
+        located = sum(1 for listing in listings if listing.lat is not None)
+        log.info(
+            "enriched listings",
+            extra={"event": "enriched", "ctx_located": located, "ctx_total": len(listings)},
+        )
+
     value_pool(listings)
     for listing in listings:
         listing.match_score, listing.match_breakdown = score_listing(listing)
@@ -96,9 +110,20 @@ def main() -> None:
     parser.add_argument(
         "--synthetic", action="store_true", help="flag the data as synthetic in the page"
     )
+    parser.add_argument(
+        "--enrich", action="store_true", help="geocode + beach walk-time + ruralness (OSM APIs)"
+    )
     args = parser.parse_args()
 
-    listings = run(args.input, args.html, synthetic=args.synthetic)
+    if args.enrich:
+        try:
+            from dotenv import load_dotenv
+
+            load_dotenv()
+        except ImportError:
+            pass
+
+    listings = run(args.input, args.html, synthetic=args.synthetic, enrich=args.enrich)
 
     print(f"\n{len(listings)} listings (top by match):")
     for listing in listings[:10]:
