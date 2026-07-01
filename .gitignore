@@ -1,0 +1,18 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets & config
+.env
+
+# Runtime data (collected listings, prefs, caches) — keep sample fixtures only
+data/listings.jsonl
+data/preferences.json
+data/enrichment_cache.json
+
+# Build output
+out/
