@@ -11,24 +11,37 @@ import re
 
 
 def parse_eu_number(text: str | None) -> float | None:
-    """'1.200 €/mês' → 1200.0, '1.200,50' → 1200.5, '950' → 950.0, '85 m²' → 85.0."""
+    """Parse a number in either PT/EU or EN formatting.
+
+    PT/EU: '1.200 €/mês' → 1200.0, '1.200,50' → 1200.5
+    EN:    '1,100€/month' → 1100.0, '1,234.50' → 1234.5
+    Plain: '950' → 950.0, '85 m²' → 85.0
+
+    Rule: when both separators appear, whichever comes last is the decimal point.
+    With a single separator, a 3-digit trailing group means thousands ('1.200'/'1,100'),
+    anything else is a decimal ('85,5'/'85.5').
+    """
     if not text:
         return None
-    # Keep digits and the two separators only.
     cleaned = re.sub(r"[^0-9.,]", "", str(text))
     if not cleaned:
         return None
-    if "." in cleaned and "," in cleaned:
-        # Both present: '.' is thousands, ',' is decimal.
-        cleaned = cleaned.replace(".", "").replace(",", ".")
-    elif "," in cleaned:
-        # Only comma → decimal separator.
-        cleaned = cleaned.replace(",", ".")
-    elif "." in cleaned:
-        # Only dot: thousands sep if it groups 3 digits ('1.200'), else a decimal.
-        if re.fullmatch(r"\d{1,3}(\.\d{3})+", cleaned):
-            cleaned = cleaned.replace(".", "")
-        # else leave as a plain decimal ('85.5')
+
+    has_dot, has_comma = "." in cleaned, "," in cleaned
+    if has_dot and has_comma:
+        if cleaned.rfind(",") > cleaned.rfind("."):  # comma last → EU decimal
+            cleaned = cleaned.replace(".", "").replace(",", ".")
+        else:  # dot last → EN decimal
+            cleaned = cleaned.replace(",", "")
+    elif has_comma:
+        if cleaned.count(",") > 1 or len(cleaned.rsplit(",", 1)[1]) == 3:
+            cleaned = cleaned.replace(",", "")  # grouping separator
+        else:
+            cleaned = cleaned.replace(",", ".")  # decimal
+    elif has_dot:
+        if cleaned.count(".") > 1 or len(cleaned.rsplit(".", 1)[1]) == 3:
+            cleaned = cleaned.replace(".", "")  # grouping separator
+        # else a plain decimal ('85.5')
     try:
         return float(cleaned)
     except ValueError:

@@ -10,7 +10,12 @@
 - [x] Static Jinja2 HTML render with 3 sort modes
 - [x] pytest suite (score / valuation / normalize) green
 - [x] **Collection framework**: Idealista + Imovirtual adapters (search-URL builders + row→raw mapping), PT-format parsing (thousands-dot vs decimal-comma), idempotent `listings.jsonl` store, tests
-- [ ] **Collection — live**: connect logged-in Chrome → validate the URL schemes against the live sites → extract rendered cards → `--ingest` into `listings.jsonl`
+- [x] **Collection — live (Idealista)**: extracted 30 real Faro listings, ingested, ran full pipeline on real data
+- [ ] **Discover Idealista filter-URL format** from the UI (price cap + bedrooms) — my guessed path 404s
+- [ ] **Exclude holiday/AL rentals** (long-term only) so valuation isn't poisoned by €3–8k short-lets
+- [ ] **Full descriptions**, not 120-char previews — per-listing enrichment or a PNA-reachable receiver (yards currently under-detected)
+- [ ] **Imovirtual live run** — validate its URL scheme + card selectors against the live site
+- [ ] **Ingest ergonomics** — the chunked-rows workaround is manual; wire a cleaner extract→store path
 - [ ] **Streamlit app** — filters + sort modes + 👍/👎 (listing & area) → `preferences.json`
 - [ ] **Enrichment**: Nominatim geocode → Overpass beaches → OpenRouteService walk-time → ruralness, cached by lat/lng
 - [ ] Photo-hash dedup (optional enhancement)

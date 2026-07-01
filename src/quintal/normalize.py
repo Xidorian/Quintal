@@ -18,6 +18,9 @@ BATHTUB_KEYWORDS = ["banheira", "bathtub", "bath tub"]
 PETS_NEGATIVE = [
     "nao aceita animais",
     "nao sao permitidos animais",
+    "nao permitimos animais",
+    "nao permite animais",
+    "nao permitido animais",
     "sem animais",
     "no pets",
     "pets not allowed",

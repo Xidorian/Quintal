@@ -1,4 +1,4 @@
-from quintal.collect import idealista, imovirtual, store
+from quintal.collect import idealista, imovirtual, receiver, store
 from quintal.collect.base import SearchParams, concelho_from_location
 from quintal.collect.parsing import parse_area, parse_bathrooms, parse_bedrooms, parse_price
 from quintal.normalize import normalize
@@ -11,6 +11,13 @@ def test_price_eu_thousands_dot():
 
 def test_price_decimal_comma():
     assert parse_price("1.200,50") == 1200.5
+
+
+def test_price_english_format():
+    # Idealista renders EN when the account language is English: comma = thousands.
+    assert parse_price("1,100€/month") == 1100.0
+    assert parse_price("3,000€") == 3000.0
+    assert parse_price("1,234.50") == 1234.5
 
 
 def test_price_plain_and_spaced():
@@ -97,3 +104,18 @@ def test_upsert_is_idempotent(tmp_path):
 
     assert len(path.read_text().splitlines()) == 1
     assert store.load(path)[("url", "https://x/1")]["price_eur_month"] == 1100
+
+
+def test_receiver_ingest_rows_maps_and_persists(tmp_path):
+    path = tmp_path / "listings.jsonl"
+    rows = [
+        {
+            "url": "https://www.idealista.pt/imovel/9",
+            "title": "T2 em Faro",
+            "price_text": "1.200 €/mês",
+        }
+    ]
+    added, updated = receiver.ingest_rows("idealista", rows, str(path))
+    assert (added, updated) == (1, 0)
+    stored = store.load(path)[("url", "https://www.idealista.pt/imovel/9")]
+    assert stored["price_eur_month"] == 1200.0 and stored["source"] == "idealista"

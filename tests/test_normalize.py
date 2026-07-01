@@ -41,6 +41,18 @@ def test_pets_negative_beats_substring_positive():
     assert listing.pets.value == "no"
 
 
+def test_pets_negative_permitimos_variant():
+    # Surfaced by real Idealista data: "não permitimos animais".
+    listing = normalize(
+        {
+            "description_raw": "Estúdio, não permitimos animais de estimação.",
+            "price_eur_month": 800,
+            "concelho": "Lagos",
+        }
+    )
+    assert listing.pets.value == "no"
+
+
 def test_pets_unknown_when_unmentioned():
     listing = normalize(
         {"description_raw": "Apartamento mobilado.", "price_eur_month": 800, "concelho": "Lagos"}

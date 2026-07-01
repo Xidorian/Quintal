@@ -22,7 +22,23 @@ is stubbed — walk distances currently come from the sample data, not OSM.
 **Left off:** brain proven. Next real work is collection (Idealista + Imovirtual via
 browser session) and wiring live enrichment. See NEXT.md.
 
-**2026-07-01 (later) — Phase 2 collection framework built.**
+**2026-07-01 (evening) — first LIVE collection run (Idealista).**
+Drove the searcher's logged-in Chrome, extracted 30 real Faro-district listings, ingested
+to `data/listings.jsonl`, ran the full pipeline on real data end-to-end (30 → 29 after
+dedup, ranked HTML produced). The pipeline *works* on real data. Findings that need action:
+- **URL filters:** my guessed Idealista filter path (`com-preco-max_…,t2,…`) 404s. The plain
+  regional URL works; the real filter-segment format still needs discovering from the UI.
+- **Holiday/AL rentals contaminate the pool:** unfiltered results include €3–8k short-term
+  "para Férias" listings that wreck the peer-median valuation (bands came out ~50/50 noise).
+  Need a long-term-only filter (price cap in URL + AL exclusion) before valuation is meaningful.
+- **Transport cap:** the JS→assistant channel caps ~1 KB, and Chrome **Private Network Access**
+  blocks the page from POSTing to the local `receiver.py` (built + tested, but unreachable from
+  a public origin). Worked around by paging compact rows out in chunks; descriptions truncated
+  to 120 chars as a result, which under-detects yards (only 1 found). Proper fix: per-listing
+  enrichment or a receiver reachable without PNA.
+- **Keyword gaps:** real data said "não permitimos animais" (not in my list) — now added.
+
+**2026-07-01 (afternoon) — Phase 2 collection framework built.**
 `src/quintal/collect/`: Idealista + Imovirtual adapters (search-URL builders with per-site
 region slugs, shared `row_to_raw` mapper), robust PT-format parsing (the thousands-dot vs
 decimal-comma trap), and an idempotent `listings.jsonl` store keyed by source URL. 12 new
