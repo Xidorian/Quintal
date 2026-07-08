@@ -13,11 +13,14 @@
 - [x] **Collection — live (Idealista)**: extracted 30 real Faro listings, ingested, ran full pipeline on real data
 - [x] **Exclude holiday/AL rentals** — `screening.py` purges short-term + Spacest "reserve em linha" into a persistent blocklist (17/30 purged on first real batch)
 - [x] **Full-description transport** — body-swap + `get_page_text` returns all cards in one call (yards/bathtubs now detected)
-- [ ] **Real Idealista pagination** — `?pagina=N` overlaps page 1 (returns ~same set); use the `/pagina-N.htm` path instead
-- [ ] **Discover Idealista filter-URL format** from the UI (price cap + bedrooms) — my guessed path 404s
-- [ ] **Per-listing amenity enrichment** — open detail pages for the structured "Características" list (pool/yard/furnished/etc.), richer than the ~300-char card preview
-- [ ] **Imovirtual live run** — validate its URL scheme + card selectors against the live site
-- [ ] **Ingest ergonomics** — the chunked-rows workaround is manual; wire a cleaner extract→store path
+- [x] **Real Idealista pagination** — fixed: path segment `…/faro-distrito/pagina-N` (NOT `?pagina=N` which overlaps, NOT `/pagina-N.htm` which redirects to landing). Verified live; adapter + comment updated 2026-07-08. Pulled all 6 Faro pages (180 cards).
+- [x] **Full Idealista + Imovirtual live pull (2026-07-08)** — Idealista 6 pages (180) + Imovirtual 10 apartamento + 3 moradia pages (443). Store now 656; 578 kept post-screening; 419 ranked after cross-source dedup.
+- [x] **Imovirtual live run** — validated: `/pt/resultados/arrendar/{apartamento|moradia}/faro?page=N`, cards `[data-cy="search.listing.organic"] article` with `listing-item-{price,link,title}`, `advert-card-address`, `dl dd` for Tipologia/m², "Oferta privada" flag. Note: **path drops comma-joined types** (`apartamento,moradia` → `apartamento` only) so apt + moradia are pulled as **separate searches**.
+- [ ] **Discover Idealista filter-URL format** from the UI (price cap + bedrooms) — my guessed path still 404s; using the plain region URL + post-collection filtering for now
+- [ ] **Imovirtual cards carry NO description** — only title+address+specs, so yard/bathtub/pets keyword derivation is title-only for this source. Amenity signal needs the per-listing detail page (see below).
+- [ ] **Per-listing amenity enrichment** — open detail pages for the structured "Características" list (pool/yard/furnished/etc.), richer than the ~300-char card preview; also the only amenity source for Imovirtual
+- [ ] **Ingest ergonomics** — the chunked-rows workaround is manual; wire a cleaner extract→store path. Learned transport: in-page JS accumulates all pages into `localStorage`, then a **Blob download from a *fresh tab*** dumps exact bytes to `~/Downloads` (Chrome blocks a 2nd auto-download in the *same* tab — a new same-origin tab bypasses it). `get_page_text` body-swap still works but caps at ~50 KB so needs chunking.
+- [ ] **Price parse gap** — space-separated thousands (`299 000 €`, a sale listing that leaked in) → `None` and the item is skipped (harmless here, but `parse_price` should handle space thousands)
 - [x] **Streamlit app** — filters + sort modes + 👍/👎 (listing & area) → `preferences.json` (`app.py`)
 - [x] **Enrichment (Phase 3)**: Nominatim geocode → nearest-beach walk-time → ruralness; region features fetched once (295 beaches/106 towns) + cached; `--enrich` flag
 - [ ] **OpenRouteService key** → real routed walk-time instead of straight-line estimate (optional upgrade)

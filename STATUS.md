@@ -1,6 +1,24 @@
 # Status — Quintal
 
-**2026-07-01 (latest) — Phase 4 Streamlit app: the MVP is complete.**
+**2026-07-08 (latest) — first FULL live pull; pool is now real and district-wide.**
+Drove the logged-in Chrome across the whole Faro district (= the whole Algarve) on both
+portals: Idealista 6 pages (180 cards) + Imovirtual 10 apartamento + 3 moradia pages (443).
+Store is now **656 listings** (443 imovirtual / 213 idealista). Pipeline runs clean:
+normalize → screening purges 76 AL/Spacest short-term → **578 kept** → cross-source dedup →
+**419 ranked** (159 duplicates collapsed — the two portals overlap heavily). Top matches are
+yard moradias, correctly weighted toward Luna; valuation bands are finally meaningful at this
+pool size. Only 2 items skipped (null price — one was a €299k *sale* listing that leaked into
+rentals; per-item isolation logged + skipped it, no crash).
+Fixed the Idealista **pagination bug** (`?pagina=N` overlapped page 1) — real format is the
+path segment `…/faro-distrito/pagina-N`; adapter + tests updated, 51 green. Validated the
+**Imovirtual** adapter against the live site for the first time (selectors, `?page=N`, and the
+quirk that its path drops comma-joined property types so apt/moradia are separate searches).
+Transport learned: accumulate pages in `localStorage`, then Blob-download from a **fresh tab**
+(Chrome blocks a 2nd auto-download in the same tab). **Not yet done:** per-listing amenity
+enrichment (Imovirtual cards have no description → yard/pets detection is title-only there),
+and `--enrich` geocoding hasn't been re-run on the big pool. See NEXT.md.
+
+**2026-07-01 — Phase 4 Streamlit app: the MVP is complete.**
 `app.py` — the interactive tool. Runs the full brain (screen → enrich → value → score)
 over the real pool and gives sidebar filters (price, beds, yard, pets, band, concelho,
 max beach-walk), three sort modes (best fit / best deal / fit+deal), and 👍/👎/hide per

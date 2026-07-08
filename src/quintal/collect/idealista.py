@@ -1,7 +1,7 @@
 """Idealista adapter.
 
-Idealista uses path-segment filters, e.g.
-  https://www.idealista.pt/arrendar-casas/faro-distrito/com-preco-max_1500,t2,t3,t4/?pagina=2
+Idealista uses path-segment filters AND path-segment pagination, e.g.
+  https://www.idealista.pt/arrendar-casas/faro-distrito/pagina-2
 NOTE: verify the exact segment/param spelling against the live site on first run —
 portals adjust these. The `to_raw` mapping is stable regardless of URL scheme.
 """
@@ -27,7 +27,10 @@ def search_urls(params: SearchParams, pages: int = 1) -> list[str]:
     url = f"{_BASE}/{region}/"
     if filters:
         url += ",".join(filters) + "/"
-    return [url + (f"?pagina={p}" if p > 1 else "") for p in range(1, pages + 1)]
+    # Idealista paginates by path segment (…/pagina-2), appended to the trailing slash.
+    # NOT ?pagina=N (overlaps page 1) and NOT /pagina-N.htm (redirects to landing).
+    # Verified against the live site's own pagination links, 2026-07-08.
+    return [url + (f"pagina-{p}" if p > 1 else "") for p in range(1, pages + 1)]
 
 
 def to_raw(row: ExtractedRow) -> dict:
