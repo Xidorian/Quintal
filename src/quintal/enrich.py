@@ -110,6 +110,7 @@ class GeoClient:
             return None  # don't cache a miss — could be a transient throttle; retry next run
         result = (float(rows[0]["lat"]), float(rows[0]["lon"]))
         self.cache.set(key, list(result))
+        self.cache.save()  # persist per-lookup so a kill/timeout mid-run keeps progress
         return result
 
     def _overpass(self, query: str) -> dict | None:
@@ -144,6 +145,7 @@ class GeoClient:
             if plat is not None and plng is not None:
                 points.append((plat, plng))
         self.cache.set(key, points)
+        self.cache.save()  # persist per-lookup so a kill/timeout mid-run keeps progress
         return points
 
     def _nearest_m(self, lat: float, lng: float, kind: str) -> float | None:
