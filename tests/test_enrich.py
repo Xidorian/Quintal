@@ -32,12 +32,14 @@ def test_cache_roundtrip(tmp_path):
     assert JsonCache(tmp_path / "c.json").get("k") == [1, 2]
 
 
-def test_geocode_queries_locality_first_and_deduped():
+def test_geocode_queries_concelho_first_and_deduped():
     q = _geocode_queries(
         Listing(price_eur_month=1000, concelho="Loulé", freguesia="Almancil")
     )
-    assert q[0] == "Almancil, Loulé, Algarve, Portugal"  # freguesia first
-    assert "Loulé, Algarve, Portugal" in q  # concelho before any title fallback
+    # Concelho leads (only ~16 exist and all resolve → bounded, bulk-safe lookups);
+    # freguesia is a later fall-through, only tried if the concelho somehow misses.
+    assert q[0] == "Loulé, Algarve, Portugal"
+    assert "Almancil, Loulé, Algarve, Portugal" in q
     assert len(q) == len(set(q))
 
 

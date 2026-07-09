@@ -176,16 +176,21 @@ class GeoClient:
 
 
 def _geocode_queries(listing: Listing) -> list[str]:
-    """Locality-first candidate queries; fall through until one resolves.
+    """Concelho-first candidate queries; fall through until one resolves.
 
-    Full street/title queries almost never resolve in Nominatim and just double the
-    request load (→ rate-limiting), so we lead with the reliable locality name. Coords
-    land at town/freguesia centroid — precise enough for beach/town distance.
+    Concelho-first is deliberate: there are only ~16 Algarve concelhos and every one
+    resolves, so a full pool costs ~16 distinct lookups (well within Nominatim's fair
+    use). Leading with the freguesia instead means one network call *per listing* on
+    names that often don't resolve (compound/parenthetical freguesias like
+    "Albufeira e Olhos de Água" or "Faro (Sé e São Pedro)") — 150+ misses that trip
+    OSM's bulk-geocoding block. A concelho centroid is precise enough for beach/town
+    distance (see class doc); freguesia-level refinement is a future enhancement once
+    we have a geocoder that isn't rate-limited for bulk. Full street/title queries
+    almost never resolve, so the title is only a last resort.
     """
-    queries = []
+    queries = [f"{listing.concelho}, Algarve, Portugal"]
     if listing.freguesia and listing.freguesia != listing.concelho:
         queries.append(f"{listing.freguesia}, {listing.concelho}, Algarve, Portugal")
-    queries.append(f"{listing.concelho}, Algarve, Portugal")
     if listing.title:  # last resort; only reached (and only costs a call) if locality misses
         queries.append(f"{listing.title}, Algarve, Portugal")
     # De-dup while preserving order.
