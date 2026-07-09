@@ -66,6 +66,21 @@ def test_pagination_produces_distinct_pages():
     assert len(urls) == 2 and urls[0] != urls[1]
 
 
+def test_imovirtual_location_drops_district_for_concelho():
+    # Imovirtual reads '[street, ]freguesia, concelho, Faro' — the last token is the
+    # district, so the concelho must NOT collapse to 'Faro' (that bug bucketed all 443
+    # listings together and mislocated geocoding to Faro city).
+    raw = imovirtual.to_raw({"location": "Rua João Simões Tavares, Portimão, Portimão, Faro"})
+    assert raw["concelho"] == "Portimão"
+    raw = imovirtual.to_raw({"location": "Quarteira, Loulé, Faro"})
+    assert raw["concelho"] == "Loulé" and raw["freguesia"] == "Quarteira"
+    raw = imovirtual.to_raw({"location": "Albufeira e Olhos de Água, Albufeira, Faro"})
+    assert raw["concelho"] == "Albufeira"
+    # A listing genuinely in Faro concelho stays Faro (only the district suffix is dropped).
+    raw = imovirtual.to_raw({"location": "Faro (Sé e São Pedro), Faro, Faro"})
+    assert raw["concelho"] == "Faro" and raw["freguesia"] == "Faro (Sé e São Pedro)"
+
+
 # --- Extraction row → raw → normalized Listing (end to end) ---
 def test_bedrooms_from_rooms_text_when_title_lacks_typology():
     # Regression: a truthy title without "T3" must not shadow the typology in rooms_text.

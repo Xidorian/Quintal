@@ -13,6 +13,7 @@ from urllib.parse import quote, urlencode
 from .base import ExtractedRow, SearchParams, row_to_raw
 
 name = "imovirtual"
+_DISTRICT = "faro"  # every Imovirtual location ends in the district; it's not the concelho
 _BASE = "https://www.imovirtual.com/pt/resultados/arrendar"
 _ROOMS = {1: "ONE", 2: "TWO", 3: "THREE", 4: "FOUR", 5: "FIVE"}
 _REGION_SLUGS = {"algarve": "faro"}
@@ -39,5 +40,30 @@ def search_urls(params: SearchParams, pages: int = 1) -> list[str]:
     return urls
 
 
+def _parse_location(location: str | None) -> tuple[str | None, str | None]:
+    """Imovirtual addresses read '[street, ]freguesia, concelho, Faro' — the trailing
+    token is the *district*, not the concelho (unlike Idealista's 'freguesia, concelho').
+    Drop the district, then concelho = last remaining, freguesia = the one before it.
+    Returns (concelho, freguesia).
+    """
+    if not location:
+        return None, None
+    parts = [p.strip() for p in location.split(",") if p.strip()]
+    if parts and parts[-1].casefold() == _DISTRICT:
+        parts = parts[:-1]  # drop the district suffix
+    if not parts:
+        return None, None
+    concelho = parts[-1]
+    freguesia = parts[-2] if len(parts) >= 2 else None
+    return concelho, freguesia
+
+
 def to_raw(row: ExtractedRow) -> dict:
-    return row_to_raw(name, row)
+    raw = row_to_raw(name, row)
+    # Override the shared (Idealista-shaped) concelho/freguesia derivation with the
+    # Imovirtual-specific parse, so every listing doesn't collapse to concelho 'Faro'.
+    concelho, freguesia = _parse_location(row.get("location"))
+    if concelho:
+        raw["concelho"] = concelho
+    raw["freguesia"] = freguesia
+    return raw
