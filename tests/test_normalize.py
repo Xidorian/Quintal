@@ -78,3 +78,13 @@ def test_property_type_and_bedrooms_inferred():
 def test_id_is_stable():
     raw = {"source_url": "https://x/1", "price_eur_month": 1000, "concelho": "Faro"}
     assert normalize(raw).listing_id == normalize(raw).listing_id
+
+
+def test_implausible_size_dropped_to_none():
+    base = {"description_raw": "", "price_eur_month": 1000, "concelho": "Faro"}
+    # Garbage parses (10M m² card, "10 m²" on a real home) become unknown, not skew.
+    assert normalize({**base, "size_m2": 10_000_000}).size_m2 is None
+    assert normalize({**base, "size_m2": 10}).size_m2 is None
+    # Real sizes pass through untouched.
+    assert normalize({**base, "size_m2": 85}).size_m2 == 85
+    assert normalize({**base, "size_m2": 21}).size_m2 == 21  # a genuine T0 studio

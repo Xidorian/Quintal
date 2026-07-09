@@ -69,6 +69,10 @@ max_price = st.sidebar.slider(
     "Max €/month", 0, int(max(prices)) + 100, min(1500, int(max(prices)) + 100), step=50
 )
 min_beds = st.sidebar.number_input("Min bedrooms", 0, 6, 0)
+sizes = [v["size"] for v in views if v["size"]]
+size_cap = int(max(sizes)) if sizes else 300
+size_range = st.sidebar.slider("Size (m²)", 0, size_cap, (0, size_cap), step=5)
+size_active = size_range != (0, size_cap)  # a listing with unknown size is only dropped once this is narrowed
 yard_only = st.sidebar.checkbox("Yard only")
 hide_no_pets = st.sidebar.checkbox("Exclude explicit no-pets", value=True)
 bands = st.sidebar.multiselect("Valuation band", ["undervalued", "fair", "overpriced"])
@@ -105,6 +109,11 @@ def keep(v: dict) -> bool:
     if v["price"] > max_price:
         return False
     if (v["beds"] or 0) < min_beds:
+        return False
+    if v["size"] is not None:
+        if not (size_range[0] <= v["size"] <= size_range[1]):
+            return False
+    elif size_active:  # unknown size can't be confirmed in range once the filter is set
         return False
     if yard_only and not v["yard"]:
         return False

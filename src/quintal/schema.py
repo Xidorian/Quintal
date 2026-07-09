@@ -5,7 +5,13 @@ from __future__ import annotations
 import hashlib
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+# Plausible built-area bounds for an Algarve rental. Outside this, a parsed size is
+# garbage (a 10,000,000 m² card, or "10 m²" on a 3-bed house) — treat it as unknown so
+# it can't skew the hedonic valuation (size is a regression feature) or the size filter.
+MIN_PLAUSIBLE_M2 = 15
+MAX_PLAUSIBLE_M2 = 2000
 
 PropertyType = Literal["house", "townhouse", "apartment", "studio", "other"]
 PetsValue = Literal["yes", "no", "unknown"]
@@ -46,6 +52,13 @@ class Listing(BaseModel):
     furnished: bool | None = None
     concelho: str = "unknown"
     freguesia: str | None = None
+
+    @field_validator("size_m2")
+    @classmethod
+    def _drop_implausible_size(cls, v: float | None) -> float | None:
+        if v is not None and not (MIN_PLAUSIBLE_M2 <= v <= MAX_PLAUSIBLE_M2):
+            return None
+        return v
 
     # --- Geo / enrichment ---
     lat: float | None = None
