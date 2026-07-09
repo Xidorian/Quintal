@@ -24,7 +24,7 @@
 - [x] **Streamlit app** — filters + sort modes + 👍/👎 (listing & area) → `preferences.json` (`app.py`)
 - [x] **Enrichment (Phase 3)**: Nominatim geocode → nearest-beach walk-time → ruralness; region features fetched once (295 beaches/106 towns) + cached; `--enrich` flag
 - [x] **Geocode concelho-first** (QT-011) — freguesia-first fired a network call per listing on names that often miss (150+), tripping OSM's bulk block; concelho-first is ~50 distinct, all resolve. Also fixed enrichment cache to persist per-lookup (QT-009).
-- [ ] **⭐ Second geocoder (now the priority)** — the real blocker for enriching the full 656-pool is that **public Nominatim rate-limits bulk geocoding**: even a gentle 44-locality pass only resolved ~5 (Portimão/Tavira "missed" despite resolving as one-off probes). Currently draining the ~50 localities via a **spaced auto-retry loop** (~30-min ScheduleWakeup, one gentle pass/run, durable cache), but a keyed/self-hosted geocoder (or Photon/geoapify fallback) would let a full run complete in one shot. Add it as an ordered fallback: Nominatim → second geocoder → skip.
+- [x] **Second geocoder fallback (QT-013)** — public Nominatim bulk-rate-limits us (a gentle 44-locality pass resolved only ~5). Added **Photon** (Komoot, OSM-based, no bulk limit) as an ordered fallback `Nominatim → Photon → skip` in `GeoClient.geocode`. Full 499-listing pool now enriches in one ~80s run, **499/499 located**. The spaced auto-retry loop is no longer needed.
 - [ ] **OpenRouteService key** → real routed walk-time instead of straight-line estimate (optional upgrade)
 - [ ] **Persist enriched fields** back to the store so non-`--enrich` runs keep geo (currently enrichment is per-run + cached)
 - [ ] Photo-hash dedup (optional enhancement)
