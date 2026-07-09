@@ -92,6 +92,31 @@ def test_geocode_sets_latlng_and_caches(tmp_path):
     assert client.session.get_calls == calls
 
 
+class _RoutedSession:
+    """Returns a Nominatim-shaped or Photon-shaped payload based on the called URL."""
+
+    def __init__(self, nominatim, photon):
+        self.nominatim, self.photon = nominatim, photon
+        self.get_calls = 0
+
+    def get(self, url, *a, **k):
+        self.get_calls += 1
+        return _Resp(self.nominatim if "nominatim" in url else self.photon)
+
+
+def test_geocode_falls_back_to_photon_when_nominatim_empty(tmp_path):
+    client = GeoClient(tmp_path / "cache.json")
+    client._throttle = lambda: None
+    # Nominatim returns nothing (rate-limited); Photon resolves (GeoJSON [lon, lat]).
+    client.session = _RoutedSession(
+        nominatim=[],
+        photon={"features": [{"geometry": {"coordinates": [-8.5, 37.1]}}]},
+    )
+    assert client.geocode("Portimão, Algarve, Portugal") == (37.1, -8.5)
+    # It tried Nominatim first, then Photon.
+    assert client.session.get_calls == 2
+
+
 def test_beach_sets_distance_and_walk_estimate(tmp_path):
     # One beach node ~1 km east of the listing.
     client = _client(tmp_path, post_payload={"elements": [{"lat": 37.1, "lon": -8.4886}]})

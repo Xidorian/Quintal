@@ -23,6 +23,7 @@ from .schema import Listing
 log = get_logger()
 
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
+PHOTON_URL = "https://photon.komoot.io/api/"  # OSM-based fallback; no bulk rate-limit
 OVERPASS_ENDPOINTS = (
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
@@ -98,20 +99,50 @@ class GeoClient:
         if self.cache.has(key):
             cached = self.cache.get(key)
             return tuple(cached) if cached else None
-        self._throttle()
-        resp = self.session.get(
-            NOMINATIM_URL,
-            params={"q": query, "format": "json", "limit": 1},
-            headers={"User-Agent": USER_AGENT},
-            timeout=15,
-        )
-        rows = resp.json()
-        if not rows:
+        # Ordered fallback (resilience principle): Nominatim is precise but bulk-rate-
+        # limits us; Photon is OSM-based with no bulk limit. Try each, then give up.
+        result = self._geocode_nominatim(query) or self._geocode_photon(query)
+        if result is None:
             return None  # don't cache a miss — could be a transient throttle; retry next run
-        result = (float(rows[0]["lat"]), float(rows[0]["lon"]))
         self.cache.set(key, list(result))
         self.cache.save()  # persist per-lookup so a kill/timeout mid-run keeps progress
         return result
+
+    def _geocode_nominatim(self, query: str) -> tuple[float, float] | None:
+        self._throttle()
+        try:
+            resp = self.session.get(
+                NOMINATIM_URL,
+                params={"q": query, "format": "json", "limit": 1},
+                headers={"User-Agent": USER_AGENT},
+                timeout=15,
+            )
+            rows = resp.json()
+        except (requests.RequestException, ValueError):
+            return None
+        if not rows:
+            return None
+        return (float(rows[0]["lat"]), float(rows[0]["lon"]))
+
+    def _geocode_photon(self, query: str) -> tuple[float, float] | None:
+        self._throttle()
+        try:
+            resp = self.session.get(
+                PHOTON_URL,
+                params={"q": query, "limit": 1},
+                headers={"User-Agent": USER_AGENT},
+                timeout=15,
+            )
+            feats = resp.json().get("features") or []
+        except (requests.RequestException, ValueError, AttributeError):
+            return None
+        if not feats:
+            return None
+        try:
+            lon, lat = feats[0]["geometry"]["coordinates"][:2]  # GeoJSON order: [lon, lat]
+        except (KeyError, IndexError, TypeError, ValueError):
+            return None
+        return (float(lat), float(lon))
 
     def _overpass(self, query: str) -> dict | None:
         """POST to Overpass, trying each mirror until one returns valid JSON."""
