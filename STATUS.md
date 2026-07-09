@@ -1,6 +1,20 @@
 # Status — Quintal
 
-**2026-07-08 (latest) — first FULL live pull; pool is now real and district-wide.**
+**2026-07-09 — enrichment complete on the full pool via a geocoder fallback.**
+Enrichment surfaced two real bugs (both fixed): Imovirtual concelho was collapsing to the
+district 'Faro' for all 443 (QT-010, also un-polluted valuation peer-groups), and geocoding
+was freguesia-first, firing a per-listing call on names that often miss (QT-011 → concelho-
+first). The true blocker was that **public Nominatim bulk-rate-limits us** — a gentle
+44-locality pass resolved only ~5. Fixed by adding **Photon** (Komoot/OSM, no bulk limit) as
+an ordered fallback `Nominatim → Photon → skip` (QT-013); the full pool now enriches in one
+~80s run, **499/499 located, all with beach walk-times**. Cache also persists per-lookup now
+(QT-009), so runs are resumable. Walk-times reshuffled the ranking — top is a Luz moradia
+(70/100, undervalued −55%, €1,425); Vale do Lobo luxury villas score high on amenities but
+sink on value (+127%). App: run `.venv/bin/streamlit run app.py` (streamlit lives in the
+venv). NEXT: freguesia-level geocode precision (now safe with Photon), persist enriched
+fields back to the store, ORS routed walk-times.
+
+**2026-07-08 — first FULL live pull; pool is now real and district-wide.**
 Drove the logged-in Chrome across the whole Faro district (= the whole Algarve) on both
 portals: Idealista 6 pages (180 cards) + Imovirtual 10 apartamento + 3 moradia pages (443).
 Store is now **656 listings** (443 imovirtual / 213 idealista). Pipeline runs clean:
