@@ -23,8 +23,9 @@
 - [ ] **Price parse gap** — space-separated thousands (`299 000 €`, a sale listing that leaked in) → `None` and the item is skipped (harmless here, but `parse_price` should handle space thousands)
 - [x] **Streamlit app** — filters + sort modes + 👍/👎 (listing & area) → `preferences.json` (`app.py`)
 - [x] **Enrichment (Phase 3)**: Nominatim geocode → nearest-beach walk-time → ruralness; region features fetched once (295 beaches/106 towns) + cached; `--enrich` flag
+- [x] **Geocode concelho-first** (QT-011) — freguesia-first fired a network call per listing on names that often miss (150+), tripping OSM's bulk block; concelho-first is ~50 distinct, all resolve. Also fixed enrichment cache to persist per-lookup (QT-009).
+- [ ] **⭐ Second geocoder (now the priority)** — the real blocker for enriching the full 656-pool is that **public Nominatim rate-limits bulk geocoding**: even a gentle 44-locality pass only resolved ~5 (Portimão/Tavira "missed" despite resolving as one-off probes). Currently draining the ~50 localities via a **spaced auto-retry loop** (~30-min ScheduleWakeup, one gentle pass/run, durable cache), but a keyed/self-hosted geocoder (or Photon/geoapify fallback) would let a full run complete in one shot. Add it as an ordered fallback: Nominatim → second geocoder → skip.
 - [ ] **OpenRouteService key** → real routed walk-time instead of straight-line estimate (optional upgrade)
-- [ ] **Improve geocode hit-rate** — 3/13 missed on locality name; consider a second geocoder / better query fallback
 - [ ] **Persist enriched fields** back to the store so non-`--enrich` runs keep geo (currently enrichment is per-run + cached)
 - [ ] Photo-hash dedup (optional enhancement)
 - [x] `git init`, first commit (local; no GitHub remote yet)
