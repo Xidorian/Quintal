@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from quintal.photos import photo_path
 from quintal.pipeline import run
 from quintal.preferences import Preferences
 from quintal.render_html import _view
@@ -149,7 +150,12 @@ for v in rows:
     state = prefs.listing_state(v["id"])
     border = {"liked": "🟩", "disliked": "🟥"}.get(state, "")
     with st.container(border=True):
-        top, actions = st.columns([3, 1])
+        photo = photo_path(v["id"])
+        if photo.exists():
+            photo_col, top, actions = st.columns([1, 2.4, 1])
+            photo_col.image(str(photo), use_container_width=True)
+        else:
+            top, actions = st.columns([3, 1])
         with top:
             walk = (
                 f"🏖️ {v['walk_min']:.0f} min to beach"

@@ -17,3 +17,6 @@ data/blocklist.json
 
 # Build output
 out/
+
+# Downloaded listing thumbnails (re-fetchable from source_url)
+data/photos/
