@@ -27,6 +27,9 @@
 - [x] **Second geocoder fallback (QT-013)** — public Nominatim bulk-rate-limits us (a gentle 44-locality pass resolved only ~5). Added **Photon** (Komoot, OSM-based, no bulk limit) as an ordered fallback `Nominatim → Photon → skip` in `GeoClient.geocode`. Full 499-listing pool now enriches in one ~80s run, **499/499 located**. The spaced auto-retry loop is no longer needed.
 - [ ] **OpenRouteService key** → real routed walk-time instead of straight-line estimate (optional upgrade)
 - [ ] **Persist enriched fields** back to the store so non-`--enrich` runs keep geo (currently enrichment is per-run + cached)
+- [x] **Listing thumbnails (QT-018)** — `quintal.photos` fetches each listing's og:image from its detail page (fallback og:image → twitter:image → placeholder), downloads to `data/photos/<id>.jpg` (gitignored, resumable); app shows it per card. Run: `python -m quintal.photos`.
+- [ ] **Idealista thumbnails** — Idealista detail pages 403 to server-side fetches (DataDome), so QT-018 only covers Imovirtual (443/656). Get Idealista's via the logged-in browser session: either capture card `<img>` src during collection (6 page-loads, then test if the img CDN allows plain-HTTP download) or a browser pass over the 213 detail pages for og:image.
+- [ ] **Wire `image_url` into the extractors** so future collection captures a thumbnail directly (avoids the per-listing detail fetch for new pulls).
 - [ ] Photo-hash dedup (optional enhancement)
 - [x] `git init`, first commit (local; no GitHub remote yet)
 - [ ] Create `Xidorian/Quintal` on GitHub + push
