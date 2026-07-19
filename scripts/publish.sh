@@ -25,7 +25,7 @@ for f in "${FILES[@]}"; do
   [[ -f "$f" ]] || { echo "Missing $f — collect/enrich before publishing." >&2; exit 1; }
 done
 # Optional enrichment sidecars — shipped if present (absent before their first backfill run).
-for f in data/descriptions.json; do
+for f in data/descriptions.json data/delisted.json; do
   [[ -f "$f" ]] && FILES+=("$f")
 done
 

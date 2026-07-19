@@ -11,7 +11,7 @@ import json
 import os
 from pathlib import Path
 
-from . import descriptions
+from . import descriptions, liveness
 from .dedup import dedup
 from .enrich import default_chain, enrich_listings
 from .errors import AppError
@@ -51,6 +51,7 @@ def run(
     blocklist_path: str | Path = "data/blocklist.json",
     cache_path: str | Path = "data/enrichment_cache.json",
     descriptions_path: str | Path = descriptions.DEFAULT_PATH,
+    delisted_path: str | Path = liveness.DEFAULT_PATH,
 ) -> list[Listing]:
     raw_rows = load_jsonl(input_path)
 
@@ -75,6 +76,15 @@ def run(
         "normalized listings",
         extra={"event": "normalized", "ctx_kept": len(listings), "ctx_seen": len(raw_rows)},
     )
+
+    # Drop delisted listings (HTTP 410/404) before valuing — a gone listing wastes a click
+    # and its price shouldn't anchor the relative valuation.
+    listings, delisted_n = liveness.drop_delisted(listings, delisted_path)
+    if delisted_n:
+        log.info(
+            "dropped delisted listings",
+            extra={"event": "delisted_dropped", "ctx_dropped": delisted_n},
+        )
 
     # Purge short-term / holiday rentals and remember them (they poison the valuation pool).
     blocklist = Blocklist(blocklist_path)
