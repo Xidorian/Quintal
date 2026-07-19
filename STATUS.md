@@ -1,5 +1,17 @@
 # Status — Quintal
 
+**2026-07-19 (later) — QT-033/034/035: collection polish + real routed walk-times.**
+Cleared the last of the backlog. **QT-033** versioned the browser extraction into
+`collect/extract.js` (per-site selectors + accumulate/download helpers — one maintained file
+instead of re-pasted snippets). **QT-034** cracked the Idealista filter URL from Alexander's
+live UI: T4+ is the token `t4-t5` (there is no standalone `t4` — a bare `t4` soft-404s), so
+the adapter now generates the exact working `…/com-preco-max_1500,t2,t3,t4-t5/` and future
+pulls come pre-filtered. **QT-035** wired real **OpenRouteService** routed beach-walk times
+(key in local `.env`): routes cached in `enrichment_cache.json` and read even without a key,
+so the 140 routes computed once locally serve the hosted app with no key on Streamlit; routed
+times run +5.8 min median longer than straight-line (real paths). 96 tests green. Published.
+**Backlog fully drained** — all NEXT items done except intentionally-skipped optional ideas.
+
 **2026-07-19 (later) — QT-032: photo-hash dedup + Malia is live on the hosted app.**
 Malia confirmed the hosted app works for her. Added a guarded photo-hash dedup pass:
 `photo_hash.dhash` (difference hash) over each thumbnail, then a second dedup pass over the
