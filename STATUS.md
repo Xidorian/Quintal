@@ -1,5 +1,16 @@
 # Status — Quintal
 
+**2026-07-19 (later) — QT-032: photo-hash dedup + Malia is live on the hosted app.**
+Malia confirmed the hosted app works for her. Added a guarded photo-hash dedup pass:
+`photo_hash.dhash` (difference hash) over each thumbnail, then a second dedup pass over the
+attribute-canonicals (bucketed by bedrooms) that merges only when thumbnails match (Hamming
+≤6) AND bedrooms + price (±10%) corroborate. This catches cross-source dupes the attribute
+rule misses because the concelho was parsed differently (Almancil ⊂ Loulé) — **18 extra dupes
+collapsed** — while the price guard rejects two different flats sharing a generic photo (a real
+€700-vs-€1200 false pair). Measured the signal on real photos before building. Idealista
+thumbnails are `/blur/` previews so idealista↔imovirtual photo matches are partial. Pillow
+declared explicitly. 91 tests green. Published.
+
 **2026-07-19 (later) — QT-030: valuation robust to price outliers.**
 The in-sample hedonic ridge was distorted by extreme rents (the 2 sale/trespasse leaks +
 real luxury villas) — inflating expected rents so listings read falsely undervalued. Now the
