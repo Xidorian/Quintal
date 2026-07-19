@@ -43,7 +43,8 @@ path segment `…/faro-distrito/pagina-N`; adapter + tests updated, 51 green. Va
 quirk that its path drops comma-joined property types so apt/moradia are separate searches).
 Transport learned: accumulate pages in `localStorage`, then Blob-download from a **fresh tab**
 (Chrome blocks a 2nd auto-download in the same tab). **Not yet done:** per-listing amenity
-enrichment (Imovirtual cards have no description → yard/pets detection is title-only there),
+enrichment (Imovirtual *search cards* have no description → yard/pets detection is title-only
+there; the detail pages DO have a full "Descrição" — that's the fix, see QT-024 in NEXT.md),
 and `--enrich` geocoding hasn't been re-run on the big pool. See NEXT.md.
 
 **2026-07-01 — Phase 4 Streamlit app: the MVP is complete.**
