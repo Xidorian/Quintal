@@ -1,5 +1,15 @@
 # Status — Quintal
 
+**2026-07-19 (later) — QT-030: valuation robust to price outliers.**
+The in-sample hedonic ridge was distorted by extreme rents (the 2 sale/trespasse leaks +
+real luxury villas) — inflating expected rents so listings read falsely undervalued. Now the
+model fits only on log(rents) within 3.5 MADs of the median (`VALUATION_FIT_MAD_K`), while
+still scoring everyone; MAD-based so a lone extreme point is caught even in a small pool.
+Real-pool effect: ~18 listings moved out of a false-undervalued bias (undervalued 224→206,
+overpriced 186→204). Notably, RidgeCV already absorbs a *single* outlier — the QT-029 price
+fix was the bigger de-distorter; this cleans up the residual real-outlier skew. 3 tests, 86
+green. Published.
+
 **2026-07-19 (later) — fresh browser collection: pool refreshed, Idealista thumbnails, price bug fixed.**
 Drove logged-in Chrome for a full re-pull (11-day-stale pool, ~13% delisted). Idealista: 6
 pages of the plain Faro-district search (the `com-preco-max_…` filter URL still soft-404s —
