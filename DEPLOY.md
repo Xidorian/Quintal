@@ -13,9 +13,14 @@ in the same shared store as yours. Hosted on **Streamlit Community Cloud** (free
 
 ## One-time setup
 
-### 1. GitHub repo + remote
+### 1. GitHub repo + remote  ✅ done
+`Xidorian/Quintal` exists with `origin` wired, `main` + `deploy` pushed. It is **public** —
+Streamlit Community Cloud's free tier won't deploy from a private repo. No secrets are in the
+repo (the token lives only in Streamlit's Secrets box; `preferences.json` lives in the Gist,
+not the repo), so the exposure is the code + the collected listings/photos on `deploy`.
 ```bash
-gh repo create Xidorian/Quintal --private --source=. --remote=origin --push
+# for reference, how it was created:
+gh repo create Xidorian/Quintal --public --source=. --remote=origin --push
 ```
 
 ### 2. Shared preferences Gist
