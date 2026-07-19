@@ -1,5 +1,16 @@
 # Status — Quintal
 
+**2026-07-19 (later) — QT-026: liveness screen drops delisted listings.**
+Investigating QT-024's 57 "empty" descriptions revealed they were mostly HTTP **410 Gone** —
+delisted. A full probe found **56 of 443 Imovirtual listings (~13%) are gone** just 11 days
+after the 2026-07-08 pull: shown to Malia *and* their prices were polluting the relative
+valuation. Built `liveness.py` — probes detail pages, records 404/410 urls to a persistent
+`data/delisted.json`, and `pipeline.run` drops them right after normalize (before valuation),
+mirroring how `screening.py` purges short-term lets. Impact: 56 removed from the pool, **35
+fewer dead cards** in the ranked view (the rest were duplicates of live listings). Imovirtual-
+only (Idealista 403s server-side); resumable, polite, only deliberate 404/410 count (not
+transient 5xx). 76 tests green (5 new). Run: `python -m quintal.liveness`. Published to deploy.
+
 **2026-07-19 (later) — QT-024: Imovirtual descriptions enriched → real amenity signal.**
 The bulk of the pool (443 Imovirtual listings) was being scored on titles alone for
 amenities, because the search *cards* carry no description. Built `descriptions.py` to pull
