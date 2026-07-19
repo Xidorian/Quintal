@@ -70,6 +70,13 @@ cards, map each `ExtractedRow` via `collect/base.py: row_to_raw`, upsert idempot
 source URL into `data/listings.jsonl`. Then `screening.py` purges short-term/holiday (AL)
 rentals into a persistent blocklist, and the pipeline runs as normal.
 
+**Extraction is versioned** in `collect/extract.js` — inject it into the results tab, then
+`quintalReset(site)` (page 1) → `quintalExtract(site)` (each page, accumulates to
+`localStorage`) → `quintalDownload(site)` (once, **from a fresh tab**) → `--ingest`. The
+per-site card selectors live there as the single source of truth; fix them there when a
+portal moves them. Selectors validated live 2026-07-19 (idealista `article.item`;
+imovirtual `[data-cy="search.listing.organic"] article`).
+
 ### Transport (learned the hard way, 2026-07-01)
 Two dead ends: the `javascript_tool` return caps ~1 KB, and Chrome **Private Network Access**
 blocks a public page from POSTing to the local `receiver.py` (kept, but unreachable from
