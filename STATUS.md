@@ -1,5 +1,14 @@
 # Status — Quintal
 
+**2026-07-19 (later) — QT-027: per-listing geo persisted → geo on any run, no network.**
+Geo (lat/lng/beach-dist/walk-min/town-dist) was derived per-run from the locality-keyed
+enrichment cache, so a non-`--enrich` run had no geo and the hosted app re-derived it (a live
+geocode for any locality missing from cache). Added `enrich.save_geo`/`apply_geo`: a
+`data/geo.json` sidecar keyed by listing id. `pipeline` applies it first (zero network), then
+`--enrich` fills only genuinely new localities and re-persists. Result: a plain run now carries
+geo for all **436** listings (was 0), and Malia's app cold-starts with no network for known
+listings. Gap-fill only (fresh enrich wins). Shipped via `publish.sh`. 80 tests green (4 new).
+
 **2026-07-19 (later) — QT-026: liveness screen drops delisted listings.**
 Investigating QT-024's 57 "empty" descriptions revealed they were mostly HTTP **410 Gone** —
 delisted. A full probe found **56 of 443 Imovirtual listings (~13%) are gone** just 11 days
