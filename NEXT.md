@@ -32,4 +32,14 @@
 - [ ] **Wire `image_url` into the extractors** so future collection captures a thumbnail directly (avoids the per-listing detail fetch for new pulls).
 - [ ] Photo-hash dedup (optional enhancement)
 - [x] `git init`, first commit (local; no GitHub remote yet)
-- [ ] Create `Xidorian/Quintal` on GitHub + push
+
+## Sharing — hosting for Malia (QT-020..022, 2026-07-19)
+- [x] **Preferences backend abstraction** — `LocalFileBackend` (dev) + `GistBackend` (shared,
+  durable) behind the same `Preferences` API; env/`st.secrets`-selected, falls back to local.
+- [x] **Streamlit Cloud readiness** — `app.py` src-path shim + secrets bridge, `.streamlit/config.toml`.
+- [x] **`deploy` branch + `scripts/publish.sh`** — worktree-based data snapshot → Cloud redeploy.
+- [x] **Gist seeder** (`python -m quintal.seed_prefs`) + **`DEPLOY.md`** runbook. 5 new tests.
+- [ ] **Alexander to run the one-time setup** (all in DEPLOY.md): create `Xidorian/Quintal` remote
+  (`gh repo create … --push`); create the private Gist + fine-grained (Gists-only) token; seed it;
+  `scripts/publish.sh`; create the Streamlit Cloud app on branch `deploy` with the two secrets;
+  restrict sharing to Malia's email.

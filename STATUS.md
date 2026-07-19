@@ -1,5 +1,19 @@
 # Status — Quintal
 
+**2026-07-19 — shareable: Malia can use it hosted, with shared preferences.**
+Made Quintal deployable to **Streamlit Community Cloud** (free) so Malia opens a private URL
+on her laptop/phone — no install. Two pieces: (1) preferences got a **swappable backend** —
+`LocalFileBackend` (dev, unchanged) or a new `GistBackend` that reads/writes a private GitHub
+Gist, so the ephemeral-disk host keeps prefs *and* both of us share one live source of truth
+(env/`st.secrets`-selected; app falls back to the local file when unset). (2) A **`deploy`
+branch** carries the data snapshot (`main` keeps runtime data gitignored, as designed); a
+`scripts/publish.sh` worktree-based one-liner refreshes it → Cloud auto-redeploys. Also:
+`app.py` src-path shim so the package imports on Cloud (no `pip install -e .` there),
+`.streamlit/config.toml` theme, `python -m quintal.seed_prefs` to migrate existing 👍/👎 into
+the Gist, and a `DEPLOY.md` runbook. 65 tests green (5 new for the backends). **Not yet done
+(needs Alexander):** create the GitHub remote, the Gist + fine-grained token, and the Cloud
+app + Malia's viewer email — all scripted in DEPLOY.md.
+
 **2026-07-09 — enrichment complete on the full pool via a geocoder fallback.**
 Enrichment surfaced two real bugs (both fixed): Imovirtual concelho was collapsing to the
 district 'Faro' for all 443 (QT-010, also un-polluted valuation peer-groups), and geocoding
