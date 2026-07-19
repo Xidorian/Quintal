@@ -158,3 +158,11 @@ def test_row_to_raw_maps_image_url_to_photos():
     assert raw["photos"] == ["https://cdn/thumb.jpg"]
     # Absent capture → empty list (photos.py then falls back to the detail-page og:image).
     assert row_to_raw("imovirtual", {"url": "u"})["photos"] == []
+
+
+def test_imovirtual_price_strips_per_m2_and_tax():
+    from quintal.collect import imovirtual
+    # rent + price-per-m² concatenated in one cell → must read the rent, not 135016.88
+    assert imovirtual.to_raw({"price_text": "1350 €16,88 €/m²"})["price_eur_month"] == 1350.0
+    assert imovirtual.to_raw({"price_text": "950 €7,92 €/m²"})["price_eur_month"] == 950.0
+    assert imovirtual.to_raw({"price_text": "1300 €+ taxa: 0 €/mês"})["price_eur_month"] == 1300.0

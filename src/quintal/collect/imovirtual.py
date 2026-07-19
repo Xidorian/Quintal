@@ -58,7 +58,17 @@ def _parse_location(location: str | None) -> tuple[str | None, str | None]:
     return concelho, freguesia
 
 
+def _rent_only(price_text: str | None) -> str | None:
+    """Imovirtual's price cell concatenates rent + price-per-m² ('1350 €16,88 €/m²') and
+    sometimes a tax note ('1300 €+ taxa: 0 €/mês'). The monthly rent is everything before
+    the first euro sign — take that so parse_price doesn't read '135016.88'."""
+    if not price_text:
+        return price_text
+    return price_text.split("€", 1)[0]
+
+
 def to_raw(row: ExtractedRow) -> dict:
+    row = {**row, "price_text": _rent_only(row.get("price_text"))}
     raw = row_to_raw(name, row)
     # Override the shared (Idealista-shaped) concelho/freguesia derivation with the
     # Imovirtual-specific parse, so every listing doesn't collapse to concelho 'Faro'.
