@@ -50,7 +50,6 @@
 - [x] **Streamlit Cloud readiness** — `app.py` src-path shim + secrets bridge, `.streamlit/config.toml`.
 - [x] **`deploy` branch + `scripts/publish.sh`** — worktree-based data snapshot → Cloud redeploy.
 - [x] **Gist seeder** (`python -m quintal.seed_prefs`) + **`DEPLOY.md`** runbook. 5 new tests.
-- [ ] **Alexander to run the one-time setup** (all in DEPLOY.md): create `Xidorian/Quintal` remote
-  (`gh repo create … --push`); create the private Gist + fine-grained (Gists-only) token; seed it;
-  `scripts/publish.sh`; create the Streamlit Cloud app on branch `deploy` with the two secrets;
-  restrict sharing to Malia's email.
+- [x] **Hosting live (2026-07-19)** — repo on GitHub, Gist-backed shared prefs, Streamlit Cloud app
+  on branch `deploy`. **Malia confirmed it works for her.** Routine: `scripts/publish.sh` after each
+  collection → auto-redeploy.
