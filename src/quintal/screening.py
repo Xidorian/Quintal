@@ -43,10 +43,6 @@ SHORT_TERM_PATTERNS = [
     "book online",
     "booking.com",
     # seasonal / academic-year lets (not year-round) — we need a permanent home
-    "outubro a maio",
-    "outubro a junho",
-    "setembro a maio",
-    "setembro a junho",
     "a final de maio",
     "a final de junho",
     "epoca baixa",
@@ -54,6 +50,13 @@ SHORT_TERM_PATTERNS = [
 ]
 # Alojamento Local registration, e.g. "151506/AL".
 _AL_REGISTRATION = re.compile(r"\b\d{3,6}\s*/\s*al\b")
+# Academic-year / seasonal spans: "setembro a maio/junho/julho", "outubro a …", incl. the
+# year-interrupted variants a literal substring misses ("setembro 2025 a junho 2026"). Text
+# is folded (accent-stripped), so "até" reads "ate". Bounded by 15/10 non-period chars so it
+# tolerates a year but won't span across sentences and over-match a year-round listing.
+_SEASONAL_SPAN = re.compile(
+    r"\b(?:setembro|outubro)\b[^.\n]{0,15}\ba(?:te)?\b[^.\n]{0,10}\b(?:maio|junho|julho)\b"
+)
 
 
 def is_short_term(listing: Listing) -> str | None:
@@ -61,6 +64,8 @@ def is_short_term(listing: Listing) -> str | None:
     text = fold(f"{listing.title or ''} {listing.description_raw}")
     if _AL_REGISTRATION.search(text):
         return "AL registration number"
+    if _SEASONAL_SPAN.search(text):
+        return "seasonal month-range span"
     for pattern in SHORT_TERM_PATTERNS:
         if pattern in text:
             return f"matched '{pattern}'"

@@ -20,6 +20,17 @@ def test_detects_seasonal_academic_year():
     assert is_short_term(_l("Disponível de 5 de Setembro a final de Junho.")) is not None
 
 
+def test_detects_year_interrupted_seasonal_span():
+    # The gap that slipped through: a year between the two months.
+    assert is_short_term(_l("T2 Olhos Agua/Açoteias, Setembro 2025 a Junho 2026")) is not None
+    assert is_short_term(_l("Arrendamento de setembro 2025 até maio 2026.")) is not None
+
+
+def test_seasonal_span_does_not_overmatch_across_sentences():
+    # Months in separate sentences must not trip it (a year-round listing).
+    assert is_short_term(_l("Disponível em setembro. Piscina aberta até maio no verão.")) is None
+
+
 def test_passes_long_term_listing():
     assert is_short_term(_l("Moradia T2 com quintal para arrendamento anual.")) is None
 
