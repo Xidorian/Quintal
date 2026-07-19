@@ -1,5 +1,13 @@
 # Next — Quintal
 
+## ▶ Standing routine — weekly re-collection (every Monday through 2026-10-26)
+Keep Malia's pool fresh (listings decay ~13%/11 days). Browser-session based, so a **new
+interactive session drives it** — full step-by-step in **[RECOLLECT.md](RECOLLECT.md)**.
+Remaining Mondays: 07-20, 07-27, 08-03, 08-10, 08-17, 08-24, 08-31, 09-07, 09-14, 09-21,
+09-28, 10-05, 10-12, 10-19, 10-26. Reassess after October.
+
+---
+
 - [x] Agree stack (Python) + write `python` stack profile
 - [x] Scaffold four-file project + package layout
 - [x] `Listing` schema (Pydantic v2)
