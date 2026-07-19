@@ -1,5 +1,22 @@
 # Status — Quintal
 
+**2026-07-19 (later) — fresh browser collection: pool refreshed, Idealista thumbnails, price bug fixed.**
+Drove logged-in Chrome for a full re-pull (11-day-stale pool, ~13% delisted). Idealista: 6
+pages of the plain Faro-district search (the `com-preco-max_…` filter URL still soft-404s —
+price/beds filtered post-collection); **captured card `<img>` src → Idealista thumbnails at
+last** (QT-028 paid off). Imovirtual: apt (237) + moradia (46) via the working priceMax+rooms
+filter. Transport: in-page JS accumulates cards into `localStorage`, one Blob download per
+site from a **fresh tab** (2nd download in the same tab is Chrome-blocked — the documented
+gotcha bit the Imovirtual download until I opened a new tab). Store now **841** (333 idealista
+/ 508 imovirtual). Ran the maintenance passes on the fresh pool: descriptions +56, liveness
++9 delisted (65 total), photos +242 (661 on disk, incl. Idealista). **QT-029 bug caught live:**
+Imovirtual's price cell concatenates rent + €/m² (`1350 €16,88 €/m²`) so parse read 135016.88
+— 282/283 new listings had absurd prices; fixed in the adapter, re-ingested, and **"fair"
+valuations jumped 47→134** (de-distorted). Pipeline: 569 ranked. Published to deploy.
+Follow-ups: valuation-outlier robustness (old luxury villas + 2 sale/trespasse leaks at
+€225k–299k still skew the pool — app-filtered but pollute bands); a screening gap
+("Setembro 2025 a Junho 2026" seasonal slips the `setembro a junho` pattern).
+
 **2026-07-19 (later) — QT-027: per-listing geo persisted → geo on any run, no network.**
 Geo (lat/lng/beach-dist/walk-min/town-dist) was derived per-run from the locality-keyed
 enrichment cache, so a non-`--enrich` run had no geo and the hosted app re-derived it (a live
