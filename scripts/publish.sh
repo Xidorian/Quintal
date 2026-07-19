@@ -24,6 +24,10 @@ FILES=(data/listings.jsonl data/enrichment_cache.json data/blocklist.json)
 for f in "${FILES[@]}"; do
   [[ -f "$f" ]] || { echo "Missing $f — collect/enrich before publishing." >&2; exit 1; }
 done
+# Optional enrichment sidecars — shipped if present (absent before their first backfill run).
+for f in data/descriptions.json; do
+  [[ -f "$f" ]] && FILES+=("$f")
+done
 
 cleanup() { git worktree remove --force "$WT" 2>/dev/null || true; }
 trap cleanup EXIT

@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 
+from . import descriptions
 from .dedup import dedup
 from .enrich import default_chain, enrich_listings
 from .errors import AppError
@@ -49,8 +50,18 @@ def run(
     enrich: bool = False,
     blocklist_path: str | Path = "data/blocklist.json",
     cache_path: str | Path = "data/enrichment_cache.json",
+    descriptions_path: str | Path = descriptions.DEFAULT_PATH,
 ) -> list[Listing]:
     raw_rows = load_jsonl(input_path)
+
+    # Layer in detail-page descriptions (Imovirtual cards have none) before deriving
+    # yard/bathtub/pets from text. No-op when the sidecar is absent.
+    enriched = descriptions.apply(raw_rows, descriptions_path)
+    if enriched:
+        log.info(
+            "applied detail descriptions",
+            extra={"event": "descriptions_applied", "ctx_enriched": enriched},
+        )
 
     listings: list[Listing] = []
     for raw in raw_rows:
