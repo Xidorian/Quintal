@@ -23,6 +23,10 @@ def test_price_english_format():
 def test_price_plain_and_spaced():
     assert parse_price("950") == 950.0
     assert parse_price("1 200 €") == 1200.0
+    # Space-separated thousands, incl. the (narrow) no-break spaces EU sites actually emit.
+    assert parse_price("299 000 €") == 299000.0
+    assert parse_price("299 000 €") == 299000.0  # nbsp
+    assert parse_price("299 000 €") == 299000.0  # narrow nbsp
 
 
 def test_area_extracts_before_m2():
