@@ -46,6 +46,13 @@ MIN_POOL_FOR_MODEL = 40  # below this the hedonic model overfits → peer-median
 PEER_MIN_FOR_MEDIUM = 5  # comparables in the peer bucket for a "medium" confidence
 PEER_MIN_FOR_HIGH = 10
 
+# --- Valuation fit robustness ---
+# The hedonic model is fit only on rents within this many MADs of the median log(rent), so
+# parse-error / sale-leak / luxury outliers don't distort the coefficients. All listings are
+# still SCORED from the fitted model — trimming affects the fit set only. MAD-based (not a
+# fixed percentile) so a single extreme outlier is caught even in a small pool. 0 disables it.
+VALUATION_FIT_MAD_K = 3.5
+
 # --- Dedup tolerances ---
 DEDUP_SIZE_TOL = 0.05
 DEDUP_PRICE_TOL = 0.05

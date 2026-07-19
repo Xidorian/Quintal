@@ -106,6 +106,25 @@ def _hedonic_expected(pool: list[Listing]) -> dict[str, float]:
     cat = ["property_type", "concelho"]
     y = np.log(df["price"].to_numpy())
 
+    # Fit only on the robust central bulk of log(rents) so outliers (parse errors, sale/
+    # trespasse leaks, luxury villas) don't distort the coefficients — everyone is still
+    # predicted. MAD-based so a lone extreme point is caught even in a small pool.
+    fit = np.ones(len(df), dtype=bool)
+    k = config.VALUATION_FIT_MAD_K
+    if k and len(df) > config.MIN_POOL_FOR_MODEL:
+        med = float(np.median(y))
+        mad = float(np.median(np.abs(y - med))) * 1.4826  # → ~σ for a normal distribution
+        if mad > 0:
+            candidate = np.abs(y - med) <= k * mad
+            if int(candidate.sum()) >= config.MIN_POOL_FOR_MODEL:  # don't over-trim a thin pool
+                fit = candidate
+    trimmed = int((~fit).sum())
+    if trimmed:
+        log.info(
+            "trimmed outliers from valuation fit",
+            extra={"event": "valuation_trim", "ctx_trimmed": trimmed, "ctx_fit": int(fit.sum())},
+        )
+
     pre = ColumnTransformer(
         [
             (
@@ -119,8 +138,8 @@ def _hedonic_expected(pool: list[Listing]) -> dict[str, float]:
         ]
     )
     model = Pipeline([("pre", pre), ("ridge", RidgeCV(alphas=np.logspace(-3, 3, 13)))])
-    model.fit(df[num + cat], y)
-    expected = np.exp(model.predict(df[num + cat]))
+    model.fit(df.loc[fit, num + cat], y[fit])          # fit on the trimmed bulk…
+    expected = np.exp(model.predict(df[num + cat]))    # …but predict for every listing
     return {row_id: float(exp) for row_id, exp in zip(df["id"], expected, strict=True)}
 
 
