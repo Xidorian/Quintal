@@ -8,6 +8,10 @@ __pycache__/
 
 # Secrets & config
 .env
+.streamlit/secrets.toml
+
+# Publish worktree (data snapshot staged for the deploy branch)
+.deploy-worktree/
 
 # Runtime data (collected listings, prefs, caches) — keep sample fixtures only
 data/listings.jsonl

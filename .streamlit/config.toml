@@ -1,0 +1,10 @@
+# Quintal — Streamlit config (committed; safe, no secrets here).
+[theme]
+primaryColor = "#2e7d32"          # garden green — the yard-for-Luna motif
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f2f7f2"
+textColor = "#1b2419"
+font = "sans serif"
+
+[browser]
+gatherUsageStats = false

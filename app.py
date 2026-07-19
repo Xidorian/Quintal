@@ -9,17 +9,43 @@ Run:  streamlit run app.py
 
 from __future__ import annotations
 
+import os
+import sys
+from pathlib import Path
+
+# Streamlit Cloud pip-installs requirements.txt but does not `pip install -e .`, so make
+# the src-layout package importable both there and in a local venv.
+sys.path.insert(0, str(Path(__file__).parent / "src"))
+
 import streamlit as st
 
 from quintal.photos import photo_path
 from quintal.pipeline import run
-from quintal.preferences import Preferences
+from quintal.preferences import GistBackend, Preferences
 from quintal.render_html import _view
 
 LISTINGS = "data/listings.jsonl"
 PREFS_PATH = "data/preferences.json"
 
 st.set_page_config(page_title="Quintal — Algarve rentals", page_icon="🏡", layout="wide")
+
+
+def _secret(name: str) -> str | None:
+    """Read a secret from st.secrets (hosted) first, then the environment (local)."""
+    try:
+        if name in st.secrets:
+            return str(st.secrets[name])
+    except Exception:  # no secrets.toml at all → fall through to env
+        pass
+    return os.getenv(name)
+
+
+def _load_prefs() -> Preferences:
+    """Shared Gist store when configured, else the local JSON file."""
+    gist_id, token = _secret("QUINTAL_GIST_ID"), _secret("QUINTAL_GITHUB_TOKEN")
+    if gist_id and token:
+        return Preferences(backend=GistBackend(gist_id, token))
+    return Preferences(PREFS_PATH)
 
 
 @st.cache_data(show_spinner="Screening, enriching, valuing…")
@@ -48,7 +74,11 @@ def pets_badge(v: dict) -> str:
 
 
 # --- Load ---------------------------------------------------------------------
-prefs = Preferences(PREFS_PATH)
+try:
+    prefs = _load_prefs()
+except RuntimeError as exc:  # shared store unreachable — don't proceed and risk clobbering it
+    st.error(f"Couldn't reach the shared preferences store: {exc}")
+    st.stop()
 st.sidebar.title("🏡 Quintal")
 st.sidebar.caption("Algarve rental finder — for Malia & Luna")
 
