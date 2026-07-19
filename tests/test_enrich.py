@@ -165,3 +165,49 @@ def test_apply_geo_does_not_overwrite_fresh(tmp_path):
 
 def test_apply_geo_noop_without_file(tmp_path):
     assert apply_geo([Listing(source_url="a", price_eur_month=1)], tmp_path / "absent.json") == 0
+
+
+# --- ORS routed walk-time (QT-035) ---
+def test_walk_minutes_uses_ors_when_key_and_dest(tmp_path):
+    c = GeoClient(tmp_path / "c.json", ors_key="k")
+
+    class _R:
+        def json(self):
+            return {"routes": [{"summary": {"duration": 600}}]}  # 600s → 10.0 min
+
+    c.session.post = lambda *a, **k: _R()
+    assert c.walk_minutes(37.1, -8.2, 800, dest=(37.11, -8.21)) == 10.0
+
+    # Second call is served from cache — must not hit the network again.
+    def _boom(*a, **k):
+        raise AssertionError("routed result should be cached")
+
+    c.session.post = _boom
+    assert c.walk_minutes(37.1, -8.2, 800, dest=(37.11, -8.21)) == 10.0
+
+
+def test_walk_minutes_falls_back_on_ors_failure(tmp_path):
+    import requests
+    c = GeoClient(tmp_path / "c.json", ors_key="k")
+
+    def _fail(*a, **k):
+        raise requests.RequestException("down")
+
+    c.session.post = _fail
+    assert c.walk_minutes(37.1, -8.2, 1200, dest=(37.11, -8.21)) == round(
+        estimate_walk_minutes(1200), 1
+    )
+
+
+def test_walk_minutes_estimate_without_key(tmp_path):
+    c = GeoClient(tmp_path / "c.json")  # no ORS key → straight-line estimate
+    assert c.walk_minutes(37.1, -8.2, 1200, dest=(37.11, -8.21)) == round(
+        estimate_walk_minutes(1200), 1
+    )
+
+
+def test_walk_minutes_uses_cached_route_without_key(tmp_path):
+    # The hosted app has no ORS key but ships the route cache — it must still get routed times.
+    c = GeoClient(tmp_path / "c.json")  # no key
+    c.cache.set(c._walk_key(37.1, -8.2, 37.11, -8.21), 12.3)
+    assert c.walk_minutes(37.1, -8.2, 800, dest=(37.11, -8.21)) == 12.3

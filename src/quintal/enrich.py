@@ -24,6 +24,7 @@ log = get_logger()
 
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 PHOTON_URL = "https://photon.komoot.io/api/"  # OSM-based fallback; no bulk rate-limit
+ORS_WALK_URL = "https://api.openrouteservice.org/v2/directions/foot-walking"
 OVERPASS_ENDPOINTS = (
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
@@ -87,12 +88,20 @@ class GeoClient:
         self.session = requests.Session()
         self.ors_key = ors_key
         self._last_call = 0.0
+        self._last_ors = 0.0
 
     def _throttle(self) -> None:
         dt = time.monotonic() - self._last_call
         if dt < 1.0:
             time.sleep(1.0 - dt)
         self._last_call = time.monotonic()
+
+    def _throttle_ors(self) -> None:
+        # ORS free tier: 40 directions/min → keep a ≥1.6s gap.
+        dt = time.monotonic() - self._last_ors
+        if dt < 1.6:
+            time.sleep(1.6 - dt)
+        self._last_ors = time.monotonic()
 
     def geocode(self, query: str) -> tuple[float, float] | None:
         key = f"geo:{query}"
@@ -179,25 +188,63 @@ class GeoClient:
         self.cache.save()  # persist per-lookup so a kill/timeout mid-run keeps progress
         return points
 
-    def _nearest_m(self, lat: float, lng: float, kind: str) -> float | None:
+    def _nearest(
+        self, lat: float, lng: float, kind: str
+    ) -> tuple[float, tuple[float, float]] | None:
+        """(distance_m, (lat, lng)) of the nearest `kind` point, or None."""
         points = self.region_points(kind)
         if not points:
             return None
-        return min(haversine(lat, lng, plat, plng) for plat, plng in points)
+        plat, plng = min(points, key=lambda p: haversine(lat, lng, p[0], p[1]))
+        return haversine(lat, lng, plat, plng), (plat, plng)
 
-    def nearest_beach_m(self, lat: float, lng: float) -> float | None:
-        return self._nearest_m(lat, lng, "beach")
+    def nearest_beach(self, lat: float, lng: float) -> tuple[float, tuple[float, float]] | None:
+        return self._nearest(lat, lng, "beach")
 
     def nearest_town_m(self, lat: float, lng: float) -> float | None:
-        return self._nearest_m(lat, lng, "town")
+        found = self._nearest(lat, lng, "town")
+        return found[0] if found else None
 
-    def walk_minutes(self, lat: float, lng: float, dist_m: float) -> float:
-        """Real routed minutes if an ORS key is set, else a straight-line estimate."""
-        if not self.ors_key:
-            return round(estimate_walk_minutes(dist_m), 1)
-        # ORS needs the destination point; we only cached distance, so estimate stays the
-        # default. (A future step can cache the beach coords and route to them.)
+    @staticmethod
+    def _walk_key(lat: float, lng: float, dlat: float, dlng: float) -> str:
+        return f"walk:{round(lat, 4)},{round(lng, 4)}>{round(dlat, 4)},{round(dlng, 4)}"
+
+    def walk_minutes(
+        self, lat: float, lng: float, dist_m: float, dest: tuple[float, float] | None = None
+    ) -> float:
+        """Foot-walking minutes to `dest`: a cached routed value (used even without a key, so
+        routes computed once and shipped in the cache serve the hosted app), else a fresh ORS
+        route when a key is set, else a straight-line estimate. ORS failures fall back too."""
+        if dest is not None:
+            key = self._walk_key(lat, lng, dest[0], dest[1])
+            cached = self.cache.get(key)
+            if cached is not None:
+                return cached
+            if self.ors_key:
+                routed = self._ors_walk_minutes(key, lat, lng, dest[0], dest[1])
+                if routed is not None:
+                    return routed
         return round(estimate_walk_minutes(dist_m), 1)
+
+    def _ors_walk_minutes(
+        self, key: str, lat: float, lng: float, dlat: float, dlng: float
+    ) -> float | None:
+        """Fetch routed foot-walking minutes from ORS and cache under `key`."""
+        self._throttle_ors()
+        try:
+            resp = self.session.post(
+                ORS_WALK_URL,
+                json={"coordinates": [[lng, lat], [dlng, dlat]]},  # ORS wants [lon, lat]
+                headers={"Authorization": self.ors_key},
+                timeout=20,
+            )
+            duration = resp.json()["routes"][0]["summary"]["duration"]  # seconds
+        except (requests.RequestException, KeyError, IndexError, TypeError, ValueError):
+            return None  # unreachable / rate-limited / no route → caller uses the estimate
+        minutes = round(duration / 60, 1)
+        self.cache.set(key, minutes)
+        self.cache.save()  # persist per-lookup so a kill mid-run keeps progress
+        return minutes
 
     def save(self) -> None:
         self.cache.save()
@@ -254,10 +301,13 @@ class BeachEnricher:
     def apply(self, listing: Listing) -> None:
         if listing.lat is None or listing.lng is None:
             return
-        dist = self.client.nearest_beach_m(listing.lat, listing.lng)
-        if dist is not None:
+        found = self.client.nearest_beach(listing.lat, listing.lng)
+        if found is not None:
+            dist, dest = found
             listing.dist_beach_m = round(dist)
-            listing.walk_min_beach = self.client.walk_minutes(listing.lat, listing.lng, dist)
+            listing.walk_min_beach = self.client.walk_minutes(
+                listing.lat, listing.lng, dist, dest
+            )
 
 
 class RuralnessEnricher:
