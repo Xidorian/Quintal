@@ -54,8 +54,18 @@ def test_concelho_is_last_location_token():
 def test_idealista_url_has_price_and_bedroom_filters():
     urls = idealista.search_urls(SearchParams(max_price=1500, min_beds=2, max_beds=4))
     assert "faro-distrito" in urls[0]  # canonical "algarve" → Idealista's slug
-    assert "com-preco-max_1500" in urls[0]
-    assert ",t2,t3,t4" in urls[0]
+    # Real live format (2026-07-19): T4+ is the token t4-t5; there is no standalone t4.
+    assert urls[0].endswith("com-preco-max_1500,t2,t3,t4-t5/")
+
+
+def test_idealista_bedroom_tokens_map_to_typology_buckets():
+    assert idealista.search_urls(SearchParams(max_price=1500, min_beds=2, max_beds=3))[0].endswith(
+        "com-preco-max_1500,t2,t3/"
+    )
+    # A T4-only request still uses the T4+ bucket (no standalone t4 exists).
+    assert idealista.search_urls(SearchParams(max_price=1200, min_beds=4, max_beds=4))[0].endswith(
+        "com-preco-max_1200,t4-t5/"
+    )
 
 
 def test_imovirtual_url_has_params_and_own_region_slug():
