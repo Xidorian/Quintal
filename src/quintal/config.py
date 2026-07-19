@@ -56,3 +56,9 @@ VALUATION_FIT_MAD_K = 3.5
 # --- Dedup tolerances ---
 DEDUP_SIZE_TOL = 0.05
 DEDUP_PRICE_TOL = 0.05
+# Photo-hash dedup (QT-032): a second pass that catches dupes the attribute rule misses
+# because the concelho was parsed differently across sites (freguesia vs concelho). Merge
+# only when the thumbnails match closely AND bedrooms + price corroborate — a shared generic
+# photo alone must not merge two different flats.
+DEDUP_PHASH_MAX_DIST = 6  # max dHash Hamming distance to consider two photos "the same"
+DEDUP_PHASH_PRICE_TOL = 0.10  # rents must be within this for a photo match to merge

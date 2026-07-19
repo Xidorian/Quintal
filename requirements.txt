@@ -6,3 +6,4 @@ jinja2>=3.1
 python-dotenv>=1.0
 streamlit>=1.33
 requests>=2.31
+pillow>=10  # perceptual photo-hash dedup (quintal.photo_hash)
