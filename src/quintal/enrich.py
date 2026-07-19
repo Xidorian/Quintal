@@ -281,6 +281,64 @@ def default_chain(
     return client, [GeocodeEnricher(client), BeachEnricher(client), RuralnessEnricher(client)]
 
 
+# --- Per-listing geo persistence (QT-027) ----------------------------------------------
+# The enrichment_cache is keyed by locality; this sidecar persists each listing's *resolved*
+# geo by id, so any run (even without --enrich) carries geo, and the hosted app needs no
+# network for already-known listings. Layers on top of listings.jsonl (raw-collected truth).
+
+DEFAULT_GEO_PATH = "data/geo.json"
+GEO_FIELDS = ("lat", "lng", "dist_beach_m", "walk_min_beach", "dist_town_m")
+
+
+def _load_geo(path: str | Path) -> dict[str, dict]:
+    p = Path(path)
+    if not p.exists():
+        return {}
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+
+
+def apply_geo(listings: list[Listing], path: str | Path = DEFAULT_GEO_PATH) -> int:
+    """Fill missing geo fields on listings from the persisted sidecar (keyed by id).
+
+    Only fills gaps — never overwrites geo already set by a fresh enrich this run. No-op
+    when the sidecar is absent. Returns how many listings were touched.
+    """
+    store = _load_geo(path)
+    if not store:
+        return 0
+    touched = 0
+    for listing in listings:
+        geo = store.get(listing.ensure_id())
+        if not geo:
+            continue
+        for field in GEO_FIELDS:
+            if geo.get(field) is not None and getattr(listing, field) is None:
+                setattr(listing, field, geo[field])
+        touched += 1
+    return touched
+
+
+def save_geo(listings: list[Listing], path: str | Path = DEFAULT_GEO_PATH) -> int:
+    """Persist each located listing's geo fields by id, merging into any existing sidecar.
+
+    Returns how many located listings were written.
+    """
+    store = _load_geo(path)
+    saved = 0
+    for listing in listings:
+        if listing.lat is None or listing.lng is None:
+            continue
+        store[listing.ensure_id()] = {field: getattr(listing, field) for field in GEO_FIELDS}
+        saved += 1
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(store, ensure_ascii=False, indent=2), encoding="utf-8")
+    return saved
+
+
 # --- Runner ----------------------------------------------------------------------------
 
 

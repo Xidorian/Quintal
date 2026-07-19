@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 
 from . import descriptions, liveness
+from . import enrich as enrich_mod
 from .dedup import dedup
 from .enrich import default_chain, enrich_listings
 from .errors import AppError
@@ -52,6 +53,7 @@ def run(
     cache_path: str | Path = "data/enrichment_cache.json",
     descriptions_path: str | Path = descriptions.DEFAULT_PATH,
     delisted_path: str | Path = liveness.DEFAULT_PATH,
+    geo_path: str | Path = enrich_mod.DEFAULT_GEO_PATH,
 ) -> list[Listing]:
     raw_rows = load_jsonl(input_path)
 
@@ -97,15 +99,27 @@ def run(
 
     listings = dedup(listings)
 
+    # Persisted geo first (zero network): fills already-known listings so a plain run keeps
+    # geo and an enrich run only hits the network for genuinely new localities.
+    applied = enrich_mod.apply_geo(listings, geo_path)
+    if applied:
+        log.info("applied persisted geo", extra={"event": "geo_applied", "ctx_applied": applied})
+
     if enrich:
         ors_key = os.environ.get("OPENROUTESERVICE_API_KEY")
         client, chain = default_chain(cache_path, ors_key=ors_key)
         enrich_listings(listings, chain)
         client.save()
+        saved = enrich_mod.save_geo(listings, geo_path)  # persist for future/plain runs
         located = sum(1 for listing in listings if listing.lat is not None)
         log.info(
             "enriched listings",
-            extra={"event": "enriched", "ctx_located": located, "ctx_total": len(listings)},
+            extra={
+                "event": "enriched",
+                "ctx_located": located,
+                "ctx_total": len(listings),
+                "ctx_geo_saved": saved,
+            },
         )
 
     value_pool(listings)

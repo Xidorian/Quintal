@@ -19,6 +19,7 @@ data/preferences.json
 data/enrichment_cache.json
 data/descriptions.json
 data/delisted.json
+data/geo.json
 data/blocklist.json
 
 # Build output

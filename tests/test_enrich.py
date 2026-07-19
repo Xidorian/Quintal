@@ -124,3 +124,44 @@ def test_beach_sets_distance_and_walk_estimate(tmp_path):
     BeachEnricher(client).apply(listing)
     assert listing.dist_beach_m is not None and 900 < listing.dist_beach_m < 1100
     assert listing.walk_min_beach is not None and listing.walk_min_beach > 0
+
+
+# --- Per-listing geo persistence (QT-027) ---
+from quintal.enrich import apply_geo, save_geo  # noqa: E402
+
+
+def test_save_and_apply_geo_roundtrip(tmp_path):
+    path = tmp_path / "geo.json"
+    src = Listing(
+        source_url="https://x/1", price_eur_month=1000,
+        lat=37.1, lng=-8.2, dist_beach_m=500, walk_min_beach=7.0, dist_town_m=1200,
+    )
+    src.ensure_id()
+    assert save_geo([src], path) == 1
+
+    # A fresh, un-enriched copy (same id via same source_url) gets geo from the sidecar.
+    fresh = Listing(source_url="https://x/1", price_eur_month=1000)
+    assert apply_geo([fresh], path) == 1
+    assert fresh.walk_min_beach == 7.0 and fresh.dist_beach_m == 500 and fresh.lat == 37.1
+
+
+def test_save_geo_skips_unlocated(tmp_path):
+    path = tmp_path / "geo.json"
+    located = Listing(source_url="a", price_eur_month=1, lat=37.0, lng=-8.0)
+    unlocated = Listing(source_url="b", price_eur_month=1)
+    assert save_geo([located, unlocated], path) == 1
+    import json
+    assert list(json.load(open(path)).keys()) == [located.ensure_id()]
+
+
+def test_apply_geo_does_not_overwrite_fresh(tmp_path):
+    path = tmp_path / "geo.json"
+    stale = Listing(source_url="a", price_eur_month=1, lat=1.0, lng=2.0, walk_min_beach=99.0)
+    save_geo([stale], path)
+    fresh = Listing(source_url="a", price_eur_month=1, lat=1.0, lng=2.0, walk_min_beach=5.0)
+    apply_geo([fresh], path)
+    assert fresh.walk_min_beach == 5.0  # freshly-enriched value wins over the sidecar
+
+
+def test_apply_geo_noop_without_file(tmp_path):
+    assert apply_geo([Listing(source_url="a", price_eur_month=1)], tmp_path / "absent.json") == 0
