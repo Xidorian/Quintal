@@ -1,5 +1,18 @@
 # Status — Quintal
 
+**2026-07-19 (later) — QT-024: Imovirtual descriptions enriched → real amenity signal.**
+The bulk of the pool (443 Imovirtual listings) was being scored on titles alone for
+amenities, because the search *cards* carry no description. Built `descriptions.py` to pull
+each detail page's real owner text — which lives in the page's `__NEXT_DATA__` JSON, not the
+visible description div (empty server-side) nor og:description/JSON-LD (both auto-generated
+boilerplate). Extractor takes the longest non-boilerplate `"description"` value, unescapes,
+strips tags. Cached to a `data/descriptions.json` sidecar keyed by source_url (survives
+re-collection; `pipeline.run` layers it into `description_raw`, so the app benefits too).
+Backfill: **386/443 (87%)** enriched (57 empty), Idealista's 213 skipped (DataDome 403s).
+Impact on the Imovirtual set: yard **7→75**, bathtub **0→16**, pets-known **0→178** — the
+derivation went from nearly blind to working, and it feeds the yard-weighted ranking. 71
+tests green (6 new). Next: `scripts/publish.sh` so Malia's app gets the sharper flags.
+
 **2026-07-19 — shareable: Malia can use it hosted, with shared preferences.**
 Made Quintal deployable to **Streamlit Community Cloud** (free) so Malia opens a private URL
 on her laptop/phone — no install. Two pieces: (1) preferences got a **swappable backend** —
