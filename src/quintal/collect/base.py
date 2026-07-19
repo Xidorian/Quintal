@@ -33,6 +33,7 @@ class ExtractedRow(TypedDict, total=False):
     location: str  # e.g. "Almancil, Loulé"
     description: str
     is_private: bool
+    image_url: str  # card <img> src captured during collection — thumbnail w/o a detail fetch
 
 
 class Adapter(Protocol):
@@ -88,4 +89,7 @@ def row_to_raw(source: str, row: ExtractedRow) -> dict:
         "bathrooms": parse_bathrooms(row.get("rooms_text")),
         "concelho": concelho_from_location(location),
         "freguesia": freguesia_from_location(location),
+        # A card-captured thumbnail url (if any) → photos[0]; photos.py downloads it directly
+        # instead of fetching the detail page for og:image (and it's the Idealista thumbnail path).
+        "photos": [row["image_url"]] if row.get("image_url") else [],
     }

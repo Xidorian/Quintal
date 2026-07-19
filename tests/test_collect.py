@@ -150,3 +150,11 @@ def test_receiver_ingest_rows_maps_and_persists(tmp_path):
     assert (added, updated) == (1, 0)
     stored = store.load(path)[("url", "https://www.idealista.pt/imovel/9")]
     assert stored["price_eur_month"] == 1200.0 and stored["source"] == "idealista"
+
+
+def test_row_to_raw_maps_image_url_to_photos():
+    from quintal.collect.base import row_to_raw
+    raw = row_to_raw("imovirtual", {"url": "u", "image_url": "https://cdn/thumb.jpg"})
+    assert raw["photos"] == ["https://cdn/thumb.jpg"]
+    # Absent capture → empty list (photos.py then falls back to the detail-page og:image).
+    assert row_to_raw("imovirtual", {"url": "u"})["photos"] == []

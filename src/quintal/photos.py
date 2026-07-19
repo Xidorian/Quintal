@@ -52,21 +52,32 @@ def photo_path(listing_id: str, photos_dir: str | Path = DEFAULT_DIR) -> Path:
 
 
 def fetch_one(
-    listing_id: str, source_url: str, session: requests.Session, photos_dir: str | Path
+    listing_id: str,
+    source_url: str,
+    session: requests.Session,
+    photos_dir: str | Path,
+    *,
+    image_url: str | None = None,
 ) -> str:
-    """Fetch+store one listing's thumbnail. Returns a status: cached|ok|blocked|no-image|error."""
+    """Fetch+store one listing's thumbnail. Returns a status: cached|ok|blocked|no-image|error.
+
+    Prefers a card-captured ``image_url`` (from collection) — downloading it directly skips the
+    detail-page fetch entirely, and is the only route for Idealista (whose detail pages 403).
+    """
     out = photo_path(listing_id, photos_dir)
     if out.exists():
         return "cached"
-    try:
-        resp = session.get(source_url, timeout=20)
-    except requests.RequestException:
-        return "error"
-    if resp.status_code == 403:
-        return "blocked"  # DataDome etc. — needs the browser session
-    if resp.status_code != 200:
-        return "error"
-    img_url = og_image_url(resp.text)
+    img_url = image_url
+    if not img_url:  # no captured thumbnail — fall back to the detail page's og:image
+        try:
+            resp = session.get(source_url, timeout=20)
+        except requests.RequestException:
+            return "error"
+        if resp.status_code == 403:
+            return "blocked"  # DataDome etc. — needs a captured image_url or the browser session
+        if resp.status_code != 200:
+            return "error"
+        img_url = og_image_url(resp.text)
     if not img_url:
         return "no-image"
     try:
@@ -95,7 +106,10 @@ def backfill(input_path: str, photos_dir: str | Path = DEFAULT_DIR, delay: float
         if not listing.source_url:
             stats["no-url"] = stats.get("no-url", 0) + 1
             continue
-        status = fetch_one(listing.listing_id, listing.source_url, session, photos_dir)
+        captured = listing.photos[0] if listing.photos else None
+        status = fetch_one(
+            listing.listing_id, listing.source_url, session, photos_dir, image_url=captured
+        )
         stats[status] = stats.get(status, 0) + 1
         if status in ("ok", "no-image"):
             time.sleep(delay)  # pace only real page fetches; a fast 403/cached needs no wait
