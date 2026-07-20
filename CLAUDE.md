@@ -93,3 +93,6 @@ returns the whole thing in one call (readability picks the sole article). Bulk, 
 
 ## Licensing
 Proprietary / all rights reserved (private personal tool).
+
+## Docs
+@~/.claude/conventions/four-file.md
