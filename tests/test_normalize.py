@@ -53,6 +53,32 @@ def test_pets_negative_permitimos_variant():
     assert listing.pets.value == "no"
 
 
+def test_pets_reversed_deny_beats_noun_positive():
+    # Real imovirtual attribute label "Animais de estimação não permitido": the noun
+    # "animais de estimacao" is a positive keyword, so the negated verb after it must win.
+    for desc in (
+        "Animais de estimação não permitido",
+        "Animais de estimação: não permitidos",
+        "Animais de estimação não são permitidos",
+    ):
+        listing = normalize(
+            {"description_raw": desc, "price_eur_month": 800, "concelho": "Loulé"}
+        )
+        assert listing.pets.value == "no", desc
+
+
+def test_pets_allow_survives_unrelated_negation():
+    # "não é permitido fumar" is a different prohibition — pets stay allowed.
+    listing = normalize(
+        {
+            "description_raw": "Animais de estimação são permitidos, não é permitido fumar.",
+            "price_eur_month": 800,
+            "concelho": "Loulé",
+        }
+    )
+    assert listing.pets.value == "yes"
+
+
 def test_pets_unknown_when_unmentioned():
     listing = normalize(
         {"description_raw": "Apartamento mobilado.", "price_eur_month": 800, "concelho": "Lagos"}

@@ -36,6 +36,11 @@ PETS_POSITIVE = [
     "pets allowed",
     "pets welcome",
 ]
+# A pets noun followed (within a short window) by a negated allow-verb — catches
+# "animais de estimacao nao permitido" that the fixed-phrase lists miss and would
+# otherwise mis-read as the positive "animais de estimacao". Runs on folded,
+# punctuation-collapsed text; the window is bounded so it stays sentence-local.
+_PETS_DENY_REVERSED = re.compile(r"anima(?:l|is)\b[\w ]{0,20}?\bnao (?:\w+ )?(?:permit|aceit|admit)")
 
 _HOUSE_WORDS = ["moradia", "vivenda", "casa ", "villa", "house", "detached"]
 _TOWNHOUSE_WORDS = ["geminada", "banda", "townhouse", "terraced"]
@@ -62,11 +67,21 @@ def _derive_bool(folded_text: str, keywords: list[str]) -> DerivedBool:
 
 
 def _derive_pets(folded_text: str) -> DerivedPets:
-    # Negatives first: "aceita animais" is a substring of "nao aceita animais".
-    neg = _matches(folded_text, PETS_NEGATIVE)
+    # Collapse punctuation to spaces so imovirtual's attribute label
+    # "Animais de estimação: não permitido" reads as one continuous run.
+    text = re.sub(r"[^a-z0-9]+", " ", folded_text)
+    # Negatives first: "aceita animais" is a substring of "nao aceita animais", and
+    # the bare noun "animais de estimacao" appears in BOTH allow and deny sentences —
+    # so the deny verb, not the noun, is what decides.
+    neg = _matches(text, PETS_NEGATIVE)
+    # Reversed order: "<pets noun> ... nao permitido/aceita/admite" (the imovirtual case),
+    # which the fixed-phrase list can't cover without enumerating every noun→verb gap.
+    m = _PETS_DENY_REVERSED.search(text)
+    if m:
+        neg.append(m.group(0))
     if neg:
         return DerivedPets(value="no", confidence=0.9, evidence=neg)
-    pos = _matches(folded_text, PETS_POSITIVE)
+    pos = _matches(text, PETS_POSITIVE)
     if pos:
         return DerivedPets(value="yes", confidence=0.85, evidence=pos)
     return DerivedPets(value="unknown", confidence=0.9, evidence=[])

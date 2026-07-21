@@ -96,9 +96,10 @@ if not views:
 # --- Sidebar filters ----------------------------------------------------------
 st.sidebar.header("Filters")
 prices = [v["price"] for v in views]
-max_price = st.sidebar.slider(
-    "Max €/month", 0, int(max(prices)) + 100, min(1500, int(max(prices)) + 100), step=50
-)
+# Long-term budget tops out at €3000 — anything above ~€2000 is out of scope, so a slider
+# that stretched to a stray €30k listing was useless. Over-cap listings still get filtered out.
+budget_max = min(int(max(prices)) + 100, 3000)
+max_price = st.sidebar.slider("Max €/month", 0, budget_max, min(1500, budget_max), step=50)
 min_beds = st.sidebar.number_input("Min bedrooms", 0, 6, 0)
 sizes = [v["size"] for v in views if v["size"]]
 size_cap = int(max(sizes)) if sizes else 300
