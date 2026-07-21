@@ -1,0 +1,4020 @@
+{
+  "8c2211268cb3": {
+    "lat": 37.2312139,
+    "lng": -7.4256417,
+    "dist_beach_m": 6360,
+    "walk_min_beach": 152.3,
+    "dist_town_m": 2310
+  },
+  "0edefdb8f6fe": {
+    "lat": 37.2312139,
+    "lng": -7.4256417,
+    "dist_beach_m": 6360,
+    "walk_min_beach": 152.3,
+    "dist_town_m": 2310
+  },
+  "84ec57e61b2f": {
+    "lat": 37.075963,
+    "lng": -8.118298,
+    "dist_beach_m": 562,
+    "walk_min_beach": 8.0,
+    "dist_town_m": 1516
+  },
+  "83cdc714c20f": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "ea41ba46650a": {
+    "lat": 37.0802509,
+    "lng": -8.1136965,
+    "dist_beach_m": 1048,
+    "walk_min_beach": 15.0,
+    "dist_town_m": 1424
+  },
+  "4e1836439f37": {
+    "lat": 37.08463,
+    "lng": -8.1085961,
+    "dist_beach_m": 1661,
+    "walk_min_beach": 25.0,
+    "dist_town_m": 1588
+  },
+  "5ef381b16cb0": {
+    "lat": 37.0904706,
+    "lng": -8.1179288,
+    "dist_beach_m": 2125,
+    "walk_min_beach": 40.8,
+    "dist_town_m": 2547
+  },
+  "c1216664f661": {
+    "lat": 37.0904706,
+    "lng": -8.1179288,
+    "dist_beach_m": 2125,
+    "walk_min_beach": 40.8,
+    "dist_town_m": 2547
+  },
+  "37fb70c37315": {
+    "lat": 37.0746577,
+    "lng": -7.8358794,
+    "dist_beach_m": 5532,
+    "walk_min_beach": 87.6,
+    "dist_town_m": 2281
+  },
+  "95b9bbe30ed3": {
+    "lat": 37.1227006,
+    "lng": -8.6366214,
+    "dist_beach_m": 393,
+    "walk_min_beach": 8.0,
+    "dist_town_m": 3414
+  },
+  "95cbaff4dd88": {
+    "lat": 37.1002578,
+    "lng": -8.2232501,
+    "dist_beach_m": 1630,
+    "walk_min_beach": 33.5,
+    "dist_town_m": 2929
+  },
+  "83c233f77fa1": {
+    "lat": 37.0986027,
+    "lng": -8.240363,
+    "dist_beach_m": 1491,
+    "walk_min_beach": 26.6,
+    "dist_town_m": 1585
+  },
+  "d697888fde74": {
+    "lat": 37.0930938,
+    "lng": -8.2425523,
+    "dist_beach_m": 848,
+    "walk_min_beach": 13.6,
+    "dist_town_m": 1044
+  },
+  "2ec721885023": {
+    "lat": 37.1019816,
+    "lng": -7.6631866,
+    "dist_beach_m": 1600,
+    "walk_min_beach": 53.9,
+    "dist_town_m": 123
+  },
+  "11e905e7c8fb": {
+    "lat": 37.1183596,
+    "lng": -8.548048,
+    "dist_beach_m": 79,
+    "walk_min_beach": 1.8,
+    "dist_town_m": 2357
+  },
+  "262bd6b96661": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "d2434ee8de71": {
+    "lat": 37.1374754,
+    "lng": -8.5356182,
+    "dist_beach_m": 1464,
+    "walk_min_beach": 31.9,
+    "dist_town_m": 109
+  },
+  "a158d915dc99": {
+    "lat": 37.1667862,
+    "lng": -8.5329513,
+    "dist_beach_m": 4151,
+    "walk_min_beach": 141.9,
+    "dist_town_m": 3266
+  },
+  "764e6be6bb34": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "c01bf18099d0": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "cc7b0f5ef7bb": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "f553d203a662": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 181.3,
+    "dist_town_m": 8006
+  },
+  "15b6c610bcda": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "5c0c39bdd43d": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "e7941e417847": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "38764c120733": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "90a4c138e6e8": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "8bd59c23db92": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "a061c2c46d97": {
+    "lat": 37.1183596,
+    "lng": -8.548048,
+    "dist_beach_m": 79,
+    "walk_min_beach": 1.8,
+    "dist_town_m": 2357
+  },
+  "138f10784af1": {
+    "lat": 37.1361657,
+    "lng": -8.5457934,
+    "dist_beach_m": 2067,
+    "walk_min_beach": 29.7,
+    "dist_town_m": 809
+  },
+  "92e102f43a45": {
+    "lat": 37.1302385,
+    "lng": -8.5434346,
+    "dist_beach_m": 1454,
+    "walk_min_beach": 23.5,
+    "dist_town_m": 1004
+  },
+  "c4938329cc62": {
+    "lat": 37.1197468,
+    "lng": -8.5441721,
+    "dist_beach_m": 405,
+    "walk_min_beach": 7.5,
+    "dist_town_m": 2087
+  },
+  "dbd61042ad62": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "761efcbc04a6": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "110adda13b33": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "0dbd185a1592": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "8179b334b600": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "ea38e71fe005": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "b2bb0ed23f3e": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "df34e64f1ebe": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "1fd4280395c8": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "b3a1f8a834b0": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "a2671f3c9de3": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "cfe0487bcb93": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "2b5dfedde595": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "94d6bb571e56": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "bda75ac10f72": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "dd6f9b6f1115": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "fc147660ffb6": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "310ad721a294": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "20bccf009e4f": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "9fbdb2bf3fd4": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "52fcc0ee8c86": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "2a075b704e62": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "2db6c96dd2b1": {
+    "lat": 37.2312139,
+    "lng": -7.4256417,
+    "dist_beach_m": 6360,
+    "walk_min_beach": 152.3,
+    "dist_town_m": 2310
+  },
+  "cbfe33ac094d": {
+    "lat": 37.1824461,
+    "lng": -7.451945,
+    "dist_beach_m": 757,
+    "walk_min_beach": 11.5,
+    "dist_town_m": 0
+  },
+  "a52a0827bf08": {
+    "lat": 37.1824461,
+    "lng": -7.451945,
+    "dist_beach_m": 757,
+    "walk_min_beach": 11.5,
+    "dist_town_m": 0
+  },
+  "d07bab1e2cb4": {
+    "lat": 37.1824461,
+    "lng": -7.451945,
+    "dist_beach_m": 757,
+    "walk_min_beach": 11.5,
+    "dist_town_m": 0
+  },
+  "811274ce4397": {
+    "lat": 37.1824461,
+    "lng": -7.451945,
+    "dist_beach_m": 757,
+    "walk_min_beach": 11.5,
+    "dist_town_m": 0
+  },
+  "b7a4d54189c8": {
+    "lat": 37.1824461,
+    "lng": -7.451945,
+    "dist_beach_m": 757,
+    "walk_min_beach": 11.5,
+    "dist_town_m": 0
+  },
+  "5e088de68e51": {
+    "lat": 37.132655,
+    "lng": -7.6319384,
+    "dist_beach_m": 1674,
+    "walk_min_beach": 31.4,
+    "dist_town_m": 1745
+  },
+  "b730ab9b35d8": {
+    "lat": 37.1057909,
+    "lng": -7.642699,
+    "dist_beach_m": 846,
+    "walk_min_beach": 72.7,
+    "dist_town_m": 1756
+  },
+  "34dac6f2927b": {
+    "lat": 37.1162363,
+    "lng": -7.7287407,
+    "dist_beach_m": 6003,
+    "walk_min_beach": 97.6,
+    "dist_town_m": 1682
+  },
+  "2188207cfe35": {
+    "lat": 37.1057909,
+    "lng": -7.642699,
+    "dist_beach_m": 846,
+    "walk_min_beach": 72.7,
+    "dist_town_m": 1756
+  },
+  "f1ec52e5942b": {
+    "lat": 37.101742,
+    "lng": -7.6618346,
+    "dist_beach_m": 1494,
+    "walk_min_beach": 54.4,
+    "dist_town_m": 0
+  },
+  "53161d9dbc7a": {
+    "lat": 37.1057909,
+    "lng": -7.642699,
+    "dist_beach_m": 846,
+    "walk_min_beach": 72.7,
+    "dist_town_m": 1756
+  },
+  "bae7c99aa97b": {
+    "lat": 37.0991179,
+    "lng": -7.9985193,
+    "dist_beach_m": 7469,
+    "walk_min_beach": 141.4,
+    "dist_town_m": 3082
+  },
+  "86fe63e00873": {
+    "lat": 37.0479118,
+    "lng": -8.0103033,
+    "dist_beach_m": 1886,
+    "walk_min_beach": 30.2,
+    "dist_town_m": 4609
+  },
+  "efda7a13a491": {
+    "lat": 37.0639439,
+    "lng": -8.0297086,
+    "dist_beach_m": 3217,
+    "walk_min_beach": 48.7,
+    "dist_town_m": 2570
+  },
+  "eef864f7c8ca": {
+    "lat": 37.1306929,
+    "lng": -8.5819533,
+    "dist_beach_m": 1221,
+    "walk_min_beach": 23.8,
+    "dist_town_m": 990
+  },
+  "ec583c7d644c": {
+    "lat": 37.1306929,
+    "lng": -8.5819533,
+    "dist_beach_m": 1221,
+    "walk_min_beach": 23.8,
+    "dist_town_m": 990
+  },
+  "3bd1638135ca": {
+    "lat": 37.088786,
+    "lng": -8.7488294,
+    "dist_beach_m": 1655,
+    "walk_min_beach": 27.7,
+    "dist_town_m": 1793
+  },
+  "d63bb26ec140": {
+    "lat": 37.090871,
+    "lng": -8.7450058,
+    "dist_beach_m": 1422,
+    "walk_min_beach": 21.7,
+    "dist_town_m": 1413
+  },
+  "e0b4273ca703": {
+    "lat": 37.1008372,
+    "lng": -7.9997783,
+    "dist_beach_m": 7619,
+    "walk_min_beach": 134.3,
+    "dist_town_m": 3073
+  },
+  "dafad0ae68cf": {
+    "lat": 37.104215,
+    "lng": -8.0153072,
+    "dist_beach_m": 7624,
+    "walk_min_beach": 111.9,
+    "dist_town_m": 2301
+  },
+  "c89d16ec83dd": {
+    "lat": 37.0744496,
+    "lng": -8.1212103,
+    "dist_beach_m": 557,
+    "walk_min_beach": 8.4,
+    "dist_town_m": 1718
+  },
+  "42049174ea0b": {
+    "lat": 37.1031831,
+    "lng": -8.1420922,
+    "dist_beach_m": 2606,
+    "walk_min_beach": 86.7,
+    "dist_town_m": 2608
+  },
+  "e778daff5dd7": {
+    "lat": 37.0744496,
+    "lng": -8.1212103,
+    "dist_beach_m": 557,
+    "walk_min_beach": 8.4,
+    "dist_town_m": 1718
+  },
+  "d682a768cb91": {
+    "lat": 37.0904487,
+    "lng": -8.1272828,
+    "dist_beach_m": 1754,
+    "walk_min_beach": 27.8,
+    "dist_town_m": 3078
+  },
+  "21068ee95906": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "c9133af37874": {
+    "lat": 37.0662665,
+    "lng": -8.093113,
+    "dist_beach_m": 582,
+    "walk_min_beach": 10.0,
+    "dist_town_m": 984
+  },
+  "86febeb39dfd": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "a10980f110b0": {
+    "lat": 37.1063873,
+    "lng": -8.1312149,
+    "dist_beach_m": 3259,
+    "walk_min_beach": 67.3,
+    "dist_town_m": 1776
+  },
+  "8729d6fa8f33": {
+    "lat": 37.0906062,
+    "lng": -8.1129906,
+    "dist_beach_m": 2191,
+    "walk_min_beach": 31.6,
+    "dist_town_m": 2351
+  },
+  "a4a895c32675": {
+    "lat": 37.1029688,
+    "lng": -8.1416517,
+    "dist_beach_m": 2592,
+    "walk_min_beach": 86.6,
+    "dist_town_m": 2600
+  },
+  "0e5584e5ad4f": {
+    "lat": 37.0680145,
+    "lng": -8.1028588,
+    "dist_beach_m": 422,
+    "walk_min_beach": 6.1,
+    "dist_town_m": 366
+  },
+  "3d153e30e636": {
+    "lat": 37.0785966,
+    "lng": -8.1268759,
+    "dist_beach_m": 614,
+    "walk_min_beach": 9.0,
+    "dist_town_m": 2331
+  },
+  "c4d7ade42324": {
+    "lat": 37.0874609,
+    "lng": -8.1258367,
+    "dist_beach_m": 1481,
+    "walk_min_beach": 22.2,
+    "dist_town_m": 2760
+  },
+  "ac8ff2e36ff6": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "06f6647b50b8": {
+    "lat": 37.1369699,
+    "lng": -8.4542793,
+    "dist_beach_m": 3967,
+    "walk_min_beach": 73.3,
+    "dist_town_m": 77
+  },
+  "40de061bdf19": {
+    "lat": 37.1302327,
+    "lng": -8.4468036,
+    "dist_beach_m": 4272,
+    "walk_min_beach": 70.9,
+    "dist_town_m": 933
+  },
+  "5acd812dd99a": {
+    "lat": 37.179622,
+    "lng": -7.4508363,
+    "dist_beach_m": 447,
+    "walk_min_beach": 8.3,
+    "dist_town_m": 329
+  },
+  "53fe3d797f27": {
+    "lat": 37.0168947,
+    "lng": -7.9211627,
+    "dist_beach_m": 1141,
+    "walk_min_beach": 22.0,
+    "dist_town_m": 1246
+  },
+  "35eedd20b44e": {
+    "lat": 37.0272317,
+    "lng": -7.9389148,
+    "dist_beach_m": 1917,
+    "walk_min_beach": 39.8,
+    "dist_town_m": 1261
+  },
+  "b2e8ed6dbabe": {
+    "lat": 37.1905464,
+    "lng": -8.6005828,
+    "dist_beach_m": 6380,
+    "walk_min_beach": 109.1,
+    "dist_town_m": 3676
+  },
+  "fc5125ebc639": {
+    "lat": 37.1905464,
+    "lng": -8.6005828,
+    "dist_beach_m": 6380,
+    "walk_min_beach": 109.1,
+    "dist_town_m": 3676
+  },
+  "92e1f7b98418": {
+    "lat": 37.0261398,
+    "lng": -7.9453059,
+    "dist_beach_m": 2074,
+    "walk_min_beach": 43.0,
+    "dist_town_m": 1416
+  },
+  "566c9f40ee72": {
+    "lat": 37.033847,
+    "lng": -7.9624234,
+    "dist_beach_m": 3560,
+    "walk_min_beach": 59.2,
+    "dist_town_m": 405
+  },
+  "666fc8822db2": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "41eb286f85c1": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "e0f648c4719e": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "2d7997f83ddc": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "6bd7dd7b077a": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "3ce5fb2f750a": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "512b8f176c3f": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "f3b5af960e7c": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "df49afff490b": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "6cbf7aa7339e": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 24.9,
+    "dist_town_m": 1084
+  },
+  "ae5a68133b0f": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 24.9,
+    "dist_town_m": 1084
+  },
+  "4377acf6aa5e": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 24.9,
+    "dist_town_m": 1084
+  },
+  "093e88002b76": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "5eab598ba5e8": {
+    "lat": 37.033847,
+    "lng": -7.9624234,
+    "dist_beach_m": 3560,
+    "walk_min_beach": 59.2,
+    "dist_town_m": 405
+  },
+  "597b84e4a389": {
+    "lat": 37.0261398,
+    "lng": -7.9453059,
+    "dist_beach_m": 2074,
+    "walk_min_beach": 43.0,
+    "dist_town_m": 1416
+  },
+  "9d847af3d809": {
+    "lat": 37.0317118,
+    "lng": -7.9378357,
+    "dist_beach_m": 2368,
+    "walk_min_beach": 46.8,
+    "dist_town_m": 1730
+  },
+  "9bf29507ff1f": {
+    "lat": 37.0836637,
+    "lng": -7.8857442,
+    "dist_beach_m": 9051,
+    "walk_min_beach": 140.4,
+    "dist_town_m": 1467
+  },
+  "238855d9b67e": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "a4d03441c52c": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "9d22148ba043": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "4403d320d113": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "5b2c20c7cfa9": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "bfe5d624e340": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "978655567e3a": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "f5d322b8ba19": {
+    "lat": 37.1232603,
+    "lng": -8.5364229,
+    "dist_beach_m": 847,
+    "walk_min_beach": 10.8,
+    "dist_town_m": 1466
+  },
+  "257f2edd2fca": {
+    "lat": 37.1314675,
+    "lng": -8.5404085,
+    "dist_beach_m": 1526,
+    "walk_min_beach": 44.7,
+    "dist_town_m": 750
+  },
+  "ce7a3afcec1c": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "22387ad6c7f5": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "9dd62904e83b": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "41c48f788ba3": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "0309f004e6d4": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "7c3b51b1e81f": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "7785695b15d7": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "ce17a2063d18": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "9d8003ea0ebf": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "67143801256d": {
+    "lat": 37.1306929,
+    "lng": -8.5819533,
+    "dist_beach_m": 1221,
+    "walk_min_beach": 23.8,
+    "dist_town_m": 990
+  },
+  "2a3559cabd10": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "9602e549d639": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "428258c3a0ae": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "c4aa2072b573": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "f2b7a8d97220": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "81c3b49323ab": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "b4f24445241d": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "0677fb04f1fc": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "eadd023ed3b2": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "d0256bf7a02e": {
+    "lat": 37.1306929,
+    "lng": -8.5819533,
+    "dist_beach_m": 1221,
+    "walk_min_beach": 23.8,
+    "dist_town_m": 990
+  },
+  "ca7af0c83e3a": {
+    "lat": 37.1243853,
+    "lng": -8.5220715,
+    "dist_beach_m": 326,
+    "walk_min_beach": 5.5,
+    "dist_town_m": 213
+  },
+  "21e19d2413a3": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "4e50131c8693": {
+    "lat": 37.0924203,
+    "lng": -8.2502955,
+    "dist_beach_m": 652,
+    "walk_min_beach": 10.4,
+    "dist_town_m": 509
+  },
+  "d7d204f64a00": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "94f2d998081a": {
+    "lat": 37.0922581,
+    "lng": -8.1670606,
+    "dist_beach_m": 650,
+    "walk_min_beach": 10.1,
+    "dist_town_m": 1760
+  },
+  "d879b2ef77c1": {
+    "lat": 37.0966303,
+    "lng": -8.7694741,
+    "dist_beach_m": 2868,
+    "walk_min_beach": 42.6,
+    "dist_town_m": 2488
+  },
+  "50bbd83f4a9d": {
+    "lat": 37.083348,
+    "lng": -8.7547456,
+    "dist_beach_m": 2130,
+    "walk_min_beach": 37.1,
+    "dist_town_m": 2382
+  },
+  "99794e778581": {
+    "lat": 37.0883245,
+    "lng": -8.7347839,
+    "dist_beach_m": 517,
+    "walk_min_beach": 8.2,
+    "dist_town_m": 579
+  },
+  "aac2ccd606a0": {
+    "lat": 37.0950391,
+    "lng": -7.9917173,
+    "dist_beach_m": 7258,
+    "walk_min_beach": 140.4,
+    "dist_town_m": 2653
+  },
+  "17121583bdad": {
+    "lat": 37.4519257,
+    "lng": -7.4796966,
+    "dist_beach_m": 2280,
+    "walk_min_beach": 38.1,
+    "dist_town_m": 2108
+  },
+  "a37867166ed5": {
+    "lat": 37.0867575,
+    "lng": -8.7255138,
+    "dist_beach_m": 80,
+    "walk_min_beach": 1.6,
+    "dist_town_m": 262
+  },
+  "4cee07771795": {
+    "lat": 37.0837641,
+    "lng": -7.7891551,
+    "dist_beach_m": 5320,
+    "walk_min_beach": 78.9,
+    "dist_town_m": 95
+  },
+  "d67040aa4218": {
+    "lat": 37.0887534,
+    "lng": -8.2273766,
+    "dist_beach_m": 365,
+    "walk_min_beach": 7.2,
+    "dist_town_m": 2241
+  },
+  "8ca4d4289125": {
+    "lat": 37.1292936,
+    "lng": -7.6473801,
+    "dist_beach_m": 2298,
+    "walk_min_beach": 44.9,
+    "dist_town_m": 406
+  },
+  "091b06f6d547": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "cfdc81df2d1a": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "c89900261e6b": {
+    "lat": 37.1162363,
+    "lng": -7.7287407,
+    "dist_beach_m": 6003,
+    "walk_min_beach": 97.6,
+    "dist_town_m": 1682
+  },
+  "d4c11f4952c2": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "31e9cbb1a239": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "60952296047d": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "a4aab74bcc81": {
+    "lat": 37.1057909,
+    "lng": -7.642699,
+    "dist_beach_m": 846,
+    "walk_min_beach": 72.7,
+    "dist_town_m": 1756
+  },
+  "9006901d41cc": {
+    "lat": 37.1057909,
+    "lng": -7.642699,
+    "dist_beach_m": 846,
+    "walk_min_beach": 72.7,
+    "dist_town_m": 1756
+  },
+  "15a20fa5fbc0": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "08d8e9b89ca9": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "c8489e667aff": {
+    "lat": 37.101742,
+    "lng": -7.6618346,
+    "dist_beach_m": 1494,
+    "walk_min_beach": 54.4,
+    "dist_town_m": 0
+  },
+  "d9a6bc898e4d": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "b57b5ecc9851": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "b2729c1b7b3d": {
+    "lat": 37.1057909,
+    "lng": -7.642699,
+    "dist_beach_m": 846,
+    "walk_min_beach": 72.7,
+    "dist_town_m": 1756
+  },
+  "04d1fa7a333e": {
+    "lat": 38.8729545,
+    "lng": -7.158218,
+    "dist_beach_m": 158158,
+    "walk_min_beach": 2976.2,
+    "dist_town_m": 152045
+  },
+  "fb4b0039872a": {
+    "lat": 37.1021082,
+    "lng": -7.6641019,
+    "dist_beach_m": 1670,
+    "walk_min_beach": 54.0,
+    "dist_town_m": 205
+  },
+  "944abb8e4636": {
+    "lat": 39.6026833,
+    "lng": -8.4146865,
+    "dist_beach_m": 232104,
+    "walk_min_beach": 3624.5,
+    "dist_town_m": 232464
+  },
+  "6b4425ddfddb": {
+    "lat": 37.1285378,
+    "lng": -8.3465384,
+    "dist_beach_m": 3358,
+    "walk_min_beach": 43.1,
+    "dist_town_m": 207
+  },
+  "d60e436b7873": {
+    "lat": 37.1928537,
+    "lng": -7.5139916,
+    "dist_beach_m": 2881,
+    "walk_min_beach": 43.1,
+    "dist_town_m": 2459
+  },
+  "455edc27f26e": {
+    "lat": 37.1104167,
+    "lng": -8.6806736,
+    "dist_beach_m": 1795,
+    "walk_min_beach": 23.5,
+    "dist_town_m": 1094
+  },
+  "28b2a023ea50": {
+    "lat": 37.14887,
+    "lng": -8.7039675,
+    "dist_beach_m": 6134,
+    "walk_min_beach": 114.0,
+    "dist_town_m": 2906
+  },
+  "c5753e2958ac": {
+    "lat": 37.0951682,
+    "lng": -8.6818841,
+    "dist_beach_m": 1055,
+    "walk_min_beach": 23.3,
+    "dist_town_m": 1166
+  },
+  "d704dafb8913": {
+    "lat": 37.1069131,
+    "lng": -8.6804093,
+    "dist_beach_m": 1495,
+    "walk_min_beach": 20.4,
+    "dist_town_m": 810
+  },
+  "7f2278cef80d": {
+    "lat": 37.078699,
+    "lng": -8.7602483,
+    "dist_beach_m": 1589,
+    "walk_min_beach": 26.7,
+    "dist_town_m": 2988
+  },
+  "59a0a6839f2d": {
+    "lat": 37.078699,
+    "lng": -8.7602483,
+    "dist_beach_m": 1589,
+    "walk_min_beach": 26.7,
+    "dist_town_m": 2988
+  },
+  "e8bbee3f82a2": {
+    "lat": 37.118686,
+    "lng": -8.6520706,
+    "dist_beach_m": 1051,
+    "walk_min_beach": 15.2,
+    "dist_town_m": 2554
+  },
+  "2971d23fbd42": {
+    "lat": 37.118686,
+    "lng": -8.6520706,
+    "dist_beach_m": 1051,
+    "walk_min_beach": 15.2,
+    "dist_town_m": 2554
+  },
+  "f6bc09b7dfb9": {
+    "lat": 37.118686,
+    "lng": -8.6520706,
+    "dist_beach_m": 1051,
+    "walk_min_beach": 15.2,
+    "dist_town_m": 2554
+  },
+  "9778d88b27a7": {
+    "lat": 37.3393493,
+    "lng": -8.8530722,
+    "dist_beach_m": 316,
+    "walk_min_beach": 3.9,
+    "dist_town_m": 58
+  },
+  "f9a3ac5ceb66": {
+    "lat": 37.3393493,
+    "lng": -8.8530722,
+    "dist_beach_m": 316,
+    "walk_min_beach": 3.9,
+    "dist_town_m": 58
+  },
+  "9c409c3a569c": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.1,
+    "dist_town_m": 417
+  },
+  "cb17db561730": {
+    "lat": 37.1024225,
+    "lng": -8.3624174,
+    "dist_beach_m": 354,
+    "walk_min_beach": 5.4,
+    "dist_town_m": 204
+  },
+  "eb63158ea2ae": {
+    "lat": 37.0665076,
+    "lng": -8.8094242,
+    "dist_beach_m": 48,
+    "walk_min_beach": 0.4,
+    "dist_town_m": 2715
+  },
+  "4dee3b9ee385": {
+    "lat": 37.1029164,
+    "lng": -8.6726153,
+    "dist_beach_m": 698,
+    "walk_min_beach": 8.9,
+    "dist_town_m": 26
+  },
+  "3a68a3e9ebb7": {
+    "lat": 37.1024692,
+    "lng": -8.6725295,
+    "dist_beach_m": 654,
+    "walk_min_beach": 8.9,
+    "dist_town_m": 47
+  },
+  "8b5605f6d24a": {
+    "lat": 37.1156937,
+    "lng": -8.6701265,
+    "dist_beach_m": 1473,
+    "walk_min_beach": 18.3,
+    "dist_town_m": 1455
+  },
+  "84dcdb6b8826": {
+    "lat": 37.102918,
+    "lng": -8.6781603,
+    "dist_beach_m": 1066,
+    "walk_min_beach": 16.1,
+    "dist_town_m": 469
+  },
+  "1dd0ac2137c5": {
+    "lat": 37.104623,
+    "lng": -8.6781585,
+    "dist_beach_m": 1177,
+    "walk_min_beach": 17.2,
+    "dist_town_m": 511
+  },
+  "dff5d2cd955c": {
+    "lat": 37.118686,
+    "lng": -8.6520706,
+    "dist_beach_m": 1051,
+    "walk_min_beach": 15.2,
+    "dist_town_m": 2554
+  },
+  "871a93746891": {
+    "lat": 37.118686,
+    "lng": -8.6520706,
+    "dist_beach_m": 1051,
+    "walk_min_beach": 15.2,
+    "dist_town_m": 2554
+  },
+  "f2d54783ff94": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "1f458630e810": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "c20e15281b61": {
+    "lat": 37.049797,
+    "lng": -8.0568413,
+    "dist_beach_m": 797,
+    "walk_min_beach": 14.3,
+    "dist_town_m": 4684
+  },
+  "7fbd620b474e": {
+    "lat": 37.0639439,
+    "lng": -8.0297086,
+    "dist_beach_m": 3217,
+    "walk_min_beach": 48.7,
+    "dist_town_m": 2570
+  },
+  "a2924ebd7082": {
+    "lat": 37.0585157,
+    "lng": -8.0525843,
+    "dist_beach_m": 1598,
+    "walk_min_beach": 27.3,
+    "dist_town_m": 3762
+  },
+  "f8d855b6b6ee": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "18004b239c4b": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "f608e6c388ac": {
+    "lat": 37.0732107,
+    "lng": -7.8007495,
+    "dist_beach_m": 4128,
+    "walk_min_beach": 67.3,
+    "dist_town_m": 1651
+  },
+  "2a380d2706ed": {
+    "lat": 37.1393693,
+    "lng": -8.777373,
+    "dist_beach_m": 7328,
+    "walk_min_beach": 103.3,
+    "dist_town_m": 74
+  },
+  "e8936bd18b35": {
+    "lat": 37.078699,
+    "lng": -8.7602483,
+    "dist_beach_m": 1589,
+    "walk_min_beach": 26.7,
+    "dist_town_m": 2988
+  },
+  "b6379aa776f1": {
+    "lat": 37.1970492,
+    "lng": -8.5787801,
+    "dist_beach_m": 7073,
+    "walk_min_beach": 169.3,
+    "dist_town_m": 5226
+  },
+  "df4152cb955d": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "0e08cdf49042": {
+    "lat": 37.0270417,
+    "lng": -7.9404258,
+    "dist_beach_m": 1947,
+    "walk_min_beach": 40.8,
+    "dist_town_m": 1283
+  },
+  "28a29c0fc3a2": {
+    "lat": 37.033847,
+    "lng": -7.9624234,
+    "dist_beach_m": 3560,
+    "walk_min_beach": 59.2,
+    "dist_town_m": 405
+  },
+  "aba4e2f91cc7": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 24.9,
+    "dist_town_m": 1084
+  },
+  "85ae4fd4a4e6": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "2a8e7f60492b": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "35f5d9838270": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "5ddd8674fb4f": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "dec4f4bc8101": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "64bcc7a07e40": {
+    "lat": 37.033847,
+    "lng": -7.9624234,
+    "dist_beach_m": 3560,
+    "walk_min_beach": 59.2,
+    "dist_town_m": 405
+  },
+  "73ba9f6d1e7f": {
+    "lat": 37.0950391,
+    "lng": -7.9917173,
+    "dist_beach_m": 7258,
+    "walk_min_beach": 140.4,
+    "dist_town_m": 2653
+  },
+  "6b20202a339a": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "9208595367b3": {
+    "lat": 37.1461987,
+    "lng": -7.6087253,
+    "dist_beach_m": 2177,
+    "walk_min_beach": 35.4,
+    "dist_town_m": 412
+  },
+  "ed38100ff9d0": {
+    "lat": 37.1467694,
+    "lng": -7.6081936,
+    "dist_beach_m": 2190,
+    "walk_min_beach": 35.6,
+    "dist_town_m": 380
+  },
+  "554805a499eb": {
+    "lat": 37.1461987,
+    "lng": -7.6087253,
+    "dist_beach_m": 2177,
+    "walk_min_beach": 35.4,
+    "dist_town_m": 412
+  },
+  "baec4b07b0ae": {
+    "lat": 37.1933357,
+    "lng": -8.4332355,
+    "dist_beach_m": 5834,
+    "walk_min_beach": 172.7,
+    "dist_town_m": 711
+  },
+  "7bb28839c81b": {
+    "lat": 37.1519633,
+    "lng": -8.4262019,
+    "dist_beach_m": 5456,
+    "walk_min_beach": 94.5,
+    "dist_town_m": 3024
+  },
+  "3ac2ce9ef88e": {
+    "lat": 37.1374288,
+    "lng": -8.3432608,
+    "dist_beach_m": 4386,
+    "walk_min_beach": 59.3,
+    "dist_town_m": 914
+  },
+  "07c8fcf90d26": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "bb21160e93bf": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "edd8484dacdd": {
+    "lat": 38.892027,
+    "lng": -9.043315,
+    "dist_beach_m": 152488,
+    "walk_min_beach": 2213.3,
+    "dist_town_m": 153604
+  },
+  "544e2f7c2702": {
+    "lat": -23.4965926,
+    "lng": -46.7139265,
+    "dist_beach_m": 7804296,
+    "walk_min_beach": 126819.8,
+    "dist_town_m": 7804802
+  },
+  "f2865e005efd": {
+    "lat": 37.2312139,
+    "lng": -7.4256417,
+    "dist_beach_m": 6360,
+    "walk_min_beach": 152.3,
+    "dist_town_m": 2310
+  },
+  "d16b5d5a7653": {
+    "lat": 37.1792329,
+    "lng": -7.5171335,
+    "dist_beach_m": 1579,
+    "walk_min_beach": 27.2,
+    "dist_town_m": 1500
+  },
+  "0fbbf5eb95d8": {
+    "lat": 37.2312139,
+    "lng": -7.4256417,
+    "dist_beach_m": 6360,
+    "walk_min_beach": 152.3,
+    "dist_town_m": 2310
+  },
+  "6d6b17879ec2": {
+    "lat": 37.1792329,
+    "lng": -7.5171335,
+    "dist_beach_m": 1579,
+    "walk_min_beach": 27.2,
+    "dist_town_m": 1500
+  },
+  "c01e72aa9270": {
+    "lat": 37.1367204,
+    "lng": -8.0174875,
+    "dist_beach_m": 10450,
+    "walk_min_beach": 157.3,
+    "dist_town_m": 630
+  },
+  "9a8e395956c9": {
+    "lat": 37.1021888,
+    "lng": -8.359901,
+    "dist_beach_m": 224,
+    "walk_min_beach": 2.2,
+    "dist_town_m": 339
+  },
+  "37c517a2a47f": {
+    "lat": 37.0994698,
+    "lng": -7.9998156,
+    "dist_beach_m": 7472,
+    "walk_min_beach": 140.0,
+    "dist_town_m": 2997
+  },
+  "ff332d6c6ed4": {
+    "lat": 37.1374288,
+    "lng": -8.3432608,
+    "dist_beach_m": 4386,
+    "walk_min_beach": 59.3,
+    "dist_town_m": 914
+  },
+  "9c77d90b0b4f": {
+    "lat": 37.1340489,
+    "lng": -8.1637455,
+    "dist_beach_m": 5132,
+    "walk_min_beach": 105.8,
+    "dist_town_m": 517
+  },
+  "c83f45d4ecdb": {
+    "lat": 37.1261541,
+    "lng": -8.0529878,
+    "dist_beach_m": 7867,
+    "walk_min_beach": 139.4,
+    "dist_town_m": 3045
+  },
+  "1528a92162bc": {
+    "lat": 37.1353142,
+    "lng": -8.4545518,
+    "dist_beach_m": 4080,
+    "walk_min_beach": 74.7,
+    "dist_town_m": 116
+  },
+  "f3365aaa7466": {
+    "lat": 37.1219269,
+    "lng": -8.3391655,
+    "dist_beach_m": 3020,
+    "walk_min_beach": 49.8,
+    "dist_town_m": 240
+  },
+  "45c5becbf46a": {
+    "lat": 37.1519633,
+    "lng": -8.4262019,
+    "dist_beach_m": 5456,
+    "walk_min_beach": 94.5,
+    "dist_town_m": 3024
+  },
+  "4f7a150aecea": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.3,
+    "dist_town_m": 417
+  },
+  "801a8057554b": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.1,
+    "dist_town_m": 417
+  },
+  "3b687ffc62ca": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.3,
+    "dist_town_m": 417
+  },
+  "406e4325a667": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.1,
+    "dist_town_m": 417
+  },
+  "78e4bdc18700": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.1,
+    "dist_town_m": 417
+  },
+  "d943d0cb8d38": {
+    "lat": 37.1321123,
+    "lng": -8.5080421,
+    "dist_beach_m": 1442,
+    "walk_min_beach": 37.0,
+    "dist_town_m": 1047
+  },
+  "c9f11b190abe": {
+    "lat": 37.1340489,
+    "lng": -8.1637455,
+    "dist_beach_m": 5132,
+    "walk_min_beach": 105.8,
+    "dist_town_m": 517
+  },
+  "306078d1807c": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "6507672f89db": {
+    "lat": 37.116149,
+    "lng": -7.6522808,
+    "dist_beach_m": 2252,
+    "walk_min_beach": 82.3,
+    "dist_town_m": 1143
+  },
+  "1371ca154a57": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "c47aa164a892": {
+    "lat": 37.0538205,
+    "lng": -8.0696822,
+    "dist_beach_m": 561,
+    "walk_min_beach": 33.6,
+    "dist_town_m": 3482
+  },
+  "e7199cb7d5e9": {
+    "lat": 37.104215,
+    "lng": -8.0153072,
+    "dist_beach_m": 7624,
+    "walk_min_beach": 111.9,
+    "dist_town_m": 2301
+  },
+  "0d8524911564": {
+    "lat": 37.1340489,
+    "lng": -8.1637455,
+    "dist_beach_m": 5132,
+    "walk_min_beach": 105.8,
+    "dist_town_m": 517
+  },
+  "a2a484fd85db": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "84f98d8d9a4b": {
+    "lat": 37.1409283,
+    "lng": -7.5984723,
+    "dist_beach_m": 1144,
+    "walk_min_beach": 18.6,
+    "dist_town_m": 614
+  },
+  "44a89c41ef8d": {
+    "lat": 37.1390876,
+    "lng": -7.5951012,
+    "dist_beach_m": 822,
+    "walk_min_beach": 13.4,
+    "dist_town_m": 571
+  },
+  "dbe11350e884": {
+    "lat": 37.0169082,
+    "lng": -7.9288381,
+    "dist_beach_m": 704,
+    "walk_min_beach": 18.0,
+    "dist_town_m": 567
+  },
+  "d4ea9b7c5f08": {
+    "lat": 37.033847,
+    "lng": -7.9624234,
+    "dist_beach_m": 3560,
+    "walk_min_beach": 59.2,
+    "dist_town_m": 405
+  },
+  "95673c7ef7c0": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "684a4944cb14": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "a748895e4710": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "896b2ac6e2f7": {
+    "lat": 37.0836637,
+    "lng": -7.8857442,
+    "dist_beach_m": 9051,
+    "walk_min_beach": 140.4,
+    "dist_town_m": 1467
+  },
+  "87299c971b28": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "417f0e9e0a57": {
+    "lat": 37.047135,
+    "lng": -8.0461555,
+    "dist_beach_m": 894,
+    "walk_min_beach": 16.6,
+    "dist_town_m": 4670
+  },
+  "625aecef446c": {
+    "lat": 38.6350249,
+    "lng": -8.9460603,
+    "dist_beach_m": 123045,
+    "walk_min_beach": 1724.9,
+    "dist_town_m": 124162
+  },
+  "f742ba27c43c": {
+    "lat": 37.1243853,
+    "lng": -8.5220715,
+    "dist_beach_m": 326,
+    "walk_min_beach": 5.5,
+    "dist_town_m": 213
+  },
+  "4d070d339286": {
+    "lat": 37.1461987,
+    "lng": -7.6087253,
+    "dist_beach_m": 2177,
+    "walk_min_beach": 35.4,
+    "dist_town_m": 412
+  },
+  "e4bd3a0097a5": {
+    "lat": 37.0956868,
+    "lng": -7.8961917,
+    "dist_beach_m": 9930,
+    "walk_min_beach": 142.7,
+    "dist_town_m": 161
+  },
+  "b6dcd7410b70": {
+    "lat": 37.0639439,
+    "lng": -8.0297086,
+    "dist_beach_m": 3217,
+    "walk_min_beach": 48.7,
+    "dist_town_m": 2570
+  },
+  "4776bd4c43a8": {
+    "lat": 37.0409445,
+    "lng": -8.0299794,
+    "dist_beach_m": 734,
+    "walk_min_beach": 10.1,
+    "dist_town_m": 5128
+  },
+  "ad5472c8dd81": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "e24d71ff288d": {
+    "lat": 37.0283877,
+    "lng": -7.9595508,
+    "dist_beach_m": 2911,
+    "walk_min_beach": 57.9,
+    "dist_town_m": 394
+  },
+  "776d7e73e2b5": {
+    "lat": 37.0308792,
+    "lng": -7.9656541,
+    "dist_beach_m": 3453,
+    "walk_min_beach": 62.0,
+    "dist_town_m": 219
+  },
+  "491eb1208124": {
+    "lat": 37.08463,
+    "lng": -8.1085961,
+    "dist_beach_m": 1661,
+    "walk_min_beach": 25.0,
+    "dist_town_m": 1588
+  },
+  "867ab2d6b61c": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "757489804818": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 5.8,
+    "dist_town_m": 395
+  },
+  "e6601b338970": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "242930cdaf4a": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "559290138b0f": {
+    "lat": 37.1331853,
+    "lng": -8.251393,
+    "dist_beach_m": 5185,
+    "walk_min_beach": 76.1,
+    "dist_town_m": 975
+  },
+  "72a81c72a3e2": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "98aa3e61ce66": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "0f48132a76d1": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "29fbd8431181": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "6dc6a5a5bd33": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "afbc4df6ee0d": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "13690bc74f2e": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "bf1f0c6223bb": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "8c1d52d32b24": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "d0e6774cd711": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "170324e44a6a": {
+    "lat": 37.1249791,
+    "lng": -8.3154346,
+    "dist_beach_m": 4115,
+    "walk_min_beach": 75.8,
+    "dist_town_m": 1419
+  },
+  "f65946ce6574": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "321de1ace299": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "3ea5ffb650cc": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "9fe1d03b70cf": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "62be467140bb": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "ee28390e0245": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "2a5b3d3d14c6": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "e62f3a6bc913": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "987c06e8b270": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "c47f915747b2": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "0bfced42ce92": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "2471a132c43e": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 75.2,
+    "dist_town_m": 467
+  },
+  "93b0025b83c4": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "e1c28f5cb063": {
+    "lat": 37.1380989,
+    "lng": -8.1130749,
+    "dist_beach_m": 7120,
+    "walk_min_beach": 131.2,
+    "dist_town_m": 2099
+  },
+  "57db682658e9": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "c86cf4010daa": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "31d60379be6a": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "c1cf3d8a4151": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "f2a76e445d17": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 75.2,
+    "dist_town_m": 467
+  },
+  "ee5976ba3ce0": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "5f90f796bd1f": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "3b2fd9533963": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "5d0ee1ed5090": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "9e274af659e6": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "217f0c601558": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "aeaf653aea43": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "6d7da2915c2a": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "85e31333e39b": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "8d7dc670c837": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "ee82f2092dcf": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 119.7,
+    "dist_town_m": 1978
+  },
+  "e377af2779b9": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "7bb851f3ebff": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "e24c0e4eb258": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "0b1ce5c14326": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "46c1e1cb80bd": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "d1347156fbf4": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "a4a91668c29e": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "3dff827cf754": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 75.2,
+    "dist_town_m": 467
+  },
+  "5d6fc74b9439": {
+    "lat": 37.100728,
+    "lng": -8.001722,
+    "dist_beach_m": 7559,
+    "walk_min_beach": 135.5,
+    "dist_town_m": 2918
+  },
+  "734fbc8f4756": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "60ff76c5a542": {
+    "lat": 37.0575402,
+    "lng": -7.8716292,
+    "dist_beach_m": 7041,
+    "walk_min_beach": 133.0,
+    "dist_town_m": 0
+  },
+  "e3e44e20a054": {
+    "lat": 37.074951,
+    "lng": -7.781351,
+    "dist_beach_m": 4301,
+    "walk_min_beach": 67.2,
+    "dist_town_m": 1197
+  },
+  "f2935643f206": {
+    "lat": 37.074951,
+    "lng": -7.781351,
+    "dist_beach_m": 4301,
+    "walk_min_beach": 67.2,
+    "dist_town_m": 1197
+  },
+  "4bf3a04e5de2": {
+    "lat": 37.1247741,
+    "lng": -7.7707599,
+    "dist_beach_m": 8460,
+    "walk_min_beach": 137.5,
+    "dist_town_m": 3613
+  },
+  "5d0ca1d47a09": {
+    "lat": 37.1247741,
+    "lng": -7.7707599,
+    "dist_beach_m": 8460,
+    "walk_min_beach": 137.5,
+    "dist_town_m": 3613
+  },
+  "2bb138beb4bd": {
+    "lat": 37.1247741,
+    "lng": -7.7707599,
+    "dist_beach_m": 8460,
+    "walk_min_beach": 150.7,
+    "dist_town_m": 3613
+  },
+  "8f57d21020f1": {
+    "lat": 37.1369568,
+    "lng": -8.1100662,
+    "dist_beach_m": 7104,
+    "walk_min_beach": 127.3,
+    "dist_town_m": 2033
+  },
+  "bf0b27186609": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "5739c0885414": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "8d1865ceb703": {
+    "lat": 37.100728,
+    "lng": -8.001722,
+    "dist_beach_m": 7559,
+    "walk_min_beach": 135.5,
+    "dist_town_m": 2918
+  },
+  "0349945f288a": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "4227d84283a8": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "d138d4644d65": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "6facb24891c5": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "9badef77f990": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "4b97f2194146": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "6f88763c9455": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "a3d4c066f14c": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "d48fdd94ae1d": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "ac4037e742b9": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "b4e1902b01f4": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 119.7,
+    "dist_town_m": 1978
+  },
+  "9ae1b644fc7a": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "c13e34a32836": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "cb41f0dad980": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "240e949c9e94": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "980d2feca552": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "3da030ad8b28": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "f0e6c8cdf713": {
+    "lat": 37.3229322,
+    "lng": -8.5601943,
+    "dist_beach_m": 8850,
+    "walk_min_beach": 178.6,
+    "dist_town_m": 671
+  },
+  "308d8ec22128": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "38ca9d8b730c": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "aff3b2e2a8c5": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "63cfe27cf0bd": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "9c406d568091": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "67f5ca430b79": {
+    "lat": 37.1331853,
+    "lng": -8.251393,
+    "dist_beach_m": 5185,
+    "walk_min_beach": 76.1,
+    "dist_town_m": 975
+  },
+  "6e6616a5d719": {
+    "lat": 37.3577096,
+    "lng": -8.3683836,
+    "dist_beach_m": 11422,
+    "walk_min_beach": 294.5,
+    "dist_town_m": 830
+  },
+  "bd17096823bc": {
+    "lat": 37.1543546,
+    "lng": -7.8885881,
+    "dist_beach_m": 15476,
+    "walk_min_beach": 246.4,
+    "dist_town_m": 166
+  },
+  "38a24f6777c2": {
+    "lat": 37.1302327,
+    "lng": -8.4468036,
+    "dist_beach_m": 4272,
+    "walk_min_beach": 69.4,
+    "dist_town_m": 933
+  },
+  "58614ac7d058": {
+    "lat": 37.1302327,
+    "lng": -8.4468036,
+    "dist_beach_m": 4272,
+    "walk_min_beach": 70.9,
+    "dist_town_m": 933
+  },
+  "5574ba662639": {
+    "lat": 37.1243853,
+    "lng": -8.5220715,
+    "dist_beach_m": 326,
+    "walk_min_beach": 5.5,
+    "dist_town_m": 213
+  },
+  "a05357769b4c": {
+    "lat": 37.1243853,
+    "lng": -8.5220715,
+    "dist_beach_m": 326,
+    "walk_min_beach": 5.5,
+    "dist_town_m": 213
+  },
+  "42f1817b7a46": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "d78629b05d97": {
+    "lat": 37.100728,
+    "lng": -8.001722,
+    "dist_beach_m": 7559,
+    "walk_min_beach": 135.5,
+    "dist_town_m": 2918
+  },
+  "038e65b2000f": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "8da77ff9f723": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "c967a28f94c9": {
+    "lat": 37.100728,
+    "lng": -8.001722,
+    "dist_beach_m": 7559,
+    "walk_min_beach": 135.5,
+    "dist_town_m": 2918
+  },
+  "b4db6ac30150": {
+    "lat": 37.100728,
+    "lng": -8.001722,
+    "dist_beach_m": 7559,
+    "walk_min_beach": 135.5,
+    "dist_town_m": 2918
+  },
+  "2f829f54b272": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 119.7,
+    "dist_town_m": 1978
+  },
+  "280a2de4dc39": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "be5b7ba8f451": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 75.2,
+    "dist_town_m": 467
+  },
+  "e05a35c3a240": {
+    "lat": 37.3393493,
+    "lng": -8.8530722,
+    "dist_beach_m": 316,
+    "walk_min_beach": 3.9,
+    "dist_town_m": 58
+  },
+  "e8fd2e2e6ff7": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "d004fdf5a989": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "dea9cf332bcd": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "a07fe714e6d8": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 119.7,
+    "dist_town_m": 1978
+  },
+  "2f76b8e6445f": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 119.7,
+    "dist_town_m": 1978
+  },
+  "c0babad342c8": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "c0b93881a5e0": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "ecf00c9798fd": {
+    "lat": 37.1728969,
+    "lng": -8.2884576,
+    "dist_beach_m": 9927,
+    "walk_min_beach": 152.1,
+    "dist_town_m": 1573
+  },
+  "17a20cdc127a": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "319403eb4ae0": {
+    "lat": 37.1928537,
+    "lng": -7.5139916,
+    "dist_beach_m": 2881,
+    "walk_min_beach": 43.1,
+    "dist_town_m": 2459
+  },
+  "cedf92930688": {
+    "lat": 37.101742,
+    "lng": -7.6618346,
+    "dist_beach_m": 1494,
+    "walk_min_beach": 54.4,
+    "dist_town_m": 0
+  },
+  "8ca5642f6d8a": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "b55b67bb46a5": {
+    "lat": 37.1057909,
+    "lng": -7.642699,
+    "dist_beach_m": 846,
+    "walk_min_beach": 72.7,
+    "dist_town_m": 1756
+  },
+  "2fb46672b95c": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "9ca9ab810cca": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "0f3eb10408b7": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "f1b49c99e6d1": {
+    "lat": 37.1057909,
+    "lng": -7.642699,
+    "dist_beach_m": 846,
+    "walk_min_beach": 72.7,
+    "dist_town_m": 1756
+  },
+  "b51065d403f1": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "c1e6c425917d": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "a35e8289e44d": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "3c550fe0f192": {
+    "lat": 37.101742,
+    "lng": -7.6618346,
+    "dist_beach_m": 1494,
+    "walk_min_beach": 54.4,
+    "dist_town_m": 0
+  },
+  "bc927f1d05c4": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.1,
+    "dist_town_m": 417
+  },
+  "3d53e208077d": {
+    "lat": 37.1728969,
+    "lng": -8.2884576,
+    "dist_beach_m": 9927,
+    "walk_min_beach": 152.1,
+    "dist_town_m": 1573
+  },
+  "ed15364e7bd3": {
+    "lat": 37.1306929,
+    "lng": -8.5819533,
+    "dist_beach_m": 1221,
+    "walk_min_beach": 23.8,
+    "dist_town_m": 990
+  },
+  "8dce78fa9893": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "4a5e4f36ef6a": {
+    "lat": 37.1249791,
+    "lng": -8.3154346,
+    "dist_beach_m": 4115,
+    "walk_min_beach": 75.8,
+    "dist_town_m": 1419
+  },
+  "55ef7848f0ca": {
+    "lat": 37.1249791,
+    "lng": -8.3154346,
+    "dist_beach_m": 4115,
+    "walk_min_beach": 75.8,
+    "dist_town_m": 1419
+  },
+  "cebd8aa6545b": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "2cc5be27ea92": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "901e3d06c651": {
+    "lat": 37.2370043,
+    "lng": -7.4377691,
+    "dist_beach_m": 6760,
+    "walk_min_beach": 136.9,
+    "dist_town_m": 2234
+  },
+  "4554a0102f96": {
+    "lat": 37.1928537,
+    "lng": -7.5139916,
+    "dist_beach_m": 2881,
+    "walk_min_beach": 43.1,
+    "dist_town_m": 2459
+  },
+  "6b6585db4382": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "60894e6b4b6b": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "c33297af7344": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "81887d23f7f9": {
+    "lat": 37.1249791,
+    "lng": -8.3154346,
+    "dist_beach_m": 4115,
+    "walk_min_beach": 75.8,
+    "dist_town_m": 1419
+  },
+  "d6f145d5ddac": {
+    "lat": 37.1057882,
+    "lng": -8.9098127,
+    "dist_beach_m": 2290,
+    "walk_min_beach": 32.6,
+    "dist_town_m": 2536
+  },
+  "e9aa40f58a89": {
+    "lat": 37.1247741,
+    "lng": -7.7707599,
+    "dist_beach_m": 8460,
+    "walk_min_beach": 150.7,
+    "dist_town_m": 3613
+  },
+  "ca2fae6838f8": {
+    "lat": 37.1249791,
+    "lng": -8.3154346,
+    "dist_beach_m": 4115,
+    "walk_min_beach": 66.9,
+    "dist_town_m": 1419
+  },
+  "970306bd3dc6": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 5.8,
+    "dist_town_m": 395
+  },
+  "4ab784502b88": {
+    "lat": 37.1249791,
+    "lng": -8.3154346,
+    "dist_beach_m": 4115,
+    "walk_min_beach": 75.8,
+    "dist_town_m": 1419
+  },
+  "5e5644e1dcba": {
+    "lat": 37.118686,
+    "lng": -8.6520706,
+    "dist_beach_m": 1051,
+    "walk_min_beach": 15.2,
+    "dist_town_m": 2554
+  },
+  "1e7716e58916": {
+    "lat": 37.0836637,
+    "lng": -7.8857442,
+    "dist_beach_m": 9051,
+    "walk_min_beach": 140.4,
+    "dist_town_m": 1467
+  },
+  "e5bd99a38467": {
+    "lat": 37.0836637,
+    "lng": -7.8857442,
+    "dist_beach_m": 9051,
+    "walk_min_beach": 147.1,
+    "dist_town_m": 1467
+  },
+  "3903c3384aff": {
+    "lat": 37.033847,
+    "lng": -7.9624234,
+    "dist_beach_m": 3560,
+    "walk_min_beach": 59.2,
+    "dist_town_m": 405
+  },
+  "960c4fae08e3": {
+    "lat": 37.4490907,
+    "lng": -7.5483256,
+    "dist_beach_m": 6807,
+    "walk_min_beach": 110.6,
+    "dist_town_m": 4294
+  },
+  "309465e98964": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "080cb4781f87": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "07c1ce46b0cc": {
+    "lat": 37.100728,
+    "lng": -8.001722,
+    "dist_beach_m": 7559,
+    "walk_min_beach": 135.5,
+    "dist_town_m": 2918
+  },
+  "823fdd966e84": {
+    "lat": 37.1057909,
+    "lng": -7.642699,
+    "dist_beach_m": 846,
+    "walk_min_beach": 72.7,
+    "dist_town_m": 1756
+  },
+  "bd787eb19ac3": {
+    "lat": 37.1247741,
+    "lng": -7.7707599,
+    "dist_beach_m": 8460,
+    "walk_min_beach": 150.7,
+    "dist_town_m": 3613
+  },
+  "3d24a325b04f": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "b2843774ce80": {
+    "lat": 37.2370043,
+    "lng": -7.4377691,
+    "dist_beach_m": 6760,
+    "walk_min_beach": 136.9,
+    "dist_town_m": 2234
+  },
+  "54d5dcb8402e": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "2b977eec325c": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "e821146b9cf2": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "e6c4d493b363": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "bc666c59ef34": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "b07ffb2d4232": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "79a296f103dc": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "7f1a11eb9c2b": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "71d5b3eda7ab": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "be1188fe87eb": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "bcf511593d3d": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "333825df5f12": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "7d0b51d5d771": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 181.3,
+    "dist_town_m": 8006
+  },
+  "ade01ed900dd": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "89ac1b302788": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "23e32839a294": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "7f03b8d5f066": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "297c20953fbb": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "ee9d563575d5": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 181.3,
+    "dist_town_m": 8006
+  },
+  "192880af48ba": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "b2434fe97f0f": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 181.3,
+    "dist_town_m": 8006
+  },
+  "99aca858bdfa": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "716433d99a27": {
+    "lat": 37.0860432,
+    "lng": -8.7307548,
+    "dist_beach_m": 125,
+    "walk_min_beach": 1.9,
+    "dist_town_m": 258
+  },
+  "c82bd388c408": {
+    "lat": 37.1008372,
+    "lng": -7.9997783,
+    "dist_beach_m": 7619,
+    "walk_min_beach": 134.3,
+    "dist_town_m": 3073
+  },
+  "35e6786cdfb9": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "d2bd6788b8d6": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "5df74cfbc907": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "ef29915bac0c": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "bc8adbc34ed4": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.2,
+    "dist_town_m": 2054
+  },
+  "62691d1f62c3": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "c503812b2e48": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "47c2a7b2262e": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "a1f551703f83": {
+    "lat": 37.1824461,
+    "lng": -7.451945,
+    "dist_beach_m": 757,
+    "walk_min_beach": 11.5,
+    "dist_town_m": 0
+  },
+  "9ef0549e6b8c": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "7dfa52fd673a": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "afbb79c0322a": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 24.9,
+    "dist_town_m": 1084
+  },
+  "f19aa8d21981": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "3eced1f39797": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "5dcc42834d4b": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "70cdf003a40b": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "6e9371647356": {
+    "lat": 37.0836637,
+    "lng": -7.8857442,
+    "dist_beach_m": 9051,
+    "walk_min_beach": 147.1,
+    "dist_town_m": 1467
+  },
+  "3061cef63385": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 181.3,
+    "dist_town_m": 8006
+  },
+  "33cce275dba7": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "8696fe8719e1": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "8589bb788656": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "2f65d30c903d": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "16d9048bd264": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "537d6ab02402": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "c17ccf914476": {
+    "lat": 37.0860432,
+    "lng": -8.7307548,
+    "dist_beach_m": 125,
+    "walk_min_beach": 1.9,
+    "dist_town_m": 258
+  },
+  "2739ad2eaa7d": {
+    "lat": 37.1247741,
+    "lng": -7.7707599,
+    "dist_beach_m": 8460,
+    "walk_min_beach": 150.7,
+    "dist_town_m": 3613
+  },
+  "3ff2768a3412": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "cf3c6ef5615a": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "c3cd26fcc0c8": {
+    "lat": 37.101742,
+    "lng": -7.6618346,
+    "dist_beach_m": 1494,
+    "walk_min_beach": 24.3,
+    "dist_town_m": 0
+  },
+  "37fd30cda001": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 105.0,
+    "dist_town_m": 5798
+  },
+  "42ab17eb0fd2": {
+    "lat": 37.101742,
+    "lng": -7.6618346,
+    "dist_beach_m": 1494,
+    "walk_min_beach": 24.3,
+    "dist_town_m": 0
+  },
+  "48db6d682705": {
+    "lat": 37.132655,
+    "lng": -7.6319384,
+    "dist_beach_m": 1674,
+    "walk_min_beach": 31.4,
+    "dist_town_m": 1745
+  },
+  "2d18f3250370": {
+    "lat": 37.1057909,
+    "lng": -7.642699,
+    "dist_beach_m": 846,
+    "walk_min_beach": 72.7,
+    "dist_town_m": 1756
+  },
+  "fc6b31bc2208": {
+    "lat": 38.8729545,
+    "lng": -7.158218,
+    "dist_beach_m": 158158,
+    "walk_min_beach": 2570.1,
+    "dist_town_m": 152045
+  },
+  "c05b1d6ba8f8": {
+    "lat": 37.1928537,
+    "lng": -7.5139916,
+    "dist_beach_m": 2881,
+    "walk_min_beach": 43.1,
+    "dist_town_m": 2459
+  },
+  "cd8e8d7c3f6c": {
+    "lat": 37.14887,
+    "lng": -8.7039675,
+    "dist_beach_m": 6134,
+    "walk_min_beach": 114.0,
+    "dist_town_m": 2906
+  },
+  "cc91495b636d": {
+    "lat": 37.14887,
+    "lng": -8.7039675,
+    "dist_beach_m": 6134,
+    "walk_min_beach": 114.0,
+    "dist_town_m": 2906
+  },
+  "0df0791e7a99": {
+    "lat": 37.14887,
+    "lng": -8.7039675,
+    "dist_beach_m": 6134,
+    "walk_min_beach": 114.0,
+    "dist_town_m": 2906
+  },
+  "bbaf13ac3742": {
+    "lat": 37.14887,
+    "lng": -8.7039675,
+    "dist_beach_m": 6134,
+    "walk_min_beach": 114.0,
+    "dist_town_m": 2906
+  },
+  "efc806ac3bff": {
+    "lat": 37.14887,
+    "lng": -8.7039675,
+    "dist_beach_m": 6134,
+    "walk_min_beach": 114.0,
+    "dist_town_m": 2906
+  },
+  "2340d58c4086": {
+    "lat": 37.1057626,
+    "lng": -8.6763185,
+    "dist_beach_m": 1150,
+    "walk_min_beach": 15.5,
+    "dist_town_m": 450
+  },
+  "ed60910170c3": {
+    "lat": 37.14887,
+    "lng": -8.7039675,
+    "dist_beach_m": 6134,
+    "walk_min_beach": 114.0,
+    "dist_town_m": 2906
+  },
+  "cc7587fdc66d": {
+    "lat": 37.033847,
+    "lng": -7.9624234,
+    "dist_beach_m": 3560,
+    "walk_min_beach": 59.2,
+    "dist_town_m": 405
+  },
+  "3b79a907af59": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "90b117ff7c19": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "a5f0a00fc510": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "65b51cee180d": {
+    "lat": 37.1717223,
+    "lng": -7.6198154,
+    "dist_beach_m": 5054,
+    "walk_min_beach": 82.1,
+    "dist_town_m": 3210
+  },
+  "f262b2322e62": {
+    "lat": 37.1717223,
+    "lng": -7.6198154,
+    "dist_beach_m": 5054,
+    "walk_min_beach": 82.1,
+    "dist_town_m": 3210
+  },
+  "1b10ba5d461b": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "f48466f116d6": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "13322c9731a8": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "9f8cdbbcac44": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "e66803af5e19": {
+    "lat": 37.2312139,
+    "lng": -7.4256417,
+    "dist_beach_m": 6360,
+    "walk_min_beach": 152.3,
+    "dist_town_m": 2310
+  },
+  "8826962b2ad6": {
+    "lat": 37.1824461,
+    "lng": -7.451945,
+    "dist_beach_m": 757,
+    "walk_min_beach": 11.5,
+    "dist_town_m": 0
+  },
+  "f7cd77d0191f": {
+    "lat": 37.2312139,
+    "lng": -7.4256417,
+    "dist_beach_m": 6360,
+    "walk_min_beach": 152.3,
+    "dist_town_m": 2310
+  },
+  "66e353601ca9": {
+    "lat": 37.0994698,
+    "lng": -7.9998156,
+    "dist_beach_m": 7472,
+    "walk_min_beach": 140.0,
+    "dist_town_m": 2997
+  },
+  "f10568f1e308": {
+    "lat": 37.1285378,
+    "lng": -8.3465384,
+    "dist_beach_m": 3358,
+    "walk_min_beach": 43.1,
+    "dist_town_m": 207
+  },
+  "55d3b943c19c": {
+    "lat": 37.1261541,
+    "lng": -8.0529878,
+    "dist_beach_m": 7867,
+    "walk_min_beach": 139.4,
+    "dist_town_m": 3045
+  },
+  "08028aa2fdd8": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.1,
+    "dist_town_m": 417
+  },
+  "376ffb982673": {
+    "lat": 37.1728969,
+    "lng": -8.2884576,
+    "dist_beach_m": 9927,
+    "walk_min_beach": 152.1,
+    "dist_town_m": 1573
+  },
+  "50c6c37e833a": {
+    "lat": 37.3577096,
+    "lng": -8.3683836,
+    "dist_beach_m": 11422,
+    "walk_min_beach": 294.5,
+    "dist_town_m": 830
+  },
+  "27a92eb7f4c2": {
+    "lat": 37.1519633,
+    "lng": -8.4262019,
+    "dist_beach_m": 5456,
+    "walk_min_beach": 94.5,
+    "dist_town_m": 3024
+  },
+  "9fccfe5c976e": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "5b64a15edd31": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "214de7e4227e": {
+    "lat": 37.0245645,
+    "lng": -7.928716,
+    "dist_beach_m": 1532,
+    "walk_min_beach": 31.3,
+    "dist_town_m": 1084
+  },
+  "a4c27a190c11": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "1244227aae07": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "5d93666bee5f": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "c61ba8f252b1": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "40113c5da52c": {
+    "lat": 37.0882389,
+    "lng": -7.9746629,
+    "dist_beach_m": 7365,
+    "walk_min_beach": 122.3,
+    "dist_town_m": 1978
+  },
+  "91bf0abd6f2d": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "2601be86e414": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.2,
+    "dist_town_m": 2054
+  },
+  "675f2beb7eec": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "f43db27f7f49": {
+    "lat": 37.157372,
+    "lng": -8.201367,
+    "dist_beach_m": 7583,
+    "walk_min_beach": 123.8,
+    "dist_town_m": 2054
+  },
+  "246ae921e4b9": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "2e3586269f51": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "8e8bc2c121eb": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "788606aa50fa": {
+    "lat": 37.1249791,
+    "lng": -8.3154346,
+    "dist_beach_m": 4115,
+    "walk_min_beach": 66.9,
+    "dist_town_m": 1419
+  },
+  "734b7618e979": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "eb75d138021c": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "dcec321d47a5": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "c55e90f23899": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 82.4,
+    "dist_town_m": 467
+  },
+  "1ecb39beedfd": {
+    "lat": 37.1247741,
+    "lng": -7.7707599,
+    "dist_beach_m": 8460,
+    "walk_min_beach": 150.7,
+    "dist_town_m": 3613
+  },
+  "6caf29fba620": {
+    "lat": 37.1247741,
+    "lng": -7.7707599,
+    "dist_beach_m": 8460,
+    "walk_min_beach": 150.7,
+    "dist_town_m": 3613
+  },
+  "765dec1f19db": {
+    "lat": 37.1247741,
+    "lng": -7.7707599,
+    "dist_beach_m": 8460,
+    "walk_min_beach": 150.7,
+    "dist_town_m": 3613
+  },
+  "5202c7995495": {
+    "lat": 37.1167616,
+    "lng": -8.1218095,
+    "dist_beach_m": 4630,
+    "walk_min_beach": 75.2,
+    "dist_town_m": 467
+  },
+  "dbb3f8e7a369": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "13c4064657e4": {
+    "lat": 37.100728,
+    "lng": -8.001722,
+    "dist_beach_m": 7559,
+    "walk_min_beach": 122.8,
+    "dist_town_m": 2918
+  },
+  "6baf6df6c51f": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.1,
+    "dist_town_m": 417
+  },
+  "067513eb31d6": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "937ba26ff521": {
+    "lat": 37.28482,
+    "lng": -7.4641924,
+    "dist_beach_m": 12078,
+    "walk_min_beach": 197.6,
+    "dist_town_m": 0
+  },
+  "966274edc316": {
+    "lat": 37.132655,
+    "lng": -7.6319384,
+    "dist_beach_m": 1674,
+    "walk_min_beach": 31.4,
+    "dist_town_m": 1745
+  },
+  "8e9a43eefd11": {
+    "lat": 37.132655,
+    "lng": -7.6319384,
+    "dist_beach_m": 1674,
+    "walk_min_beach": 31.4,
+    "dist_town_m": 1745
+  },
+  "d9f3092408d3": {
+    "lat": 37.1975493,
+    "lng": -7.5970952,
+    "dist_beach_m": 6463,
+    "walk_min_beach": 108.8,
+    "dist_town_m": 5798
+  },
+  "b8ce2a804530": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.1,
+    "dist_town_m": 417
+  },
+  "ce1ff956940a": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.3,
+    "dist_town_m": 417
+  },
+  "880c8a3fb067": {
+    "lat": 37.1021668,
+    "lng": -8.3666521,
+    "dist_beach_m": 324,
+    "walk_min_beach": 5.1,
+    "dist_town_m": 417
+  },
+  "0ff34c70c3e7": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "2756271d858e": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 5.8,
+    "dist_town_m": 395
+  },
+  "b3250f1c27e3": {
+    "lat": 37.1016188,
+    "lng": -7.8924201,
+    "dist_beach_m": 10662,
+    "walk_min_beach": 155.7,
+    "dist_town_m": 810
+  },
+  "e74ca0f9e60e": {
+    "lat": 37.3229322,
+    "lng": -8.5601943,
+    "dist_beach_m": 8850,
+    "walk_min_beach": 178.6,
+    "dist_town_m": 671
+  },
+  "b19607641006": {
+    "lat": 37.1620398,
+    "lng": -8.4863065,
+    "dist_beach_m": 42,
+    "walk_min_beach": 1.2,
+    "dist_town_m": 1805
+  },
+  "c8c2c4c1ac04": {
+    "lat": 37.2303635,
+    "lng": -8.6273516,
+    "dist_beach_m": 11156,
+    "walk_min_beach": 220.7,
+    "dist_town_m": 8006
+  },
+  "9ebde163ecd6": {
+    "lat": 37.1008372,
+    "lng": -7.9997783,
+    "dist_beach_m": 7619,
+    "walk_min_beach": 134.3,
+    "dist_town_m": 3073
+  },
+  "cbcdd7166842": {
+    "lat": 37.1367478,
+    "lng": -7.6965282,
+    "dist_beach_m": 6443,
+    "walk_min_beach": 114.9,
+    "dist_town_m": 1986
+  },
+  "7226c60e8025": {
+    "lat": 37.1273806,
+    "lng": -8.2804115,
+    "dist_beach_m": 5167,
+    "walk_min_beach": 80.0,
+    "dist_town_m": 1705
+  },
+  "22260ef5aa68": {
+    "lat": 37.1361644,
+    "lng": -8.2470719,
+    "dist_beach_m": 5522,
+    "walk_min_beach": 83.6,
+    "dist_town_m": 1034
+  },
+  "7534a7a8a4c8": {
+    "lat": 37.0897977,
+    "lng": -8.1946994,
+    "dist_beach_m": 355,
+    "walk_min_beach": 9.3,
+    "dist_town_m": 395
+  },
+  "e0d927fdf2b2": {
+    "lat": 37.1306929,
+    "lng": -8.5819533,
+    "dist_beach_m": 1221,
+    "walk_min_beach": 23.8,
+    "dist_town_m": 990
+  },
+  "56274d6d588a": {
+    "lat": 37.1008372,
+    "lng": -7.9997783,
+    "dist_beach_m": 7619,
+    "walk_min_beach": 134.3,
+    "dist_town_m": 3073
+  },
+  "daae6d77d11c": {
+    "lat": 37.1717223,
+    "lng": -7.6198154,
+    "dist_beach_m": 5054,
+    "walk_min_beach": 82.1,
+    "dist_town_m": 3210
+  },
+  "20f1c84aba5e": {
+    "lat": 37.1306929,
+    "lng": -8.5819533,
+    "dist_beach_m": 1221,
+    "walk_min_beach": 23.8,
+    "dist_town_m": 990
+  },
+  "e04117de20c1": {
+    "lat": 37.0994698,
+    "lng": -7.9998156,
+    "dist_beach_m": 7472,
+    "walk_min_beach": 140.0,
+    "dist_town_m": 2997
+  },
+  "e77afd3e7073": {
+    "lat": 37.1302327,
+    "lng": -8.4468036,
+    "dist_beach_m": 4272,
+    "walk_min_beach": 70.9,
+    "dist_town_m": 933
+  }
+}
