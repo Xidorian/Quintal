@@ -11,7 +11,7 @@ capability.
 - **Collection** — browser-session based (Chrome, no scraping infra) for Idealista +
   Imovirtual. Extraction is versioned in `collect/extract.js` (per-site selectors +
   accumulate/download helpers). Idealista pre-filters via the real URL token `t4-t5`
-  for T4+. Current store: **1081 listings** (496 idealista / 585 imovirtual) → 614 ranked.
+  for T4+. Current store: **1340 listings** (755 idealista / 585 imovirtual) → 594 ranked.
 - **Screening** (`screening.py`) purges short-term/AL/Spacest lets + year-interrupted
   seasonal spans into a persistent blocklist. **Liveness** (`liveness.py`) drops delisted
   listings two ways: Imovirtual by **detail-page 404/410 probe** (sticky); Idealista by
@@ -44,9 +44,10 @@ capability.
   238 new photos. Ranked **614** (221 undervalued / 161 fair / 209 overpriced), 27 price
   outliers trimmed from the hedonic fit. Published to `deploy`.
   - Added **idealista cull-by-absence liveness** (`--ingest --cull`) after finding idealista
-    IP-rate-limits detail probes (429). *Not yet applied* — needs a complete (paged-to-plateau)
-    idealista pull, which today's 6-page cap + the active rate-limit prevented. Takes effect on
-    the next full idealista collection; existing idealista dead-links clear then.
+    IP-rate-limits detail probes (429). **Applied same day** after the rate-limit cooled: pulled
+    the *complete* idealista search (456/456 per its own header — the old 6-page cap only saw
+    ~180), which **added 259 long-missed listings (pages 7–16)** and **culled 299 stale ones**.
+    Re-ranked **594** (idealista 283 / imovirtual 311), delisted set 137 → 436, re-published.
 
 ## Where work stopped
 Backlog fully drained; last work was the 2026-07-27 weekly re-collection (above). Prior
