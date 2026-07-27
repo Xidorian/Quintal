@@ -24,13 +24,15 @@ the per-site card selectors live there. **Per page**, inject that file's content
 helper (page navigation clears `window`, so re-inject each page). `browser_batch` a
 `navigate` + `javascript_tool` pair per page.
 
-- **Idealista** — get URLs with `python -m quintal.collect.run --site idealista --print-urls --pages 10`
+- **Idealista** — get URLs with `python -m quintal.collect.run --site idealista --print-urls --pages 18`
   (already the correct filtered format `…/com-preco-max_1500,t2,t3,t4-t5/…pagina-N`; ~30 cards/page).
+  The full Faro search is **~16 pages / ~456 listings** — the old 6-page cap silently missed ~60%.
   - Page 1: eval `<extract.js>` then `quintalReset('idealista'); quintalExtract('idealista')`.
   - Later pages: eval `<extract.js>` then `quintalExtract('idealista')`. **Page until `total`
-    plateaus** (a page returning <30 or no new cards = the last one), exactly like imovirtual.
-    Completeness matters here: the `--cull` in step 2 delists any idealista listing absent from
-    this pull, so a short pull would wrongly cull live listings on the pages you skipped.
+    plateaus** — the results page prints its own count in the `<h1>` (e.g. "456 casas"); pull
+    until `total` matches it (the last page returns <30). Completeness is load-bearing: the
+    `--cull` in step 2 delists any idealista listing absent from this pull, so a short pull would
+    wrongly cull live listings on the pages you skipped.
 - **Imovirtual** — the CLI URL is wrong (it drops comma-joined types), so use these two searches
   **separately** (`&page=N`), paging until `total` stops growing (apt ≈ 9 pages/~237, moradia ≈ 5/~46):
   - apt:     `https://www.imovirtual.com/pt/resultados/arrendar/apartamento/faro?priceMax=1500&roomsNumber=%5BTWO%2CTHREE%2CFOUR%5D&page=N`
