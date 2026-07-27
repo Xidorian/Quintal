@@ -24,10 +24,13 @@ the per-site card selectors live there. **Per page**, inject that file's content
 helper (page navigation clears `window`, so re-inject each page). `browser_batch` a
 `navigate` + `javascript_tool` pair per page.
 
-- **Idealista** — get URLs with `python -m quintal.collect.run --site idealista --print-urls --pages 6`
-  (already the correct filtered format `…/com-preco-max_1500,t2,t3,t4-t5/…pagina-N`). 6 pages ≈ 180 cards.
+- **Idealista** — get URLs with `python -m quintal.collect.run --site idealista --print-urls --pages 10`
+  (already the correct filtered format `…/com-preco-max_1500,t2,t3,t4-t5/…pagina-N`; ~30 cards/page).
   - Page 1: eval `<extract.js>` then `quintalReset('idealista'); quintalExtract('idealista')`.
-  - Pages 2–6: eval `<extract.js>` then `quintalExtract('idealista')`. Watch the `total` climb.
+  - Later pages: eval `<extract.js>` then `quintalExtract('idealista')`. **Page until `total`
+    plateaus** (a page returning <30 or no new cards = the last one), exactly like imovirtual.
+    Completeness matters here: the `--cull` in step 2 delists any idealista listing absent from
+    this pull, so a short pull would wrongly cull live listings on the pages you skipped.
 - **Imovirtual** — the CLI URL is wrong (it drops comma-joined types), so use these two searches
   **separately** (`&page=N`), paging until `total` stops growing (apt ≈ 9 pages/~237, moradia ≈ 5/~46):
   - apt:     `https://www.imovirtual.com/pt/resultados/arrendar/apartamento/faro?priceMax=1500&roomsNumber=%5BTWO%2CTHREE%2CFOUR%5D&page=N`
@@ -39,9 +42,15 @@ Chrome blocks a 2nd auto-download in the **same** tab — download from a **fres
 open a new tab → navigate to the site → eval `<extract.js>` → `quintalDownload('idealista')`
 (or `'imovirtual'`) → it saves `~/Downloads/quintal_<site>.json`. Then:
 ```
-python -m quintal.collect.run --site idealista  --ingest ~/Downloads/quintal_idealista.json
+python -m quintal.collect.run --site idealista  --ingest ~/Downloads/quintal_idealista.json --cull
 python -m quintal.collect.run --site imovirtual --ingest ~/Downloads/quintal_imovirtual.json
 ```
+`--cull` on idealista is its **only** liveness path (idealista IP-rate-limits detail-page probes,
+so `quintal.liveness` skips it) — it delists any idealista listing in the store that this pull
+didn't re-surface. **Only pass `--cull` when the pull is complete** (step 1 paged to plateau);
+it's reversible, so a listing that reappears next week is automatically un-culled. Imovirtual keeps
+its probe-based liveness (step 3), so no `--cull` there.
+
 Sanity: no absurd prices (the Imovirtual `€/m²` concat bug is handled in the adapter; if a new
 one appears, check `imovirtual._rent_only`). `rm ~/Downloads/quintal_*.json` when done.
 

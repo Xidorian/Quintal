@@ -65,6 +65,58 @@ def drop_delisted(
     return kept, len(listings) - len(kept)
 
 
+_ABSENT = "absent"  # cull reason — reversible, unlike the sticky 404/410 probe results
+
+
+def cull_absent(
+    site: str,
+    pulled_urls: set[str],
+    input_path: str,
+    path: str | Path = DEFAULT_PATH,
+) -> tuple[int, int]:
+    """Mark `site` listings absent from a **complete** pull as delisted, and resurrect any
+    previously-absent ones that reappeared. Returns (culled, resurrected).
+
+    This is the idealista counterpart to :func:`probe`: idealista IP-rate-limits detail-page
+    liveness checks, so instead of probing we treat a *complete* search pull as authoritative —
+    any listing of that site still in the store but not re-seen in the pull is no longer listed,
+    so it is culled. The cull is recorded with reason ``"absent"`` rather than a 404/410 status,
+    which keeps it **reversible**: a URL that comes back in a later pull (idealista indexing
+    blips, or a listing re-posted) is un-culled, whereas a real ``probe`` 404/410 stays sticky.
+
+    CALLER CONTRACT: only pass a pull that paged to exhaustion. A partial pull would cull live
+    listings sitting on the pages you didn't collect. ``pulled_urls`` is the set of source_urls
+    from that pull; ``input_path`` is the store (read to enumerate the site's current listings).
+    """
+    gone = load(path)
+    resurrected = 0
+    for url in pulled_urls:
+        if gone.get(url) == _ABSENT:  # back in the search → no longer gone (404/410 stays sticky)
+            del gone[url]
+            resurrected += 1
+    site_urls = {
+        r["source_url"]
+        for r in store.load(input_path).values()
+        if r.get("source") == site and r.get("source_url")
+    }
+    culled = 0
+    for url in site_urls - pulled_urls:
+        if url not in gone:  # don't clobber a real 404/410, don't re-count an existing cull
+            gone[url] = _ABSENT
+            culled += 1
+    save(gone, path)
+    log.info(
+        "culled absent listings",
+        extra={
+            "event": "culled_absent",
+            "ctx_site": site,
+            "ctx_culled": culled,
+            "ctx_resurrected": resurrected,
+        },
+    )
+    return culled, resurrected
+
+
 def probe(input_path: str, path: str | Path = DEFAULT_PATH, delay: float = 0.4) -> dict:
     """Probe enrichable listings and record HTTP 404/410 (gone) ones. Resumable + polite.
 

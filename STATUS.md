@@ -13,8 +13,11 @@ capability.
   accumulate/download helpers). Idealista pre-filters via the real URL token `t4-t5`
   for T4+. Current store: **1081 listings** (496 idealista / 585 imovirtual) → 614 ranked.
 - **Screening** (`screening.py`) purges short-term/AL/Spacest lets + year-interrupted
-  seasonal spans into a persistent blocklist. **Liveness** (`liveness.py`) drops
-  delisted 404/410 listings (Imovirtual only — Idealista 403s server-side).
+  seasonal spans into a persistent blocklist. **Liveness** (`liveness.py`) drops delisted
+  listings two ways: Imovirtual by **detail-page 404/410 probe** (sticky); Idealista by
+  **cull-by-absence** — `--ingest --cull` delists any idealista listing a *complete* pull
+  didn't re-surface (idealista IP-rate-limits detail probes, so absence is the signal).
+  Cull is reversible: a listing that reappears next pull is un-culled.
 - **Enrichment** — geocode `Nominatim → Photon → skip`; nearest-beach walk-times now
   **real ORS routed** (key in local `.env`, cached in `enrichment_cache.json`, readable
   key-free so hosted app needs no key). Per-listing geo persisted to `data/geo.json` so
@@ -40,6 +43,10 @@ capability.
   Maintenance: 67 new descriptions, **72 newly-delisted** (410/404 → delisted 65→137),
   238 new photos. Ranked **614** (221 undervalued / 161 fair / 209 overpriced), 27 price
   outliers trimmed from the hedonic fit. Published to `deploy`.
+  - Added **idealista cull-by-absence liveness** (`--ingest --cull`) after finding idealista
+    IP-rate-limits detail probes (429). *Not yet applied* — needs a complete (paged-to-plateau)
+    idealista pull, which today's 6-page cap + the active rate-limit prevented. Takes effect on
+    the next full idealista collection; existing idealista dead-links clear then.
 
 ## Where work stopped
 Backlog fully drained; last work was the 2026-07-27 weekly re-collection (above). Prior
@@ -49,8 +56,9 @@ the weekly re-collection (see NEXT.md).
 
 ## Known issues / debugging
 - **Pool decays fast** — ~13% delisted per 11 days; re-collection must be regular.
-- **Idealista detail pages** need the logged-in browser session (DataDome 403s server-side),
-  so its descriptions and liveness can't be probed headless.
+- **Idealista detail pages** can't be fetched programmatically (DataDome 403 server-side; even
+  in-browser XHR trips a 429 IP rate-limit fast — learned 2026-07-27). So idealista descriptions
+  stay title-only, and idealista liveness uses cull-by-absence (`--cull`) instead of probing.
 - **Idealista thumbnails are `/blur/` previews** → idealista↔imovirtual photo-hash matches
   are only partial.
 - **Small-pool valuations are low-confidence** — respect the confidence badge; peer-median

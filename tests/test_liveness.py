@@ -65,6 +65,49 @@ def test_probe_records_only_gone_and_skips_idealista(monkeypatch, tmp_path):
     assert liveness.load(tmp_path / "d.json") == {"https://imv/gone": "410"}
 
 
+def _store(tmp_path, rows):
+    p = tmp_path / "listings.jsonl"
+    p.write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+    return p
+
+
+def test_cull_absent_marks_absent_only_for_site(tmp_path):
+    store = _store(
+        tmp_path,
+        [
+            {"source": "idealista", "source_url": "https://ide/a"},
+            {"source": "idealista", "source_url": "https://ide/b"},
+            {"source": "idealista", "source_url": "https://ide/gone"},  # not in pull
+            {"source": "imovirtual", "source_url": "https://imv/x"},  # other site, untouched
+        ],
+    )
+    path = tmp_path / "d.json"
+    culled, resurrected = liveness.cull_absent(
+        "idealista", {"https://ide/a", "https://ide/b"}, store, path
+    )
+    assert (culled, resurrected) == (1, 0)
+    assert liveness.load(path) == {"https://ide/gone": "absent"}  # imv/x never touched
+
+
+def test_cull_absent_resurrects_returning_url(tmp_path):
+    store = _store(tmp_path, [{"source": "idealista", "source_url": "https://ide/a"}])
+    path = tmp_path / "d.json"
+    liveness.save({"https://ide/a": "absent"}, path)  # was culled last week
+    culled, resurrected = liveness.cull_absent("idealista", {"https://ide/a"}, store, path)
+    assert (culled, resurrected) == (0, 1)
+    assert liveness.load(path) == {}  # back in the search → un-culled
+
+
+def test_cull_absent_keeps_real_gone_sticky(tmp_path):
+    # A 404/410 from the real probe must never be overwritten or resurrected by the cull.
+    store = _store(tmp_path, [{"source": "idealista", "source_url": "https://ide/dead"}])
+    path = tmp_path / "d.json"
+    liveness.save({"https://ide/dead": "410"}, path)
+    culled, resurrected = liveness.cull_absent("idealista", {"https://ide/dead"}, store, path)
+    assert (culled, resurrected) == (0, 0)  # present in pull, but 410 stays sticky
+    assert liveness.load(path) == {"https://ide/dead": "410"}
+
+
 def test_probe_skips_known_gone(monkeypatch, tmp_path):
     listings_path = tmp_path / "listings.jsonl"
     row = {"source": "imovirtual", "source_url": "https://imv/gone", "price_eur_month": 1}

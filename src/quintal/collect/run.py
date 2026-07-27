@@ -3,6 +3,8 @@
 Two actions:
   --print-urls   emit the search-result URLs to open in your logged-in Chrome (default)
   --ingest FILE  map a JSON array of extracted card rows into data/listings.jsonl
+                 (add --cull to also delist store entries absent from a COMPLETE pull —
+                 the probe-free liveness path for idealista, which rate-limits detail fetches)
 
 Runtime flow: print URLs → open them in Chrome → extract the visible cards (via the
 browser tools) into a JSON array of ExtractedRow → feed it back with --ingest. The
@@ -15,6 +17,7 @@ import argparse
 import json
 from pathlib import Path
 
+from .. import liveness
 from ..logconf import get_logger
 from . import idealista, imovirtual, store
 from .base import SearchParams
@@ -40,7 +43,7 @@ def print_urls(sites: list[str], params: SearchParams, pages: int) -> None:
             print(url)
 
 
-def ingest(site: str, rows_path: str, store_path: str) -> None:
+def ingest(site: str, rows_path: str, store_path: str, cull: bool = False) -> None:
     rows = json.loads(Path(rows_path).read_text(encoding="utf-8"))
     raw = [ADAPTERS[site].to_raw(row) for row in rows]
     added, updated = store.upsert(store_path, raw)
@@ -48,7 +51,15 @@ def ingest(site: str, rows_path: str, store_path: str) -> None:
         "ingested extracted rows",
         extra={"event": "ingested", "ctx_site": site, "ctx_added": added, "ctx_updated": updated},
     )
-    print(f"{site}: +{added} new, {updated} updated → {store_path}")
+    msg = f"{site}: +{added} new, {updated} updated → {store_path}"
+    if cull:
+        # Treat this pull as the complete current search: anything of this site still in the
+        # store but not re-seen is no longer listed → cull it (reversible if it reappears).
+        # Only valid when the pull paged to exhaustion — see liveness.cull_absent's contract.
+        pulled = {r["source_url"] for r in raw if r.get("source_url")}
+        culled, resurrected = liveness.cull_absent(site, pulled, store_path)
+        msg += f" · culled {culled} absent, resurrected {resurrected}"
+    print(msg)
 
 
 def main() -> None:
@@ -67,6 +78,11 @@ def main() -> None:
     parser.add_argument(
         "--ingest", metavar="ROWS_JSON", help="ingest extracted card rows from a JSON file"
     )
+    parser.add_argument(
+        "--cull",
+        action="store_true",
+        help="cull store listings of this site absent from the pull (COMPLETE pulls only)",
+    )
     parser.add_argument("--store", default=DEFAULT_STORE)
     args = parser.parse_args()
 
@@ -75,7 +91,7 @@ def main() -> None:
     if args.ingest:
         if args.site == "all":
             parser.error("--ingest needs a single --site (rows come from one site)")
-        ingest(args.site, args.ingest, args.store)
+        ingest(args.site, args.ingest, args.store, cull=args.cull)
     else:
         print_urls(sites, _params(args), args.pages)
 
