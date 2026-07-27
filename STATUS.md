@@ -11,7 +11,7 @@ capability.
 - **Collection** — browser-session based (Chrome, no scraping infra) for Idealista +
   Imovirtual. Extraction is versioned in `collect/extract.js` (per-site selectors +
   accumulate/download helpers). Idealista pre-filters via the real URL token `t4-t5`
-  for T4+. Current store: **841 listings** (333 idealista / 508 imovirtual) → ~569 ranked.
+  for T4+. Current store: **1081 listings** (496 idealista / 585 imovirtual) → 614 ranked.
 - **Screening** (`screening.py`) purges short-term/AL/Spacest lets + year-interrupted
   seasonal spans into a persistent blocklist. **Liveness** (`liveness.py`) drops
   delisted 404/410 listings (Imovirtual only — Idealista 403s server-side).
@@ -34,10 +34,18 @@ capability.
   Malia confirmed it works for her.
 - **96 tests green.**
 
+## Re-collection log
+- **2026-07-27** — store 841 → **1081** (+240 new: idealista 163, imovirtual 77;
+  235 updated). Collected 180 idealista (6 pages) + 295 imovirtual (251 apt / 44 moradia).
+  Maintenance: 67 new descriptions, **72 newly-delisted** (410/404 → delisted 65→137),
+  238 new photos. Ranked **614** (221 undervalued / 161 fair / 209 overpriced), 27 price
+  outliers trimmed from the hedonic fit. Published to `deploy`.
+
 ## Where work stopped
-Backlog fully drained; last work was QT-033/034/035 (versioned extraction, Idealista
-filter URL, ORS routed walk-times) plus the RECOLLECT.md weekly-re-collection runbook.
-No open feature work — the standing task is the weekly re-collection (see NEXT.md).
+Backlog fully drained; last work was the 2026-07-27 weekly re-collection (above). Prior
+feature work was QT-033/034/035 (versioned extraction, Idealista filter URL, ORS routed
+walk-times) plus the RECOLLECT.md runbook. No open feature work — the standing task is
+the weekly re-collection (see NEXT.md).
 
 ## Known issues / debugging
 - **Pool decays fast** — ~13% delisted per 11 days; re-collection must be regular.
