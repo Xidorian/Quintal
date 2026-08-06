@@ -80,6 +80,20 @@ def test_pagination_produces_distinct_pages():
     assert len(urls) == 2 and urls[0] != urls[1]
 
 
+def test_norte_regions_map_to_district_slugs():
+    # Norte expansion (2026-08): each canonical region resolves to its own portal slug.
+    cases = {
+        "porto": ("porto-distrito", "/porto?"),
+        "braga": ("braga-distrito", "/braga?"),
+        "viana-do-castelo": ("viana-do-castelo-distrito", "/viana-do-castelo?"),
+        "vila-real": ("vila-real-distrito", "/vila-real?"),
+        "viseu": ("viseu-distrito", "/viseu?"),  # Douro south bank
+    }
+    for region, (ideal_slug, imv_frag) in cases.items():
+        assert ideal_slug in idealista.search_urls(SearchParams(region=region))[0]
+        assert imv_frag in imovirtual.search_urls(SearchParams(region=region, max_price=1500))[0]
+
+
 def test_imovirtual_location_drops_district_for_concelho():
     # Imovirtual reads '[street, ]freguesia, concelho, Faro' — the last token is the
     # district, so the concelho must NOT collapse to 'Faro' (that bug bucketed all 443
@@ -93,6 +107,20 @@ def test_imovirtual_location_drops_district_for_concelho():
     # A listing genuinely in Faro concelho stays Faro (only the district suffix is dropped).
     raw = imovirtual.to_raw({"location": "Faro (Sé e São Pedro), Faro, Faro"})
     assert raw["concelho"] == "Faro" and raw["freguesia"] == "Faro (Sé e São Pedro)"
+
+
+def test_imovirtual_drops_district_for_norte_regions():
+    # The district strip is no longer Faro-only — it must work for the Norte districts too,
+    # including the capital-municipality case where concelho == district (Porto in Porto).
+    raw = imovirtual.to_raw({"location": "Cedofeita, Porto, Porto"})
+    assert raw["concelho"] == "Porto" and raw["freguesia"] == "Cedofeita"
+    raw = imovirtual.to_raw({"location": "Peso da Régua, Vila Real"})
+    assert raw["concelho"] == "Peso da Régua" and raw["freguesia"] is None
+    raw = imovirtual.to_raw({"location": "Real, Braga, Braga"})
+    assert raw["concelho"] == "Braga" and raw["freguesia"] == "Real"
+    # Multi-word district (Viana do Castelo) is matched as one token, not split on space.
+    raw = imovirtual.to_raw({"location": "Monserrate, Viana do Castelo, Viana do Castelo"})
+    assert raw["concelho"] == "Viana do Castelo" and raw["freguesia"] == "Monserrate"
 
 
 # --- Extraction row → raw → normalized Listing (end to end) ---

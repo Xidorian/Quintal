@@ -72,7 +72,15 @@
           typology: dd.find((d) => /^T\d/.test(d)) || "",
           area_text: dd.find((d) => /m²/.test(d)) || "",
           rooms_text: dd.join(", "),
-          location: ps.find((t) => /Faro$/.test(t)) || "", // "freguesia, concelho, Faro"
+          // Address <p> ends in the district: "freguesia, concelho, <District>". Match any
+          // mainland district (not just Faro) so the Norte pull captures a location at all —
+          // imovirtual._parse_location then strips the district to recover the concelho.
+          location:
+            ps.find((t) =>
+              /(?:Aveiro|Beja|Braga|Bragança|Castelo Branco|Coimbra|Évora|Faro|Guarda|Leiria|Lisboa|Portalegre|Porto|Santarém|Setúbal|Viana do Castelo|Vila Real|Viseu)$/.test(
+                t
+              )
+            ) || "",
           description: "", // cards carry none — enriched later via quintal.descriptions
           is_private: /oferta privada/i.test(c.innerText),
           image_url: /^data:|placeholder/.test(src) ? "" : src,

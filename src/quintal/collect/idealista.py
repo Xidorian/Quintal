@@ -12,7 +12,19 @@ from .base import ExtractedRow, SearchParams, row_to_raw
 
 name = "idealista"
 _BASE = "https://www.idealista.pt/arrendar-casas"
-_REGION_SLUGS = {"algarve": "faro-distrito"}
+# Canonical region → Idealista district slug (pattern is always "<district>-distrito").
+# Verify a new slug against the live site on first pull — see the module docstring.
+_REGION_SLUGS = {
+    "algarve": "faro-distrito",
+    # Norte expansion (2026-08): Porto city, the Douro (Vila Real north bank + eastern
+    # Porto district), and the Minho (Braga, Viana do Castelo). Viseu (Centro) is included
+    # for the Douro's south bank — Lamego, Armamar, Tarouca, São João da Pesqueira, etc.
+    "porto": "porto-distrito",
+    "braga": "braga-distrito",
+    "viana-do-castelo": "viana-do-castelo-distrito",
+    "vila-real": "vila-real-distrito",
+    "viseu": "viseu-distrito",
+}
 
 
 def search_urls(params: SearchParams, pages: int = 1) -> list[str]:

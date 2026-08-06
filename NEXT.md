@@ -1,7 +1,20 @@
 # Next — Quintal
 
-**Now:** Backlog is drained. The only recurring task is the weekly re-collection to keep
-Malia's pool fresh — everything below the routine is optional/deferred.
+**Now:** Norte expansion in progress (Porto + Douro + Minho, separate pool). Pull is done
+(2828 ranked); the geography/greenery layer is the active build. Weekly Algarve
+re-collection continues alongside.
+
+## ▶ Norte expansion — active build
+- [x] Wire Norte regions into both collectors + fix district-agnostic parsing (QT-038).
+- [x] First Norte pull → `data/listings-norte.jsonl` (3882 raw → 2828 ranked).
+- [ ] **Region-parameterise `enrich.py`** — bbox + geocode suffix per region (it's
+      Algarve-hardcoded). Blocks all Norte geo.
+- [ ] **`green_walk` enricher + score axis** — walk-minutes to nearest green space
+      (park/forest/nature-reserve/trail); generalise the beach axis to river beaches (water).
+- [ ] Reverse-geocode concelho during enrich (fixes Idealista Norte freguesia-level concelhos).
+- [ ] Filter the Norte pool to ≥2 beds (632 T1s leaked past portal filters).
+- [ ] Norte maintenance passes (descriptions/photos/liveness on the norte store + sidecars).
+- [ ] App pool-switching (Algarve ↔ Norte) + publish the Norte pool.
 
 ## ▶ Standing routine — weekly re-collection (every Monday through 2026-10-26)
 Pool decays ~13% / 11 days. Browser-session based, so a **new interactive session drives

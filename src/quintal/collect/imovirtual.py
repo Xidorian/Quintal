@@ -13,10 +13,30 @@ from urllib.parse import quote, urlencode
 from .base import ExtractedRow, SearchParams, row_to_raw
 
 name = "imovirtual"
-_DISTRICT = "faro"  # every Imovirtual location ends in the district; it's not the concelho
+# Every Imovirtual location string ends in the *district* (not the concelho). We strip that
+# trailing token to recover the concelho — but the district varies by region now (Norte
+# expansion), so match against the full set of mainland districts rather than a single
+# hardcoded "faro". A concelho sharing its district's name (Porto, Braga, …) is unaffected:
+# only the *trailing* token is dropped, leaving the concelho token intact.
+_DISTRICTS = frozenset(
+    d.casefold()
+    for d in (
+        "Aveiro", "Beja", "Braga", "Bragança", "Castelo Branco", "Coimbra", "Évora",
+        "Faro", "Guarda", "Leiria", "Lisboa", "Portalegre", "Porto", "Santarém",
+        "Setúbal", "Viana do Castelo", "Vila Real", "Viseu",
+    )
+)
 _BASE = "https://www.imovirtual.com/pt/resultados/arrendar"
 _ROOMS = {1: "ONE", 2: "TWO", 3: "THREE", 4: "FOUR", 5: "FIVE"}
-_REGION_SLUGS = {"algarve": "faro"}
+# Canonical region → Imovirtual location slug. See idealista._REGION_SLUGS for the Norte set.
+_REGION_SLUGS = {
+    "algarve": "faro",
+    "porto": "porto",
+    "braga": "braga",
+    "viana-do-castelo": "viana-do-castelo",
+    "vila-real": "vila-real",
+    "viseu": "viseu",
+}
 
 
 def search_urls(params: SearchParams, pages: int = 1) -> list[str]:
@@ -41,7 +61,7 @@ def search_urls(params: SearchParams, pages: int = 1) -> list[str]:
 
 
 def _parse_location(location: str | None) -> tuple[str | None, str | None]:
-    """Imovirtual addresses read '[street, ]freguesia, concelho, Faro' — the trailing
+    """Imovirtual addresses read '[street, ]freguesia, concelho, <District>' — the trailing
     token is the *district*, not the concelho (unlike Idealista's 'freguesia, concelho').
     Drop the district, then concelho = last remaining, freguesia = the one before it.
     Returns (concelho, freguesia).
@@ -49,8 +69,8 @@ def _parse_location(location: str | None) -> tuple[str | None, str | None]:
     if not location:
         return None, None
     parts = [p.strip() for p in location.split(",") if p.strip()]
-    if parts and parts[-1].casefold() == _DISTRICT:
-        parts = parts[:-1]  # drop the district suffix
+    if len(parts) > 1 and parts[-1].casefold() in _DISTRICTS:
+        parts = parts[:-1]  # drop the district suffix (only when it isn't the sole token)
     if not parts:
         return None, None
     concelho = parts[-1]

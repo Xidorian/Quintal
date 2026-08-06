@@ -21,6 +21,14 @@ data/descriptions.json
 data/delisted.json
 data/geo.json
 data/blocklist.json
+# Per-region pools + their sidecars (e.g. the Norte expansion) — same treatment
+data/listings-*.jsonl
+data/enrichment_cache-*.json
+data/descriptions-*.json
+data/delisted-*.json
+data/geo-*.json
+data/blocklist-*.json
+data/preferences-*.json
 
 # Build output
 out/
