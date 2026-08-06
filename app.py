@@ -113,7 +113,11 @@ is_norte = pool["region"] == "norte"
 # Norte optimises for greenery/nature/river; Algarve for ocean-beach walkability.
 water_label = "river/ocean" if is_norte else "beach"
 
-enrich = st.sidebar.checkbox("Enrich (water/greenery walk, ruralness)", value=True)
+# Geo comes from the shipped sidecar (data/geo*.json); live enrich is an offline/local
+# backfill only — never in the hosted request path (it would geocode gaps on every load).
+enrich = st.sidebar.checkbox(
+    "Live-enrich gaps (slow — local backfill only)", value=False
+)
 try:
     views = load_views(pool_name, enrich)
 except FileNotFoundError:
