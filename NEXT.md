@@ -4,17 +4,18 @@
 (2828 ranked); the geography/greenery layer is the active build. Weekly Algarve
 re-collection continues alongside.
 
-## ▶ Norte expansion — active build
-- [x] Wire Norte regions into both collectors + fix district-agnostic parsing (QT-038).
-- [x] First Norte pull → `data/listings-norte.jsonl` (3882 raw → 2828 ranked).
-- [ ] **Region-parameterise `enrich.py`** — bbox + geocode suffix per region (it's
-      Algarve-hardcoded). Blocks all Norte geo.
-- [ ] **`green_walk` enricher + score axis** — walk-minutes to nearest green space
-      (park/forest/nature-reserve/trail); generalise the beach axis to river beaches (water).
-- [ ] Reverse-geocode concelho during enrich (fixes Idealista Norte freguesia-level concelhos).
-- [ ] Filter the Norte pool to ≥2 beds (632 T1s leaked past portal filters).
-- [ ] Norte maintenance passes (descriptions/photos/liveness on the norte store + sidecars).
-- [ ] App pool-switching (Algarve ↔ Norte) + publish the Norte pool.
+## ▶ Norte expansion — shipped (2026-08-06), tail to finish
+- [x] Regions wired + district-agnostic parsing (QT-038); first pull → 2188 ranked.
+- [x] Region-parameterised `enrich.py`; `green_walk` axis + Norte weights (QT-039).
+- [x] ≥2-bed filter; geocode junk-locality guard; app pool-switch + publish (QT-040/041).
+- [ ] **Republish once photos finish** (backfill running on the norte store in background).
+- [ ] Idealista Norte concelhos are freguesia-level / junk on ~300 generic-title cards —
+      derive concelho by **reverse-geocoding** during enrich (also recovers some geo).
+- [ ] Routed (ORS) walk-times for Norte — skipped this pass (free-tier 2000/day < 2188×2);
+      straight-line estimates for now. Route the top-N later, or a paid/self-hosted router.
+- [ ] Imovirtual **descriptions** (yard/pets from detail text) + **liveness** for the norte
+      store — deferred (1400+ fetches; liveness moot on a fresh pull).
+- [ ] Fold Norte into the weekly re-collection runbook (RECOLLECT.md is Algarve-only).
 
 ## ▶ Standing routine — weekly re-collection (every Monday through 2026-10-26)
 Pool decays ~13% / 11 days. Browser-session based, so a **new interactive session drives

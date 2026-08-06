@@ -7,17 +7,26 @@ search is expanding to **Porto + the Douro + the Minho** (Norte), optimising for
 dog-walkable greenery/nature/quiet and river-beach proximity rather than ocean beaches —
 kept as a **separate pool** (`data/listings-norte.jsonl`) so Algarve valuations stay clean.
 
-## Norte expansion — in progress (2026-08-06)
-- **Regions wired** into both collectors (`porto`, `braga`, `viana-do-castelo`,
-  `vila-real`, `viseu` → portal slugs); fixed Imovirtual's Faro-hardcoded district-strip
-  and `extract.js`'s Faro-only location regex to be district-agnostic (QT-038).
-- **First Norte pull done:** 3882 raw (1797 idealista / 2085 imovirtual) →
-  screen/dedup → **2828 ranked** (746 under / 1219 fair / 811 over) into the Norte pool.
-- **Known gaps (open work):** ~632 T1s leaked past both portals' bed filters (filter to
-  ≥2); Idealista Norte concelhos parse freguesia-level (fix via reverse-geocoded concelho
-  during enrich); `enrich.py` is Algarve-hardcoded (bbox + ", Algarve" suffix) → must be
-  region-parameterised before the Norte pool can be geocoded; `green_walk` axis + river-beach
-  water axis still to build. See NEXT.md.
+## Norte expansion — live (2026-08-06)
+A second, separate pool (Porto + Douro + Minho), valued against itself, optimised for
+greenery/nature/quiet + river/ocean water. **Published** — selectable in the hosted app
+(default stays Algarve, so Malia's view is unchanged). Shipped end to end in one session:
+- **Collectors** (QT-038): regions `porto`/`braga`/`viana-do-castelo`/`vila-real`/`viseu`
+  wired; Imovirtual district-strip + `extract.js` location regex made district-agnostic.
+- **Pull:** 3882 raw (1797 idealista / 2085 imovirtual) → filter ≥2 beds (−974 T1 leaks) →
+  screen → dedup → **2188 ranked** (560 under / 978 fair / 626 over), **1884 geocoded (86%)**.
+- **Greenery axis** (QT-039): `enrich.py` region-parameterised (bbox + geocode suffix per
+  region — was Algarve-hardcoded); new `GreenEnricher` (walk-min to nearest park/garden/
+  reserve) + `green_walk` score axis, weighted only in the Norte set. Beach axis already
+  covers river beaches (OSM `natural=beach`) → serves the Douro.
+- **App + publish** (QT-040/041): region-pool selector, greenery filter, publish ships the
+  Norte pool + sidecars; pools load from the shipped geo sidecar (no live geocoding in the
+  request path). Geocode robustness: skip title-fragment "localities" (cut enrich ~50→~2 min).
+- **Top Norte results** land where hoped: Viana do Castelo, Gaia coast (Gulpilhares/
+  Canidelo), Amarante (Tâmega), rural Minho — houses w/ yards, near green *and* water.
+- **Open follow-ups:** photos backfill finishing (background); Imovirtual descriptions +
+  liveness deferred; Idealista Norte concelhos still freguesia-level (reverse-geocode fix);
+  routed (ORS) walk-times skipped for Norte (straight-line for now — free-tier quota). See NEXT.md.
 
 ## What works today
 - **End-to-end pipeline** (`pipeline.py`): load → normalize → screen → liveness-drop →
