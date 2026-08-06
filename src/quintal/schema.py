@@ -63,8 +63,10 @@ class Listing(BaseModel):
     # --- Geo / enrichment ---
     lat: float | None = None
     lng: float | None = None
-    dist_beach_m: float | None = None
+    dist_beach_m: float | None = None  # nearest water (ocean or river beach)
     walk_min_beach: float | None = None
+    dist_green_m: float | None = None  # nearest green space (park/garden/reserve)
+    walk_min_green: float | None = None
     dist_town_m: float | None = None
     photos: list[str] = Field(default_factory=list)
 

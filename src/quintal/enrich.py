@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import os
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
@@ -32,13 +33,40 @@ OVERPASS_ENDPOINTS = (
 )
 USER_AGENT = os.environ.get("NOMINATIM_USER_AGENT", "quintal-rental-finder (xidorian@gmail.com)")
 
-# Whole Algarve (Faro district) bounding box: (south, west, north, east).
-ALGARVE_BBOX = (36.95, -9.0, 37.55, -7.35)
-# Fetch all beaches / towns for the region once (2 calls total), then nearest is local.
+# Fetch all points of a kind for the region once (1 call/kind), then nearest is local.
+# `beach` (natural=beach) covers BOTH ocean and river beaches — OSM tags praias fluviais
+# the same way — so the same axis serves the Algarve coast and the Douro river. `green` is
+# small, centroid-accurate green space you can walk a dog to (parks/gardens/reserves); large
+# forests are deliberately excluded (their centroid misleads — the `rural` axis covers wild
+# nature instead).
 _REGION_QUERIES = {
     "beach": "node[natural=beach]({bbox});way[natural=beach]({bbox})",
+    "green": (
+        "way[leisure=park]({bbox});way[leisure=garden]({bbox});"
+        "way[leisure=nature_reserve]({bbox});way[leisure=dog_park]({bbox})"
+    ),
     "town": "node[place~'^(town|city|village)$']({bbox})",
 }
+
+
+@dataclass(frozen=True)
+class Region:
+    """A search region: its OSM bounding box and the geocode-query suffix that
+    disambiguates place names to it. `bbox` is (south, west, north, east)."""
+
+    name: str
+    bbox: tuple[float, float, float, float]
+    geocode_suffix: str
+
+
+# Faro district (Algarve coast) and the Norte expansion (Porto + Douro + Minho, spanning the
+# Porto/Braga/Viana do Castelo/Vila Real/Viseu districts). Norte places carry a plain
+# ", Portugal" suffix — freguesia+concelho is specific enough, and appending a wrong sub-region
+# (as ", Algarve" once was, hardcoded) would mislocate every northern listing.
+ALGARVE = Region("algarve", (36.95, -9.0, 37.55, -7.35), "Algarve, Portugal")
+NORTE = Region("norte", (40.4, -8.95, 42.2, -6.85), "Portugal")
+REGIONS: dict[str, Region] = {r.name: r for r in (ALGARVE, NORTE)}
+ALGARVE_BBOX = ALGARVE.bbox  # back-compat alias
 
 
 class Enricher(Protocol):
@@ -83,10 +111,13 @@ class JsonCache:
 class GeoClient:
     """Shared geocoding/lookup client: one session, cache, and ≥1s throttle (OSM policy)."""
 
-    def __init__(self, cache_path: str | Path, *, ors_key: str | None = None) -> None:
+    def __init__(
+        self, cache_path: str | Path, *, ors_key: str | None = None, region: Region = ALGARVE
+    ) -> None:
         self.cache = JsonCache(cache_path)
         self.session = requests.Session()
         self.ors_key = ors_key
+        self.region = region
         self._last_call = 0.0
         self._last_ors = 0.0
 
@@ -169,11 +200,12 @@ class GeoClient:
         return None
 
     def region_points(self, kind: str) -> list[tuple[float, float]]:
-        """All (lat, lng) of `kind` in the Algarve, fetched once and cached."""
-        key = f"region:{kind}"
+        """All (lat, lng) of `kind` in the region, fetched once and cached. Keyed by region
+        name so distinct regions don't clobber each other even in a shared cache file."""
+        key = f"region:{self.region.name}:{kind}"
         if self.cache.has(key):
             return [tuple(p) for p in self.cache.get(key)]
-        bbox = ",".join(str(x) for x in ALGARVE_BBOX)
+        bbox = ",".join(str(x) for x in self.region.bbox)
         query = f"[out:json][timeout:60];({_REGION_QUERIES[kind].format(bbox=bbox)};);out center;"
         data = self._overpass(query)
         if data is None:
@@ -200,6 +232,9 @@ class GeoClient:
 
     def nearest_beach(self, lat: float, lng: float) -> tuple[float, tuple[float, float]] | None:
         return self._nearest(lat, lng, "beach")
+
+    def nearest_green(self, lat: float, lng: float) -> tuple[float, tuple[float, float]] | None:
+        return self._nearest(lat, lng, "green")
 
     def nearest_town_m(self, lat: float, lng: float) -> float | None:
         found = self._nearest(lat, lng, "town")
@@ -253,7 +288,7 @@ class GeoClient:
 # --- Enrichers -------------------------------------------------------------------------
 
 
-def _geocode_queries(listing: Listing) -> list[str]:
+def _geocode_queries(listing: Listing, suffix: str = "Algarve, Portugal") -> list[str]:
     """Freguesia-first candidate queries; fall through until one resolves.
 
     Freguesia-first gives the most accurate coords: large concelhos (Loulé, Silves)
@@ -263,14 +298,16 @@ def _geocode_queries(listing: Listing) -> list[str]:
     was concelho-first only while public Nominatim rate-limited us on freguesia
     misses; the Photon fallback removed that constraint, so a miss now just falls
     through cheaply. Concelho is the reliable backstop; full street/title queries
-    rarely resolve, so the title is a last resort.
+    rarely resolve, so the title is a last resort. `suffix` scopes the place name to
+    the region (e.g. "Algarve, Portugal" vs a plain "Portugal" for the Norte).
     """
     queries = []
     if listing.freguesia and listing.freguesia != listing.concelho:
-        queries.append(f"{listing.freguesia}, {listing.concelho}, Algarve, Portugal")
-    queries.append(f"{listing.concelho}, Algarve, Portugal")
+        queries.append(f"{listing.freguesia}, {listing.concelho}, {suffix}")
+    if listing.concelho:
+        queries.append(f"{listing.concelho}, {suffix}")
     if listing.title:  # last resort; only reached (and only costs a call) if locality misses
-        queries.append(f"{listing.title}, Algarve, Portugal")
+        queries.append(f"{listing.title}, {suffix}")
     # De-dup while preserving order.
     seen: set[str] = set()
     return [q for q in queries if not (q in seen or seen.add(q))]
@@ -285,7 +322,7 @@ class GeocodeEnricher:
     def apply(self, listing: Listing) -> None:
         if listing.lat is not None and listing.lng is not None:
             return
-        for query in _geocode_queries(listing):
+        for query in _geocode_queries(listing, self.client.region.geocode_suffix):
             result = self.client.geocode(query)
             if result:
                 listing.lat, listing.lng = result
@@ -310,6 +347,24 @@ class BeachEnricher:
             )
 
 
+class GreenEnricher:
+    name = "green"
+
+    def __init__(self, client: GeoClient) -> None:
+        self.client = client
+
+    def apply(self, listing: Listing) -> None:
+        if listing.lat is None or listing.lng is None:
+            return
+        found = self.client.nearest_green(listing.lat, listing.lng)
+        if found is not None:
+            dist, dest = found
+            listing.dist_green_m = round(dist)
+            listing.walk_min_green = self.client.walk_minutes(
+                listing.lat, listing.lng, dist, dest
+            )
+
+
 class RuralnessEnricher:
     name = "ruralness"
 
@@ -325,10 +380,15 @@ class RuralnessEnricher:
 
 
 def default_chain(
-    cache_path: str | Path, *, ors_key: str | None = None
+    cache_path: str | Path, *, ors_key: str | None = None, region: Region = ALGARVE
 ) -> tuple[GeoClient, list[Enricher]]:
-    client = GeoClient(cache_path, ors_key=ors_key)
-    return client, [GeocodeEnricher(client), BeachEnricher(client), RuralnessEnricher(client)]
+    client = GeoClient(cache_path, ors_key=ors_key, region=region)
+    return client, [
+        GeocodeEnricher(client),
+        BeachEnricher(client),
+        GreenEnricher(client),
+        RuralnessEnricher(client),
+    ]
 
 
 # --- Per-listing geo persistence (QT-027) ----------------------------------------------
@@ -337,7 +397,15 @@ def default_chain(
 # network for already-known listings. Layers on top of listings.jsonl (raw-collected truth).
 
 DEFAULT_GEO_PATH = "data/geo.json"
-GEO_FIELDS = ("lat", "lng", "dist_beach_m", "walk_min_beach", "dist_town_m")
+GEO_FIELDS = (
+    "lat",
+    "lng",
+    "dist_beach_m",
+    "walk_min_beach",
+    "dist_green_m",
+    "walk_min_green",
+    "dist_town_m",
+)
 
 
 def _load_geo(path: str | Path) -> dict[str, dict]:

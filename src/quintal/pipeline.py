@@ -11,7 +11,7 @@ import json
 import os
 from pathlib import Path
 
-from . import descriptions, liveness
+from . import config, descriptions, liveness
 from . import enrich as enrich_mod
 from .dedup import dedup
 from .enrich import default_chain, enrich_listings
@@ -49,12 +49,15 @@ def run(
     *,
     synthetic: bool = False,
     enrich: bool = False,
+    region: str = "algarve",
+    min_beds: int | None = None,
     blocklist_path: str | Path = "data/blocklist.json",
     cache_path: str | Path = "data/enrichment_cache.json",
     descriptions_path: str | Path = descriptions.DEFAULT_PATH,
     delisted_path: str | Path = liveness.DEFAULT_PATH,
     geo_path: str | Path = enrich_mod.DEFAULT_GEO_PATH,
 ) -> list[Listing]:
+    region_obj = enrich_mod.REGIONS.get(region, enrich_mod.ALGARVE)
     raw_rows = load_jsonl(input_path)
 
     # Layer in detail-page descriptions (Imovirtual cards have none) before deriving
@@ -78,6 +81,18 @@ def run(
         "normalized listings",
         extra={"event": "normalized", "ctx_kept": len(listings), "ctx_seen": len(raw_rows)},
     )
+
+    # Drop under-sized listings when a floor is set (portal bedroom filters leak — the Norte
+    # pull surfaced ~600 T1s past a T2+ search). A listing with unknown beds is kept.
+    if min_beds is not None:
+        before = len(listings)
+        listings = [x for x in listings if x.bedrooms is None or x.bedrooms >= min_beds]
+        if before != len(listings):
+            log.info(
+                "filtered under-bed listings",
+                extra={"event": "bed_filtered", "ctx_dropped": before - len(listings),
+                       "ctx_min_beds": min_beds},
+            )
 
     # Drop delisted listings (HTTP 410/404) before valuing — a gone listing wastes a click
     # and its price shouldn't anchor the relative valuation.
@@ -107,7 +122,7 @@ def run(
 
     if enrich:
         ors_key = os.environ.get("OPENROUTESERVICE_API_KEY")
-        client, chain = default_chain(cache_path, ors_key=ors_key)
+        client, chain = default_chain(cache_path, ors_key=ors_key, region=region_obj)
         enrich_listings(listings, chain)
         client.save()
         saved = enrich_mod.save_geo(listings, geo_path)  # persist for future/plain runs
@@ -123,8 +138,9 @@ def run(
         )
 
     value_pool(listings)
+    weights = config.REGION_WEIGHTS.get(region)
     for listing in listings:
-        listing.match_score, listing.match_breakdown = score_listing(listing)
+        listing.match_score, listing.match_breakdown = score_listing(listing, weights)
 
     listings.sort(key=lambda listing: listing.match_score or 0, reverse=True)
 
@@ -148,6 +164,10 @@ def main() -> None:
     parser.add_argument(
         "--enrich", action="store_true", help="geocode + beach walk-time + ruralness (OSM APIs)"
     )
+    parser.add_argument(
+        "--region", default="algarve", help="scoring/geocoding region (algarve | norte)"
+    )
+    parser.add_argument("--min-beds", type=int, default=None, help="drop listings below N beds")
     args = parser.parse_args()
 
     if args.enrich:
@@ -158,7 +178,14 @@ def main() -> None:
         except ImportError:
             pass
 
-    listings = run(args.input, args.html, synthetic=args.synthetic, enrich=args.enrich)
+    listings = run(
+        args.input,
+        args.html,
+        synthetic=args.synthetic,
+        enrich=args.enrich,
+        region=args.region,
+        min_beds=args.min_beds,
+    )
 
     print(f"\n{len(listings)} listings (top by match):")
     for listing in listings[:10]:

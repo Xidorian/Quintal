@@ -6,6 +6,7 @@ Everything a searcher might want to nudge lives here, not scattered through the 
 from __future__ import annotations
 
 # --- Match score weights (sum = 100 → match_score is directly 0–100) ---
+# The Algarve default: yard + ocean-beach walkability lead.
 WEIGHTS: dict[str, float] = {
     "yard": 25,  # highest — a yard for Luna; partial credit for terrace/balcony
     "beach_walk": 20,  # graded by walking minutes to the nearest beach
@@ -17,6 +18,25 @@ WEIGHTS: dict[str, float] = {
     "budget_headroom": 5,  # cheaper than the budget cap = small bonus
 }
 assert sum(WEIGHTS.values()) == 100, "weights must total 100"
+
+# The Norte set (Porto + Douro + Minho): the move is *away from concrete*, so greenery/
+# nature walkability, quiet (rural), and water (river beaches, via the shared beach axis)
+# lead alongside the yard. `beach_walk` here scores nearest water — river beach or ocean.
+WEIGHTS_NORTE: dict[str, float] = {
+    "yard": 22,
+    "green_walk": 18,  # walk-minutes to nearest green space (park/garden/reserve) — Luna walks
+    "beach_walk": 16,  # water: nearest river beach or ocean
+    "rural": 12,  # quiet / out of the concrete
+    "house": 10,
+    "two_bedrooms": 8,
+    "two_bathrooms": 6,
+    "bathtub": 4,
+    "budget_headroom": 4,
+}
+assert sum(WEIGHTS_NORTE.values()) == 100, "norte weights must total 100"
+
+# Region → weight set. score_listing falls back to WEIGHTS when a region is unmapped.
+REGION_WEIGHTS: dict[str, dict[str, float]] = {"algarve": WEIGHTS, "norte": WEIGHTS_NORTE}
 
 # --- Beach walkability (graded, in walking minutes) ---
 # Full credit up to FULL, linear decay to FLOOR_SCORE at MID, zero beyond ZERO.

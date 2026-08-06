@@ -1,7 +1,9 @@
 from quintal.enrich import (
+    NORTE,
     BeachEnricher,
     GeoClient,
     GeocodeEnricher,
+    GreenEnricher,
     JsonCache,
     _geocode_queries,
 )
@@ -46,6 +48,16 @@ def test_geocode_queries_freguesia_first_and_deduped():
 def test_geocode_queries_dedupes_when_no_freguesia():
     q = _geocode_queries(Listing(price_eur_month=1000, concelho="Faro"))
     assert q == ["Faro, Algarve, Portugal"]
+
+
+def test_geocode_queries_use_region_suffix():
+    # Norte places must NOT get an ", Algarve" suffix (which once mislocated everything).
+    q = _geocode_queries(
+        Listing(price_eur_month=1000, concelho="Maia", freguesia="Cidade da Maia"),
+        NORTE.geocode_suffix,
+    )
+    assert q[0] == "Cidade da Maia, Maia, Portugal"
+    assert all("Algarve" not in x for x in q)
 
 
 # --- Enrichers with a fake HTTP session (no network) ---
@@ -124,6 +136,26 @@ def test_beach_sets_distance_and_walk_estimate(tmp_path):
     BeachEnricher(client).apply(listing)
     assert listing.dist_beach_m is not None and 900 < listing.dist_beach_m < 1100
     assert listing.walk_min_beach is not None and listing.walk_min_beach > 0
+
+
+def test_green_sets_distance_and_walk_estimate(tmp_path):
+    # A park way ~1 km east; Overpass returns its centroid under `center`.
+    client = _client(
+        tmp_path, post_payload={"elements": [{"center": {"lat": 37.1, "lon": -8.4886}}]}
+    )
+    listing = Listing(price_eur_month=1000, concelho="Porto", lat=37.1, lng=-8.5)
+    GreenEnricher(client).apply(listing)
+    assert listing.dist_green_m is not None and 900 < listing.dist_green_m < 1100
+    assert listing.walk_min_green is not None and listing.walk_min_green > 0
+
+
+def test_region_points_keyed_by_region_and_uses_its_bbox(tmp_path):
+    client = _client(tmp_path, post_payload={"elements": [{"lat": 41.1, "lon": -8.6}]})
+    client.region = NORTE
+    client.region_points("green")
+    # Cached under the region-namespaced key, and the query carried the Norte bbox.
+    assert client.cache.has("region:norte:green")
+    assert not client.cache.has("region:algarve:green")
 
 
 # --- Per-listing geo persistence (QT-027) ---

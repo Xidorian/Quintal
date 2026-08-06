@@ -1,3 +1,4 @@
+from quintal import config
 from quintal.schema import DerivedBool, Listing
 from quintal.score import _beach_walk_sub, score_listing
 
@@ -25,6 +26,25 @@ def test_yard_beats_terrace():
 def test_score_bounds_and_breakdown_sums():
     total, breakdown = score_listing(
         _listing(bedrooms=2, bathrooms=2, walk_min_beach=10, dist_town_m=4000)
+    )
+    assert 0 <= total <= 100
+    assert round(sum(breakdown.values())) == total
+
+
+def test_green_walk_counts_only_under_norte_weights():
+    # A listing next to a park. Under the Algarve set (no green_walk) it earns 0 there;
+    # under the Norte set it earns the full green_walk weight.
+    listing = _listing(walk_min_green=5)
+    algarve = score_listing(listing, config.WEIGHTS)[1]
+    norte = score_listing(listing, config.WEIGHTS_NORTE)[1]
+    assert algarve["green_walk"] == 0.0
+    assert norte["green_walk"] == config.WEIGHTS_NORTE["green_walk"]  # 5 min → full credit
+
+
+def test_norte_breakdown_sums_to_total():
+    total, breakdown = score_listing(
+        _listing(bedrooms=2, walk_min_beach=10, walk_min_green=8, dist_town_m=5000),
+        config.WEIGHTS_NORTE,
     )
     assert 0 <= total <= 100
     assert round(sum(breakdown.values())) == total

@@ -36,6 +36,12 @@ def _beach_walk_sub(walk_min: float | None) -> float:
     return config.WALK_MID_SCORE * (1.0 - frac)
 
 
+def _green_walk_sub(walk_min: float | None) -> float:
+    """Walk-minutes to nearest green space, graded identically to the water axis: a park
+    within ~15 min is full credit, decaying to zero past ~45. Unknown → neutral."""
+    return _beach_walk_sub(walk_min)
+
+
 def _house_sub(listing: Listing) -> float:
     return {"house": 1.0, "townhouse": 0.7}.get(listing.property_type, 0.0)
 
@@ -84,6 +90,7 @@ def score_listing(
     subs = {
         "yard": _yard_sub(listing),
         "beach_walk": _beach_walk_sub(listing.walk_min_beach),
+        "green_walk": _green_walk_sub(listing.walk_min_green),
         "house": _house_sub(listing),
         "two_bathrooms": _two_bathrooms_sub(listing.bathrooms),
         "two_bedrooms": _two_bedrooms_sub(listing.bedrooms),
@@ -91,6 +98,8 @@ def score_listing(
         "rural": _rural_sub(listing.dist_town_m),
         "budget_headroom": _budget_sub(listing.price_eur_month),
     }
-    breakdown = {k: round(w[k] * v, 1) for k, v in subs.items()}
+    # w.get so a weight set that omits an axis (e.g. Algarve has no green_walk) zeroes it
+    # rather than raising — subs is the full axis list; weights decide which count.
+    breakdown = {k: round(w.get(k, 0.0) * v, 1) for k, v in subs.items()}
     total = round(sum(breakdown.values()))
     return total, breakdown
