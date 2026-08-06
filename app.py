@@ -24,10 +24,26 @@ from quintal.pipeline import run
 from quintal.preferences import GistBackend, Preferences
 from quintal.render_html import _view
 
-LISTINGS = "data/listings.jsonl"
 PREFS_PATH = "data/preferences.json"
 
-st.set_page_config(page_title="Quintal — Algarve rentals", page_icon="🏡", layout="wide")
+# Each pool is its own market, valued against itself (mixing them would mis-value). A pool
+# names its listings file, its region (drives scoring weights + geocoding), and its sidecars.
+# Sidecars left unset fall back to the pipeline defaults (the Algarve pool's).
+POOLS: dict[str, dict] = {
+    "Algarve": {"region": "algarve", "listings": "data/listings.jsonl", "min_beds": 0},
+    "Norte — Porto · Douro · Minho": {
+        "region": "norte",
+        "listings": "data/listings-norte.jsonl",
+        "min_beds": 2,
+        "blocklist_path": "data/blocklist-norte.json",
+        "delisted_path": "data/delisted-norte.json",
+        "geo_path": "data/geo-norte.json",
+        "cache_path": "data/enrichment_cache-norte.json",
+        "descriptions_path": "data/descriptions-norte.json",
+    },
+}
+
+st.set_page_config(page_title="Quintal — rental finder", page_icon="🏡", layout="wide")
 
 
 def _secret(name: str) -> str | None:
@@ -49,8 +65,17 @@ def _load_prefs() -> Preferences:
 
 
 @st.cache_data(show_spinner="Screening, enriching, valuing…")
-def load_views(input_path: str, enrich: bool) -> list[dict]:
-    return [_view(listing) for listing in run(input_path, enrich=enrich)]
+def load_views(pool_name: str, enrich: bool) -> list[dict]:
+    pool = POOLS[pool_name]
+    kwargs = {k: v for k, v in pool.items() if k.endswith("_path")}
+    listings = run(
+        pool["listings"],
+        enrich=enrich,
+        region=pool["region"],
+        min_beds=pool.get("min_beds") or None,
+        **kwargs,
+    )
+    return [_view(listing) for listing in listings]
 
 
 def deal_norm(v: dict, lo: float, hi: float) -> float:
@@ -80,13 +105,19 @@ except RuntimeError as exc:  # shared store unreachable — don't proceed and ri
     st.error(f"Couldn't reach the shared preferences store: {exc}")
     st.stop()
 st.sidebar.title("🏡 Quintal")
-st.sidebar.caption("Algarve rental finder — for Malia & Luna")
+st.sidebar.caption("Rental finder — for Malia & Luna")
 
-enrich = st.sidebar.checkbox("Enrich (beach walk-time, ruralness)", value=True)
+pool_name = st.sidebar.selectbox("Region pool", list(POOLS), index=0)
+pool = POOLS[pool_name]
+is_norte = pool["region"] == "norte"
+# Norte optimises for greenery/nature/river; Algarve for ocean-beach walkability.
+water_label = "river/ocean" if is_norte else "beach"
+
+enrich = st.sidebar.checkbox("Enrich (water/greenery walk, ruralness)", value=True)
 try:
-    views = load_views(LISTINGS, enrich)
+    views = load_views(pool_name, enrich)
 except FileNotFoundError:
-    st.error(f"No listings file at `{LISTINGS}`. Collect some first (see NEXT.md).")
+    st.error(f"No listings file at `{pool['listings']}`. Collect some first (see NEXT.md).")
     st.stop()
 
 if not views:
@@ -110,7 +141,10 @@ hide_no_pets = st.sidebar.checkbox("Exclude explicit no-pets", value=True)
 bands = st.sidebar.multiselect("Valuation band", ["undervalued", "fair", "overpriced"])
 concelhos = sorted({v["concelho"] for v in views})
 picked_concelhos = st.sidebar.multiselect("Concelho", concelhos)
-max_walk = st.sidebar.slider("Max beach walk (min, 0 = any)", 0, 120, 0, step=5)
+max_walk = st.sidebar.slider(f"Max water walk — {water_label} (min, 0 = any)", 0, 120, 0, step=5)
+max_green = (
+    st.sidebar.slider("Max greenery walk (min, 0 = any)", 0, 120, 0, step=5) if is_norte else 0
+)
 
 st.sidebar.header("View")
 sort_mode = st.sidebar.radio("Sort", ["Best fit", "Best deal", "Fit + deal"])
@@ -157,6 +191,8 @@ def keep(v: dict) -> bool:
         return False
     if max_walk and (v["walk_min"] is None or v["walk_min"] > max_walk):
         return False
+    if max_green and (v.get("walk_min_green") is None or v["walk_min_green"] > max_green):
+        return False
     return True
 
 
@@ -170,7 +206,7 @@ rows.sort(
 )
 
 # --- Header -------------------------------------------------------------------
-st.title("Algarve rentals")
+st.title(f"{pool_name} rentals")
 st.caption(
     f"Showing **{len(rows)}** of {len(views)} listings · "
     "Valuation is *relative to the current pool*, not an official appraisal."

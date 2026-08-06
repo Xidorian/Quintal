@@ -42,6 +42,8 @@ def _view(listing: Listing) -> dict:
         "pets": listing.pets.value,
         "walk_min": listing.walk_min_beach,
         "dist_beach": listing.dist_beach_m,
+        "walk_min_green": listing.walk_min_green,
+        "dist_green": listing.dist_green_m,
         "dist_town": listing.dist_town_m,
         "match_score": listing.match_score,
         "breakdown": listing.match_breakdown,

@@ -25,7 +25,10 @@ for f in "${FILES[@]}"; do
   [[ -f "$f" ]] || { echo "Missing $f — collect/enrich before publishing." >&2; exit 1; }
 done
 # Optional enrichment sidecars — shipped if present (absent before their first backfill run).
-for f in data/descriptions.json data/delisted.json data/geo.json; do
+# Includes the per-region Norte pool + its sidecars (photos share one id-keyed dir, below).
+for f in data/descriptions.json data/delisted.json data/geo.json \
+         data/listings-norte.jsonl data/geo-norte.json data/enrichment_cache-norte.json \
+         data/blocklist-norte.json data/delisted-norte.json data/descriptions-norte.json; do
   [[ -f "$f" ]] && FILES+=("$f")
 done
 

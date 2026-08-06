@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -288,6 +289,20 @@ class GeoClient:
 # --- Enrichers -------------------------------------------------------------------------
 
 
+# Some Idealista Norte cards put a street/title fragment where a locality should be
+# ("Apartamento T2 na Rua da Areosa", "…localizado em Santo Ildefonso Porto"). Such a
+# string never geocodes AND — being unique per listing — is never cached, so it re-hits
+# the geocoder for every listing. Drop these before they cost a call.
+_JUNK_LOCALITY = re.compile(
+    r"apartamento|moradia|arrenda|localizado|quartos|\bT\d|\bRua\b|\bAvenida\b|\bTravessa\b",
+    re.IGNORECASE,
+)
+
+
+def _place_ok(name: str | None) -> bool:
+    return bool(name) and not _JUNK_LOCALITY.search(name)
+
+
 def _geocode_queries(listing: Listing, suffix: str = "Algarve, Portugal") -> list[str]:
     """Freguesia-first candidate queries; fall through until one resolves.
 
@@ -302,11 +317,20 @@ def _geocode_queries(listing: Listing, suffix: str = "Algarve, Portugal") -> lis
     the region (e.g. "Algarve, Portugal" vs a plain "Portugal" for the Norte).
     """
     queries = []
-    if listing.freguesia and listing.freguesia != listing.concelho:
-        queries.append(f"{listing.freguesia}, {listing.concelho}, {suffix}")
-    if listing.concelho:
+    freg_ok = _place_ok(listing.freguesia)
+    conc_ok = _place_ok(listing.concelho)
+    if freg_ok and listing.freguesia != listing.concelho:
+        # A junk concelho would poison "freguesia, concelho" — pair only with a clean concelho.
+        queries.append(
+            f"{listing.freguesia}, {listing.concelho}, {suffix}"
+            if conc_ok
+            else f"{listing.freguesia}, {suffix}"
+        )
+    if conc_ok:
         queries.append(f"{listing.concelho}, {suffix}")
-    if listing.title:  # last resort; only reached (and only costs a call) if locality misses
+    # Title is a last resort, and only when we have no clean locality at all (else it's a
+    # unique, never-caching miss that re-hits the geocoder — the very cost we're avoiding).
+    if listing.title and not (freg_ok or conc_ok):
         queries.append(f"{listing.title}, {suffix}")
     # De-dup while preserving order.
     seen: set[str] = set()

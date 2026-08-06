@@ -50,6 +50,21 @@ def test_geocode_queries_dedupes_when_no_freguesia():
     assert q == ["Faro, Algarve, Portugal"]
 
 
+def test_geocode_queries_skip_junk_freguesia():
+    # Idealista Norte often puts a title fragment where the freguesia should be — it never
+    # geocodes and, being unique per listing, would re-hit the geocoder. Skip straight to
+    # the clean concelho.
+    q = _geocode_queries(
+        Listing(
+            price_eur_month=1000,
+            concelho="Paranhos",
+            freguesia="Apartamento T2 na Rua da Areosa",
+        ),
+        NORTE.geocode_suffix,
+    )
+    assert q == ["Paranhos, Portugal"]  # junk freguesia dropped, concelho kept
+
+
 def test_geocode_queries_use_region_suffix():
     # Norte places must NOT get an ", Algarve" suffix (which once mislocated everything).
     q = _geocode_queries(
