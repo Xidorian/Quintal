@@ -24,9 +24,12 @@ greenery/nature/quiet + river/ocean water. **Published** — selectable in the h
   request path). Geocode robustness: skip title-fragment "localities" (cut enrich ~50→~2 min).
 - **Top Norte results** land where hoped: Viana do Castelo, Gaia coast (Gulpilhares/
   Canidelo), Amarante (Tâmega), rural Minho — houses w/ yards, near green *and* water.
-- **Open follow-ups:** photos backfill finishing (background); Imovirtual descriptions +
-  liveness deferred; Idealista Norte concelhos still freguesia-level (reverse-geocode fix);
-  routed (ORS) walk-times skipped for Norte (straight-line for now — free-tier quota). See NEXT.md.
+- **Concelhos fixed** (QT-042): reverse-geocode the authoritative município for located
+  Idealista + junk-concelho cards (title-locality recovery gets the comma-less ones to
+  geocode first) — junk/freguesia-level concelhos **570+ → 18** (unlocated tail), 99% located.
+  Algarve pool untouched.
+- **Open follow-ups:** Imovirtual descriptions + liveness deferred; routed (ORS) walk-times
+  skipped for Norte (straight-line for now — free-tier quota). See NEXT.md.
 
 ## What works today
 - **End-to-end pipeline** (`pipeline.py`): load → normalize → screen → liveness-drop →

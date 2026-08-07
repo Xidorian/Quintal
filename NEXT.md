@@ -8,9 +8,8 @@ re-collection continues alongside.
 - [x] Regions wired + district-agnostic parsing (QT-038); first pull → 2188 ranked.
 - [x] Region-parameterised `enrich.py`; `green_walk` axis + Norte weights (QT-039).
 - [x] ≥2-bed filter; geocode junk-locality guard; app pool-switch + publish (QT-040/041).
-- [ ] **Republish once photos finish** (backfill running on the norte store in background).
-- [ ] Idealista Norte concelhos are freguesia-level / junk on ~300 generic-title cards —
-      derive concelho by **reverse-geocoding** during enrich (also recovers some geo).
+- [x] Photos backfilled + republished; concelhos fixed by reverse-geocoding (QT-042,
+      570+ junk → 18 unlocated tail).
 - [ ] Routed (ORS) walk-times for Norte — skipped this pass (free-tier 2000/day < 2188×2);
       straight-line estimates for now. Route the top-N later, or a paid/self-hosted router.
 - [ ] Imovirtual **descriptions** (yard/pets from detail text) + **liveness** for the norte
