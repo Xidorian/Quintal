@@ -25,6 +25,7 @@ from .schema import Listing
 log = get_logger()
 
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
+NOMINATIM_REVERSE_URL = "https://nominatim.openstreetmap.org/reverse"
 PHOTON_URL = "https://photon.komoot.io/api/"  # OSM-based fallback; no bulk rate-limit
 ORS_WALK_URL = "https://api.openrouteservice.org/v2/directions/foot-walking"
 OVERPASS_ENDPOINTS = (
@@ -241,6 +242,32 @@ class GeoClient:
         found = self._nearest(lat, lng, "town")
         return found[0] if found else None
 
+    # Portuguese concelho (município) at a point. Nominatim spreads it across fields —
+    # `municipality` when present (else `city`/`town`), while `county` is unreliable
+    # (sometimes the distrito). Verified against Porto/Maia/Gaia/Régua/Alijó/Baião. Cached
+    # by rounded coords: same freguesia → same geocoded centroid → one reverse call.
+    def reverse_concelho(self, lat: float, lng: float) -> str | None:
+        key = f"rev:{round(lat, 4)},{round(lng, 4)}"
+        if self.cache.has(key):
+            return self.cache.get(key) or None
+        self._throttle()
+        try:
+            resp = self.session.get(
+                NOMINATIM_REVERSE_URL,
+                params={"lat": lat, "lon": lng, "format": "json", "zoom": 10, "addressdetails": 1},
+                headers={"User-Agent": USER_AGENT},
+                timeout=15,
+            )
+            addr = resp.json().get("address", {})
+        except (requests.RequestException, ValueError, AttributeError):
+            return None  # don't cache a transient failure — retry next run
+        concelho = addr.get("municipality") or addr.get("city") or addr.get("town")
+        if not concelho:
+            return None
+        self.cache.set(key, concelho)
+        self.cache.save()  # persist per-lookup so a kill mid-run keeps progress
+        return concelho
+
     @staticmethod
     def _walk_key(lat: float, lng: float, dlat: float, dlng: float) -> str:
         return f"walk:{round(lat, 4)},{round(lng, 4)}>{round(dlat, 4)},{round(dlng, 4)}"
@@ -303,6 +330,21 @@ def _place_ok(name: str | None) -> bool:
     return bool(name) and not _JUNK_LOCALITY.search(name)
 
 
+# Idealista Norte titles embed the locality after a preposition ("Apartamento T2 em
+# Pedrouços", "Moradia independente em Mateus"). When the parsed concelho/freguesia is junk
+# (no comma in the title → the whole title became the concelho), recover the place from the
+# text after the LAST em/na/no/nas/nos, then its most specific comma-chunk.
+_TITLE_LOCALITY = re.compile(r".*\b(?:em|na|no|nas|nos)\s+(.+)$", re.IGNORECASE)
+
+
+def _title_locality(title: str | None) -> str | None:
+    m = _TITLE_LOCALITY.search(title or "")
+    if not m:
+        return None
+    loc = m.group(1).split(",")[-1].strip()
+    return loc or None
+
+
 def _geocode_queries(listing: Listing, suffix: str = "Algarve, Portugal") -> list[str]:
     """Freguesia-first candidate queries; fall through until one resolves.
 
@@ -328,10 +370,12 @@ def _geocode_queries(listing: Listing, suffix: str = "Algarve, Portugal") -> lis
         )
     if conc_ok:
         queries.append(f"{listing.concelho}, {suffix}")
-    # Title is a last resort, and only when we have no clean locality at all (else it's a
-    # unique, never-caching miss that re-hits the geocoder — the very cost we're avoiding).
-    if listing.title and not (freg_ok or conc_ok):
-        queries.append(f"{listing.title}, {suffix}")
+    # No clean parsed locality → recover it from the title's "…em <place>" tail. This rescues
+    # the ~270 Idealista Norte cards (real T2/T3s) whose comma-less title became the concelho.
+    if not (freg_ok or conc_ok):
+        loc = _title_locality(listing.title)
+        if loc and _place_ok(loc):
+            queries.append(f"{loc}, {suffix}")
     # De-dup while preserving order.
     seen: set[str] = set()
     return [q for q in queries if not (q in seen or seen.add(q))]
@@ -389,6 +433,36 @@ class GreenEnricher:
             )
 
 
+class ConcelhoEnricher:
+    """Overwrite an Idealista concelho with the reverse-geocoded município.
+
+    Idealista embeds location in the card title, and outside the Algarve that title ends
+    in the *freguesia* (Paranhos, Cedofeita) or a generic string — so the parsed concelho is
+    wrong, which pollutes valuation peer-buckets and the app's per-area sentiment. Imovirtual
+    usually carries a clean concelho, but a minority of cards whose address line didn't
+    extract fall back to the title too. So once a listing is located, reverse-geocode the
+    authoritative concelho for **Idealista (always)** and **any card whose parsed concelho is
+    junk**, while leaving a clean non-Idealista concelho untouched. Skips the Algarve region:
+    its title-parse is reliable and that pool is live — don't disturb it.
+    """
+
+    name = "concelho"
+
+    def __init__(self, client: GeoClient) -> None:
+        self.client = client
+
+    def apply(self, listing: Listing) -> None:
+        if listing.lat is None or listing.lng is None:
+            return
+        if self.client.region.name == "algarve":
+            return
+        if listing.source != "idealista" and _place_ok(listing.concelho):
+            return  # a clean, non-Idealista (Imovirtual) concelho — trust it
+        concelho = self.client.reverse_concelho(listing.lat, listing.lng)
+        if concelho:
+            listing.concelho = concelho
+
+
 class RuralnessEnricher:
     name = "ruralness"
 
@@ -409,6 +483,7 @@ def default_chain(
     client = GeoClient(cache_path, ors_key=ors_key, region=region)
     return client, [
         GeocodeEnricher(client),
+        ConcelhoEnricher(client),  # after geocode (needs coords), before valuation buckets
         BeachEnricher(client),
         GreenEnricher(client),
         RuralnessEnricher(client),
@@ -429,7 +504,12 @@ GEO_FIELDS = (
     "dist_green_m",
     "walk_min_green",
     "dist_town_m",
+    "concelho",
 )
+# Geo coords/distances are filled only when missing (a fresh enrich this run wins). But the
+# persisted concelho is the *authoritative* reverse-geocoded value (ConcelhoEnricher) — it
+# must replace the parsed freguesia-level/junk value even on a plain, no-enrich load.
+GEO_OVERWRITE_FIELDS = frozenset({"concelho"})
 
 
 def _load_geo(path: str | Path) -> dict[str, dict]:
@@ -445,8 +525,9 @@ def _load_geo(path: str | Path) -> dict[str, dict]:
 def apply_geo(listings: list[Listing], path: str | Path = DEFAULT_GEO_PATH) -> int:
     """Fill missing geo fields on listings from the persisted sidecar (keyed by id).
 
-    Only fills gaps — never overwrites geo already set by a fresh enrich this run. No-op
-    when the sidecar is absent. Returns how many listings were touched.
+    Fills gaps — never overwrites geo already set by a fresh enrich this run — except the
+    authoritative reverse-geocoded concelho, which replaces the parsed value. No-op when the
+    sidecar is absent. Returns how many listings were touched.
     """
     store = _load_geo(path)
     if not store:
@@ -457,7 +538,9 @@ def apply_geo(listings: list[Listing], path: str | Path = DEFAULT_GEO_PATH) -> i
         if not geo:
             continue
         for field in GEO_FIELDS:
-            if geo.get(field) is not None and getattr(listing, field) is None:
+            if geo.get(field) is None:
+                continue
+            if field in GEO_OVERWRITE_FIELDS or getattr(listing, field) is None:
                 setattr(listing, field, geo[field])
         touched += 1
     return touched

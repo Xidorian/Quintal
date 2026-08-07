@@ -1,6 +1,8 @@
 from quintal.enrich import (
+    ALGARVE,
     NORTE,
     BeachEnricher,
+    ConcelhoEnricher,
     GeoClient,
     GeocodeEnricher,
     GreenEnricher,
@@ -63,6 +65,21 @@ def test_geocode_queries_skip_junk_freguesia():
         NORTE.geocode_suffix,
     )
     assert q == ["Paranhos, Portugal"]  # junk freguesia dropped, concelho kept
+
+
+def test_geocode_queries_recover_locality_from_title():
+    # Comma-less Idealista titles ("Apartamento T2 em Pedrouços") make the whole title the
+    # (junk) concelho; recover the place from the "…em <locality>" tail so it geocodes.
+    q = _geocode_queries(
+        Listing(
+            price_eur_month=1000,
+            source="idealista",
+            concelho="Apartamento T2 em Pedrouços",
+            title="Apartamento T2 em Pedrouços",
+        ),
+        NORTE.geocode_suffix,
+    )
+    assert q == ["Pedrouços, Portugal"]
 
 
 def test_geocode_queries_use_region_suffix():
@@ -164,6 +181,43 @@ def test_green_sets_distance_and_walk_estimate(tmp_path):
     assert listing.walk_min_green is not None and listing.walk_min_green > 0
 
 
+def test_reverse_concelho_prefers_municipality_then_city(tmp_path):
+    # municipality wins when present (Maia: city is the freguesia "Cidade da Maia").
+    c = _client(tmp_path, get_payload={"address": {"municipality": "Maia", "city": "Cidade da Maia"}})
+    assert c.reverse_concelho(41.23, -8.62) == "Maia"
+    # Falls to city, then town.
+    c2 = _client(tmp_path / "b", get_payload={"address": {"city": "Porto", "county": "Porto"}})
+    assert c2.reverse_concelho(41.15, -8.62) == "Porto"
+    c3 = _client(tmp_path / "c", get_payload={"address": {"town": "Alijó", "county": "Vila Real"}})
+    assert c3.reverse_concelho(41.28, -7.47) == "Alijó"
+
+
+def test_concelho_enricher_fixes_idealista_and_junk(tmp_path):
+    client = _client(tmp_path, get_payload={"address": {"city": "Porto"}})
+    client.region = NORTE
+    # Idealista card whose parsed concelho is a freguesia → replaced with the município.
+    ide = Listing(price_eur_month=1000, source="idealista", concelho="Paranhos", lat=41.16, lng=-8.6)
+    ConcelhoEnricher(client).apply(ide)
+    assert ide.concelho == "Porto"
+    # Imovirtual with a clean concelho already — left untouched (no reverse call).
+    imv = Listing(price_eur_month=1000, source="imovirtual", concelho="Maia", lat=41.23, lng=-8.62)
+    ConcelhoEnricher(client).apply(imv)
+    assert imv.concelho == "Maia"
+    # Imovirtual whose address didn't extract → junk concelho from the title → still fixed.
+    imv_junk = Listing(price_eur_month=1000, source="imovirtual",
+                       concelho="Casa Movel - Para Arrendar em Felgueiras", lat=41.15, lng=-8.6)
+    ConcelhoEnricher(client).apply(imv_junk)
+    assert imv_junk.concelho == "Porto"
+
+
+def test_concelho_enricher_skips_algarve(tmp_path):
+    client = _client(tmp_path, get_payload={"address": {"city": "SomewhereElse"}})
+    client.region = ALGARVE  # the live Algarve pool's idealista parse is reliable — don't touch
+    listing = Listing(price_eur_month=1000, source="idealista", concelho="Loulé", lat=37.1, lng=-8.0)
+    ConcelhoEnricher(client).apply(listing)
+    assert listing.concelho == "Loulé"
+
+
 def test_region_points_keyed_by_region_and_uses_its_bbox(tmp_path):
     client = _client(tmp_path, post_payload={"elements": [{"lat": 41.1, "lon": -8.6}]})
     client.region = NORTE
@@ -212,6 +266,18 @@ def test_apply_geo_does_not_overwrite_fresh(tmp_path):
 
 def test_apply_geo_noop_without_file(tmp_path):
     assert apply_geo([Listing(source_url="a", price_eur_month=1)], tmp_path / "absent.json") == 0
+
+
+def test_apply_geo_overwrites_concelho_but_not_coords(tmp_path):
+    # The persisted concelho is the authoritative reverse-geocoded value → it replaces the
+    # parsed one even though the listing already has a (junk) concelho set.
+    path = tmp_path / "geo.json"
+    src = Listing(source_url="a", price_eur_month=1, lat=41.16, lng=-8.6, concelho="Porto")
+    save_geo([src], path)
+    listing = Listing(source_url="a", price_eur_month=1, concelho="Paranhos")  # freguesia junk
+    apply_geo([listing], path)
+    assert listing.concelho == "Porto"  # overwritten from the sidecar
+    assert listing.lat == 41.16  # coords filled (were None)
 
 
 # --- ORS routed walk-time (QT-035) ---
