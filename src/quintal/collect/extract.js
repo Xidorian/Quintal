@@ -72,15 +72,17 @@
           typology: dd.find((d) => /^T\d/.test(d)) || "",
           area_text: dd.find((d) => /m²/.test(d)) || "",
           rooms_text: dd.join(", "),
-          // Address <p> ends in the district: "freguesia, concelho, <District>". Match any
-          // mainland district (not just Faro) so the Norte pull captures a location at all —
-          // imovirtual._parse_location then strips the district to recover the concelho.
+          // Prefer the structured address from __NEXT_DATA__ (reliable, has the concelho).
+          // Fall back to the address <p> — "freguesia, concelho, <District>" ending in any
+          // mainland district — for the few cards not in the blob (promoted/ad tiles).
           location:
+            imvLocation(imvIndex()[imvId(a.getAttribute("href"))]) ||
             ps.find((t) =>
               /(?:Aveiro|Beja|Braga|Bragança|Castelo Branco|Coimbra|Évora|Faro|Guarda|Leiria|Lisboa|Portalegre|Porto|Santarém|Setúbal|Viana do Castelo|Vila Real|Viseu)$/.test(
                 t
               )
-            ) || "",
+            ) ||
+            "",
           description: "", // cards carry none — enriched later via quintal.descriptions
           is_private: /oferta privada/i.test(c.innerText),
           image_url: /^data:|placeholder/.test(src) ? "" : src,
@@ -93,6 +95,52 @@
     const c = SITES[site];
     if (!c) throw new Error("quintal: unknown site '" + site + "' (idealista|imovirtual)");
     return c;
+  }
+
+  // --- Imovirtual structured location (from Next.js __NEXT_DATA__) --------------------
+  // The card address <p> is fragile — some cards omit it, so those listings lost their
+  // location and their concelho collapsed to the title. The Next.js blob carries every
+  // organic card's structured address, incl. the authoritative concelho at
+  // reverseGeocoding.locations[locationLevel="council"]. Index it once per page (navigation
+  // reloads the page, so window state is fresh each time) and match cards by the "-ID<code>"
+  // href suffix (the blob's href is a "[lang]/ad/…" template; only the ID suffix is shared).
+  function imvId(href) {
+    const m = (href || "").split("?")[0].match(/-ID([A-Za-z0-9]+)$/);
+    return m ? m[1] : null;
+  }
+  function imvIndex() {
+    if (window.__qImvIndex) return window.__qImvIndex;
+    const idx = {};
+    try {
+      const nd = JSON.parse(document.getElementById("__NEXT_DATA__").textContent);
+      const items = ((((nd.props || {}).pageProps || {}).data || {}).searchAds || {}).items || [];
+      items.forEach((it) => {
+        const id = imvId(it.href);
+        if (id) idx[id] = it;
+      });
+    } catch (e) {
+      /* no blob / shape moved → callers fall back to the <p> scan */
+    }
+    window.__qImvIndex = idx;
+    return idx;
+  }
+  function imvLocation(item) {
+    const loc = item && item.location;
+    if (!loc) return "";
+    const addr = loc.address || {};
+    const freguesia = addr.city && addr.city.name;
+    const district = addr.province && addr.province.name;
+    let concelho = null;
+    const levels = (loc.reverseGeocoding && loc.reverseGeocoding.locations) || [];
+    for (const l of levels)
+      if (l.locationLevel === "council") {
+        concelho = l.name;
+        break;
+      }
+    // "freguesia, concelho, District" — imovirtual._parse_location strips the trailing
+    // district and takes the concelho as the token before it, so a comma-containing
+    // freguesia union still parses to the right concelho.
+    return [freguesia, concelho, district].filter(Boolean).join(", ");
   }
 
   // Extract the current page's cards and merge (dedup by url) into localStorage.

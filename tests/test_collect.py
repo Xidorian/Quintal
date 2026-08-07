@@ -121,6 +121,12 @@ def test_imovirtual_drops_district_for_norte_regions():
     # Multi-word district (Viana do Castelo) is matched as one token, not split on space.
     raw = imovirtual.to_raw({"location": "Monserrate, Viana do Castelo, Viana do Castelo"})
     assert raw["concelho"] == "Viana do Castelo" and raw["freguesia"] == "Monserrate"
+    # A comma-containing freguesia union (as extract.js now emits from __NEXT_DATA__) still
+    # yields the right concelho — it's always the token just before the trailing district.
+    raw = imovirtual.to_raw(
+        {"location": "Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória, Porto, Porto"}
+    )
+    assert raw["concelho"] == "Porto"
 
 
 # --- Extraction row → raw → normalized Listing (end to end) ---
