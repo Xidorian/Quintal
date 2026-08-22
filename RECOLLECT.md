@@ -40,10 +40,17 @@ helper (page navigation clears `window`, so re-inject each page). `browser_batch
   - Page 1 of the apt run: `quintalReset('imovirtual')` first; moradia pages just `quintalExtract('imovirtual')` (same `q_imv` key → apt+moradia accumulate together).
 
 ## 2 · Download + ingest (per site)
-Chrome blocks a 2nd auto-download in the **same** tab — download from a **fresh same-origin tab**:
-open a new tab → navigate to the site → eval `<extract.js>` → `quintalDownload('idealista')`
-(or `'imovirtual'`) → it saves `~/Downloads/quintal_<site>.json`. Then:
+**FIRST: `rm ~/Downloads/quintal_*.json` BEFORE downloading.** If a stale file with that name
+exists, Chrome silently saves the new one as `quintal_<site> (1).json` and you'll ingest the
+*old* file — which, with `--cull`, wrongly delists the whole current pull. (This bit us
+2026-08-22: an old Norte download polluted the Algarve store; recovered by removing the bad
+rows by URL and re-ingesting.) Chrome also blocks a 2nd auto-download in the **same** tab —
+download from a **fresh same-origin tab**: open a new tab → navigate to the site → eval
+`<extract.js>` → `quintalDownload('idealista')` (or `'imovirtual'`) → saves
+`~/Downloads/quintal_<site>.json`. **Then verify the row count matches the browser's reported
+total before ingesting:**
 ```
+python -c "import json;print(len(json.load(open('/home/xidorian/Downloads/quintal_idealista.json'))))"  # == the plateau total
 python -m quintal.collect.run --site idealista  --ingest ~/Downloads/quintal_idealista.json --cull
 python -m quintal.collect.run --site imovirtual --ingest ~/Downloads/quintal_imovirtual.json
 ```
@@ -85,3 +92,14 @@ The enrich run regenerates `data/geo.json` and caches any new ORS routes; `publi
 - Imovirtual pagination clamps past the last page (repeats) — stop when `total` plateaus.
 - The JS `javascript_tool` return caps ~1 KB and the browser tool blocks returning query-string
   URLs — that's why extraction accumulates to `localStorage` and returns only counts.
+- **Idealista render races (2026-08-22):** a `browser_batch` `navigate→eval` pair can run the
+  eval before the page's cards render → `page:0` (a *missed* page, not end-of-list). Watch every
+  page's count; re-fetch any `page:0` with a **separate** navigate then eval (gives render time).
+  Worse under load — **don't run the maintenance passes while collecting** (pause them first).
+  Imovirtual is server-rendered → no races.
+- **Norte pool** is a separate store + sidecars (`--region {porto,braga,viana-do-castelo,vila-real,
+  viseu}`, `--store data/listings-norte.jsonl`, and its `-norte` sidecars). Idealista: page each of
+  the 5 districts to plateau, one accumulated `q_ide`, one `--cull` ingest. Imovirtual: apt+moradia
+  × 5 districts. Enrich with `region='norte', min_beds=2` and **no ORS key** (straight-line —
+  2431×2 routes blow the free 2000/day quota). Its concelhos come clean from imovirtual
+  `__NEXT_DATA__` + a reverse-geocode pass; Algarve's ORS routes stay cached.

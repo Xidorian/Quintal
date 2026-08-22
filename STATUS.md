@@ -64,6 +64,24 @@ greenery/nature/quiet + river/ocean water. **Published** — selectable in the h
 - **96 tests green.**
 
 ## Re-collection log
+- **2026-08-22** — **both pools re-pulled** (first dual re-collection). **Algarve:** idealista
+  477 (+145 new, 332 resurrected), imovirtual 328 (+148 new, 180 updated); descriptions 649,
+  120 newly-delisted; **RANKED 593** (166 under / 183 fair / 213 over). **Norte:** idealista
+  1750 (+579 new, 1171 updated, 626 culled ~35% churn), imovirtual 2072 (+589 new, 1483
+  updated); **RANKED 2441, located 2431 (99.6%)** (676 under / 1009 fair / 721 over). Norte
+  concelhos re-cleaned by reverse-geocode (junk 106 → 10). First pull using the imovirtual
+  `__NEXT_DATA__` location fix (QT-043) — 35/40 organic cards read structured address live.
+  Published both to `deploy`.
+  - **Incident (recovered):** the stale Aug-6 `quintal_idealista.json` was still in ~/Downloads,
+    so Chrome suffixed the fresh Faro download to `(1)` and the first ingest pulled the *old
+    Norte* file into the Algarve store (+1797 rows, culled 456 Faro). Backed up, removed the
+    1797 by URL, re-ingested the correct file → store restored, 0 contamination. **Lessons now
+    in RECOLLECT.md:** `rm ~/Downloads/quintal_*.json` *before* each download; verify the
+    download row-count matches the browser total before `--ingest`.
+  - **Idealista render races:** under background-maintenance load the per-page `navigate→eval`
+    sometimes ran before cards rendered (`page:0`); re-fetching each miss (or a separate
+    navigate-then-eval) recovers it. Imovirtual is SSR → no races. Paused maintenance during
+    collection to avoid the contention.
 - **2026-07-27** — store 841 → **1081** (+240 new: idealista 163, imovirtual 77;
   235 updated). Collected 180 idealista (6 pages) + 295 imovirtual (251 apt / 44 moradia).
   Maintenance: 67 new descriptions, **72 newly-delisted** (410/404 → delisted 65→137),
