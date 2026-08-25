@@ -7,6 +7,9 @@ in the same shared store as yours. Hosted on **Streamlit Community Cloud** (free
 - **Code** lives on `main` (runtime data stays gitignored, per the project's design).
 - **Data** (listings, enrichment cache, photos) is carried on a **`deploy` branch** that
   Streamlit Cloud tracks. You refresh it with `scripts/publish.sh` after each collection.
+- **Python on Cloud is 3.10**, not the 3.12 this repo develops on. `scripts/publish.sh` gates
+  the app path with `vermin -t=3.10-` before pushing; keep it that way or a 3.11+ feature will
+  take the live app down at import time (it did, 2026-08-25).
 - **Preferences** (the 👍/👎/hide + area sentiment) live in a **private GitHub Gist** —
   durable (Streamlit's disk is ephemeral) and shared live between you two. Configured via
   two secrets; when they're absent the app falls back to the local `data/preferences.json`.

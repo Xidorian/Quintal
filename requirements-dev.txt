@@ -1,3 +1,4 @@
 -r requirements.txt
 pytest>=8.0
 ruff>=0.4
+vermin>=1.6  # publish gate: app path must stay Python 3.10 (Streamlit Cloud)

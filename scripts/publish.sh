@@ -32,6 +32,20 @@ for f in data/descriptions.json data/delisted.json data/geo.json \
   [[ -f "$f" ]] && FILES+=("$f")
 done
 
+# The hosted app runs an older Python than this repo develops on: Streamlit Cloud is on
+# 3.10, `pyproject.toml` says 3.12. A 3.11+ feature in the app's import path passes every
+# local check and only explodes once it's live (it did, 2026-08-25: `datetime.UTC`). Gate it
+# here — the last point before it reaches Malia. Skipped when vermin isn't installed
+# (`pip install -r requirements-dev.txt`).
+if command -v vermin >/dev/null 2>&1; then
+  if ! vermin --no-tips -t=3.10- --violations app.py src/quintal; then
+    echo "Above needs newer than Python 3.10 — Streamlit Cloud would fail to import it." >&2
+    exit 1
+  fi
+else
+  echo "note: vermin not installed — skipping the Python-3.10 compatibility check." >&2
+fi
+
 cleanup() { git worktree remove --force "$WT" 2>/dev/null || true; }
 trap cleanup EXIT
 cleanup  # clear any stale worktree from an interrupted run

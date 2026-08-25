@@ -23,7 +23,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal, Protocol
 
@@ -33,8 +33,12 @@ _GIST_FILENAME = "preferences.json"
 
 
 def utc_now_iso() -> str:
-    """Timestamp every log entry shares (UTC, second precision)."""
-    return datetime.now(UTC).isoformat(timespec="seconds")
+    """Timestamp every log entry shares (UTC, second precision).
+
+    `timezone.utc`, not the 3.11 `datetime.UTC` alias: this module is on the hosted app's
+    import path and Streamlit Cloud runs Python 3.10 (it broke there on 2026-08-25).
+    """
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")  # noqa: UP017
 
 
 def _entry_id(listing_id: str, at: str, seq: int) -> str:

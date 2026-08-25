@@ -58,6 +58,10 @@ collect (browser session)  →  data/listings.jsonl
 
 ## Gotchas
 - Ubuntu 24 PEP 668: always use `.venv` (see profile).
+- **The hosted app runs Python 3.10** (Streamlit Cloud) while local dev is 3.12 — anything on
+  `app.py`'s import path must stay 3.10-compatible. `datetime.UTC` broke the live app on
+  2026-08-25; `preferences.py` uses `timezone.utc` for that reason. `scripts/publish.sh` now
+  fails the publish on a violation (`vermin -t=3.10-`), so this can't reach Malia again.
 - Sample data in `data/sample_listings.jsonl` is **synthetic**, clearly flagged — do not
   treat it as collected market data. Real listings arrive via the same schema.
 - With a small pool the hedonic model is low-confidence — the confidence badge is not

@@ -43,6 +43,13 @@ phrase's **collateral** (other pool listings it would purge). Patterns are propo
 auto-applied. `block` hard-blocks flagged listings by id (works for reasons no pattern could
 catch); `resolve` closes notes you acted on; un-passing retracts a note, so a reversed 👎 can't
 drive a filter change. Wired into RECOLLECT.md as **step 0**.
+- **Incident + fix (2026-08-25, QT-045):** the first deploy took the live app down —
+  `ImportError` on `from datetime import UTC` in `preferences.py`. **Streamlit Cloud runs Python
+  3.10**; this repo develops on 3.12, so a 3.11-only alias passed every local check and only
+  failed once hosted. Fixed with `timezone.utc`; `vermin` confirmed that was the *only* 3.11+
+  construct in the app path. `scripts/publish.sh` now gates every publish with
+  `vermin -t=3.10-` (verified to fail on a planted `datetime.UTC`), so the skew can't reach
+  Malia again.
 - **Caveat (verified 2026-08-25):** locally the CLI reads `data/preferences.json` unless
   `QUINTAL_GIST_ID`/`QUINTAL_GITHUB_TOKEN` are in `.env` — i.e. *not* the shared log. It prints
   which store it read; those two vars still need adding to the local `.env`.
