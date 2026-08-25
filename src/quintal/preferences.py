@@ -1,4 +1,5 @@
-"""Persistent searcher preferences: per-listing 👍/👎/hide and per-area sentiment.
+"""Persistent searcher preferences: per-listing 👍/👎/hide, per-area sentiment, and the
+reason log behind every 👎.
 
 The source of truth for what we like. It survives re-collection and re-runs (a listing
 keeps its identity via its stable id), and can live in one of two stores behind the same
@@ -10,18 +11,35 @@ keeps its identity via its stable id), and can live in one of two stores behind 
   is ephemeral) keeps preferences *and* both of us share one live source of truth.
 
 `Preferences(path)` keeps working exactly as before; pass `backend=` to swap the store.
+
+A 👎 can carry *why* (a reason code + free-text note). Those land in an append-only
+`feedback` log inside the same payload, so both searchers' notes share one store and
+survive re-collection. `quintal.feedback` reads that log before the next pull to harden
+screening — undoing a 👎 retracts its note so a mis-click can't drive a filter change.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal, Protocol
 
 Sentiment = Literal["like", "dislike"]
 
 _GIST_FILENAME = "preferences.json"
+
+
+def utc_now_iso() -> str:
+    """Timestamp every log entry shares (UTC, second precision)."""
+    return datetime.now(UTC).isoformat(timespec="seconds")
+
+
+def _entry_id(listing_id: str, at: str, seq: int) -> str:
+    """Stable, collision-free-enough id for one log entry (listing + instant + position)."""
+    return hashlib.sha1(f"{listing_id}|{at}|{seq}".encode()).hexdigest()[:10]
 
 
 class PrefsBackend(Protocol):
@@ -151,6 +169,7 @@ class Preferences:
         self.disliked: set[str] = set()
         self.hidden: set[str] = set()
         self.areas: dict[str, Sentiment] = {}
+        self.feedback: list[dict] = []
         self._load()
 
     def _load(self) -> None:
@@ -159,6 +178,8 @@ class Preferences:
         self.disliked = set(data.get("disliked", []))
         self.hidden = set(data.get("hidden", []))
         self.areas = dict(data.get("areas", {}))
+        # Older payloads predate the reason log — absent key is simply an empty log.
+        self.feedback = [dict(entry) for entry in data.get("feedback", [])]
 
     def _payload(self) -> dict:
         return {
@@ -166,6 +187,7 @@ class Preferences:
             "disliked": sorted(self.disliked),
             "hidden": sorted(self.hidden),
             "areas": self.areas,
+            "feedback": self.feedback,
         }
 
     def save(self) -> None:
@@ -176,12 +198,96 @@ class Preferences:
         self.disliked.discard(listing_id)
         self.liked.symmetric_difference_update({listing_id})  # toggle
 
-    def dislike(self, listing_id: str) -> None:
+    def dislike(
+        self,
+        listing_id: str,
+        *,
+        reason: str | None = None,
+        note: str = "",
+        by: str | None = None,
+        context: dict | None = None,
+    ) -> None:
+        """Toggle 👎. Passing a `reason` (and optional note) also logs *why*.
+
+        Un-passing retracts the listing's open notes: a reversed 👎 must not go on
+        justifying a filter change.
+        """
         self.liked.discard(listing_id)
-        self.disliked.symmetric_difference_update({listing_id})
+        if listing_id in self.disliked:
+            self.disliked.discard(listing_id)
+            self.retract_feedback(listing_id)
+            return
+        self.disliked.add(listing_id)
+        if reason or note:
+            self.add_feedback(
+                listing_id, reason=reason or "other", note=note, by=by, context=context
+            )
 
     def hide(self, listing_id: str) -> None:
         self.hidden.symmetric_difference_update({listing_id})
+
+    # --- the reason log behind a 👎 ---
+    def add_feedback(
+        self,
+        listing_id: str,
+        *,
+        reason: str = "other",
+        note: str = "",
+        by: str | None = None,
+        context: dict | None = None,
+    ) -> dict:
+        """Append one reason entry. `context` snapshots the listing (title/url/concelho/
+        price/pool) so the log stays readable after the listing leaves the pool."""
+        at = utc_now_iso()
+        entry = {
+            "entry_id": _entry_id(listing_id, at, len(self.feedback)),
+            "listing_id": listing_id,
+            "reason": reason,
+            "note": note.strip(),
+            "by": by or "",
+            "at": at,
+            **{k: v for k, v in (context or {}).items() if v is not None},
+        }
+        self.feedback.append(entry)
+        return entry
+
+    def feedback_for(self, listing_id: str) -> list[dict]:
+        """Every entry for a listing, oldest first (retracted and resolved included)."""
+        return [e for e in self.feedback if e.get("listing_id") == listing_id]
+
+    def latest_feedback(self, listing_id: str) -> dict | None:
+        """The listing's most recent live entry — what the card shows."""
+        live = [e for e in self.feedback_for(listing_id) if not e.get("retracted")]
+        return live[-1] if live else None
+
+    def open_feedback(self) -> list[dict]:
+        """Entries still awaiting action: not retracted, not yet resolved."""
+        return [
+            e for e in self.feedback if not e.get("retracted") and not e.get("resolved_at")
+        ]
+
+    def retract_feedback(self, listing_id: str) -> int:
+        """Mark a listing's live entries retracted (kept for the audit trail, ignored by
+        the report). Returns how many were retracted."""
+        n = 0
+        for entry in self.feedback:
+            if entry.get("listing_id") == listing_id and not entry.get("retracted"):
+                entry["retracted"] = True
+                entry["retracted_at"] = utc_now_iso()
+                n += 1
+        return n
+
+    def resolve_feedback(self, entry_ids: list[str], *, note: str = "") -> int:
+        """Mark entries as acted on (a pattern added, a listing blocked). Returns the count."""
+        wanted = set(entry_ids)
+        n = 0
+        for entry in self.feedback:
+            if entry.get("entry_id") in wanted and not entry.get("resolved_at"):
+                entry["resolved_at"] = utc_now_iso()
+                if note:
+                    entry["resolution"] = note
+                n += 1
+        return n
 
     # --- per-area sentiment ---
     def set_area(self, concelho: str, sentiment: Sentiment | None) -> None:

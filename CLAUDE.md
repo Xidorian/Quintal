@@ -35,6 +35,12 @@ collect (browser session)  →  data/listings.jsonl
 - `score.py` — weighted preference match, weights are tunable constants in `config.py`.
 - `pipeline.py` — orchestrates load → normalize → dedup → enrich → value → score;
   per-item error isolation so one bad record never aborts the batch.
+- `feedback.py` — the 👎-reason loop. Each 👎 in the app carries a reason code + note
+  (stored in the shared preferences log); this reads them back before the next pull,
+  splits **filter misses** (should never have been shown → names the module to fix) from
+  **taste**, re-runs the current screener over each flagged listing to tell "still slips"
+  from "now caught", and mines candidate `SHORT_TERM_PATTERNS` from the misses — each with
+  the collateral count. Patterns are **proposed, never auto-applied**.
 - `render_html.py` + `templates/listings.html.j2` — static ranked page (step-1 proof).
 - `app.py` — Streamlit interactive layer (filters, sort modes, 👍/👎 per listing & area).
 
@@ -46,6 +52,9 @@ collect (browser session)  →  data/listings.jsonl
 - **Furnished:** displayed attribute only — not scored, not filtered.
 - **AI:** regex derivation is the system; an LLM review/verification pass is an opt-in layer added later (local Ollama default).
 - **Preferences** (👍/👎, per-area sentiment) persist to `data/preferences.json` — source of truth, survives re-collection.
+- **A 👎 asks why** (settled 2026-08-25): reason code + free-text note, logged append-only in
+  the same store. Un-passing retracts the note, so a reversed 👎 can never harden a filter.
+  Screenable reasons name the module at fault; the report proposes patterns, a human adds them.
 
 ## Gotchas
 - Ubuntu 24 PEP 668: always use `.venv` (see profile).
@@ -60,6 +69,8 @@ collect (browser session)  →  data/listings.jsonl
 python -m quintal.pipeline --input data/sample_listings.jsonl --html out/listings.html   # build the ranked page
 python -m quintal.collect.run --print-urls                                                # search URLs to open in Chrome
 python -m quintal.collect.run --site idealista --ingest rows.json                         # map extracted cards → listings.jsonl
+python -m quintal.feedback report --pool algarve                                          # why we passed → what to harden (run before a pull)
+python -m quintal.feedback block --pool algarve                                           # hard-block the flagged misses by id
 pytest                                                                                    # run the brain's tests
 streamlit run app.py                                                                      # interactive UI (post step-1)
 ```
@@ -90,6 +101,9 @@ returns the whole thing in one call (readability picks the sole article). Bulk, 
 - The filter-URL schemes in the adapters are best-effort; the guessed price/bedroom path 404s
   and still needs discovering from the live UI.
 - Search cards give ~300-char description previews; full amenities need per-listing detail pages.
+- The feedback CLI reads whichever preferences store is configured — **without
+  `QUINTAL_GIST_ID`/`QUINTAL_GITHUB_TOKEN` in the env it reads the local file, not the shared
+  log**. It prints the store in its header; check it before hardening off the result.
 
 ## Licensing
 Proprietary / all rights reserved (private personal tool).

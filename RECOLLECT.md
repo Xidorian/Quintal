@@ -16,7 +16,32 @@ then work top to bottom here. Everything is resumable — a mid-run interruption
 ## Prereqs
 - **Logged-in Chrome connected** (`mcp__Claude_in_Chrome__list_connected_browsers` returns a browser).
 - `.env` present with `OPENROUTESERVICE_API_KEY` (routed walk-times). `. .venv/bin/activate` first.
+- **`QUINTAL_GIST_ID` + `QUINTAL_GITHUB_TOKEN` in `.env`** so step 0 reads the *shared* 👎 notes.
+  Without them the feedback CLI reads the local `data/preferences.json` — nobody's live log — and
+  says so in its header. Check that header; don't harden off the wrong store.
 - No CAPTCHA wall on the portals (if one appears, **stop** and tell the owner — never solve it).
+
+## 0 · Read the 👎 notes and harden (before pulling anything)
+Every 👎 in the app can carry a reason + note. This is where they get spent.
+```
+python -m quintal.feedback report --pool algarve     # and --pool norte
+```
+- **Filter misses** are listings the pool should never have shown. Each names the module that
+  should have caught it. Entries marked `✗ still slips` are live bugs; `✓ now caught` means an
+  earlier hardening already covers it (nothing to do).
+- **Candidate patterns** are mined from the still-slipping *seasonal* ones, ★-marked when the
+  searcher quoted the words themselves. Each shows **`also purges`** — how many other pool
+  listings it would drop. **Read that number before adding anything**: a careless phrase
+  ("moradia") would purge the pool. Add the safe ones to `SHORT_TERM_PATTERNS` in
+  [`src/quintal/screening.py`](src/quintal/screening.py), then re-run the report to confirm they
+  flip to `✓ now caught`.
+- **Taste** notes never touch the screener — they inform scoring weights / area sentiment.
+```
+python -m quintal.feedback block --pool algarve      # hard-block the misses by id (--dry-run first)
+python -m quintal.feedback resolve --all --pool algarve --note "QT-xxx: added <pattern>"
+```
+`block` is the specific fix (this listing, never again), a pattern is the general one — do both.
+Only `resolve` what you actually acted on; unresolved notes resurface next week on purpose.
 
 ## 1 · Collect (per site: idealista, then imovirtual)
 Extraction is versioned in [`src/quintal/collect/extract.js`](src/quintal/collect/extract.js) —
@@ -81,6 +106,8 @@ The enrich run regenerates `data/geo.json` and caches any new ORS routes; `publi
 `listings.jsonl` + all sidecars + photos. The app needs no ORS key (routes read from the cache).
 
 ## 5 · Verify + record
+- **Re-run `python -m quintal.feedback report`** for each pool — the notes you hardened against
+  should now read `✓ now caught`. Record any pattern you added in the STATUS.md entry.
 - Check the ranked count and band spread look sane (roughly balanced under/fair/over, not all-one).
 - Spot-check `git show origin/deploy:data/listings.jsonl | wc -l` grew and the top listings look right.
 - **Append a short dated entry to `STATUS.md`** with the run's numbers (store total, new/updated,

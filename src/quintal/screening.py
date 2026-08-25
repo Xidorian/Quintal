@@ -59,9 +59,13 @@ _SEASONAL_SPAN = re.compile(
 )
 
 
-def is_short_term(listing: Listing) -> str | None:
-    """Return a reason string if this looks like a short-term/AL rental, else None."""
-    text = fold(f"{listing.title or ''} {listing.description_raw}")
+def short_term_reason(raw_text: str) -> str | None:
+    """Reason string if this *text* reads short-term/AL, else None. Folds the text itself.
+
+    Text-level so anything holding listing prose can ask the same question — the feedback
+    report re-runs it over 👎-flagged listings to tell "we now catch this" from "still slips".
+    """
+    text = fold(raw_text)
     if _AL_REGISTRATION.search(text):
         return "AL registration number"
     if _SEASONAL_SPAN.search(text):
@@ -70,6 +74,11 @@ def is_short_term(listing: Listing) -> str | None:
         if pattern in text:
             return f"matched '{pattern}'"
     return None
+
+
+def is_short_term(listing: Listing) -> str | None:
+    """Return a reason string if this looks like a short-term/AL rental, else None."""
+    return short_term_reason(f"{listing.title or ''} {listing.description_raw}")
 
 
 class Blocklist:

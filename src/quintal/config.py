@@ -5,6 +5,43 @@ Everything a searcher might want to nudge lives here, not scattered through the 
 
 from __future__ import annotations
 
+# --- Region pools -------------------------------------------------------------
+# Each pool is its own market, valued against itself (mixing them would mis-value). A pool
+# names its listings file, its region (drives scoring weights + geocoding), and its sidecars.
+# Keyed by the display name the app shows; `region` is the slug the CLIs take.
+POOLS: dict[str, dict] = {
+    "Algarve": {
+        "region": "algarve",
+        "listings": "data/listings.jsonl",
+        "min_beds": 0,
+        "blocklist_path": "data/blocklist.json",
+        "delisted_path": "data/delisted.json",
+        "geo_path": "data/geo.json",
+        "cache_path": "data/enrichment_cache.json",
+        "descriptions_path": "data/descriptions.json",
+    },
+    "Norte — Porto · Douro · Minho": {
+        "region": "norte",
+        "listings": "data/listings-norte.jsonl",
+        "min_beds": 2,
+        "blocklist_path": "data/blocklist-norte.json",
+        "delisted_path": "data/delisted-norte.json",
+        "geo_path": "data/geo-norte.json",
+        "cache_path": "data/enrichment_cache-norte.json",
+        "descriptions_path": "data/descriptions-norte.json",
+    },
+}
+
+
+def pool_by_region(region: str) -> dict:
+    """The pool config for a region slug ('algarve' | 'norte'). Raises on an unknown slug."""
+    for pool in POOLS.values():
+        if pool["region"] == region:
+            return pool
+    known = [p["region"] for p in POOLS.values()]
+    raise KeyError(f"unknown region pool: {region!r} (have: {known})")
+
+
 # --- Match score weights (sum = 100 → match_score is directly 0–100) ---
 # The Algarve default: yard + ocean-beach walkability lead.
 WEIGHTS: dict[str, float] = {

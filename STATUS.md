@@ -31,6 +31,22 @@ greenery/nature/quiet + river/ocean water. **Published** — selectable in the h
 - **Open follow-ups:** Imovirtual descriptions + liveness deferred; routed (ORS) walk-times
   skipped for Norte (straight-line for now — free-tier quota). See NEXT.md.
 
+## 👎-with-a-reason loop — shipped (2026-08-25, QT-044)
+A 👎 in the app now asks **why**: a reason code (seasonal, not-a-rental, wrong-area, duplicate,
+gone, bad-data + taste reasons) plus a free-text note, signed by whoever passed it. Notes append
+to the shared preferences store (same Gist), so Malia's reasons reach the next pull.
+`python -m quintal.feedback report --pool <region>` reads them back before collecting: it splits
+**filter misses** (each naming the module at fault) from **taste**, re-runs the *current* screener
+over each flagged listing (`✗ still slips` vs `✓ now caught`), and **mines candidate patterns**
+from the still-slipping seasonal ones — ★-marking phrases the searcher quoted, and showing each
+phrase's **collateral** (other pool listings it would purge). Patterns are proposed, never
+auto-applied. `block` hard-blocks flagged listings by id (works for reasons no pattern could
+catch); `resolve` closes notes you acted on; un-passing retracts a note, so a reversed 👎 can't
+drive a filter change. Wired into RECOLLECT.md as **step 0**.
+- **Caveat (verified 2026-08-25):** locally the CLI reads `data/preferences.json` unless
+  `QUINTAL_GIST_ID`/`QUINTAL_GITHUB_TOKEN` are in `.env` — i.e. *not* the shared log. It prints
+  which store it read; those two vars still need adding to the local `.env`.
+
 ## What works today
 - **End-to-end pipeline** (`pipeline.py`): load → normalize → screen → liveness-drop →
   dedup → enrich → value → score, with per-item error isolation.
@@ -57,11 +73,12 @@ greenery/nature/quiet + river/ocean water. **Published** — selectable in the h
   Hamming ≤6, corroborated by bedrooms + price ±10%).
 - **Photos** — captured card thumbnails (incl. Idealista) + og:image fallback to
   `data/photos/`.
-- **App** (`app.py`, Streamlit) — filters, 3 sort modes, 👍/👎 per listing & area.
+- **App** (`app.py`, Streamlit) — filters, 3 sort modes, 👍/👎 per listing & area, and a 👎
+  that asks *why* (reason + note, see below).
 - **Hosting** — live on Streamlit Community Cloud (`deploy` branch), shared prefs via a
   private GitHub Gist (`GistBackend`); `scripts/publish.sh` refreshes → auto-redeploy.
   Malia confirmed it works for her.
-- **96 tests green.**
+- **141 tests green.**
 
 ## Re-collection log
 - **2026-08-22** — **both pools re-pulled** (first dual re-collection). **Algarve:** idealista
@@ -94,7 +111,9 @@ greenery/nature/quiet + river/ocean water. **Published** — selectable in the h
     Re-ranked **594** (idealista 283 / imovirtual 311), delisted set 137 → 436, re-published.
 
 ## Where work stopped
-Backlog fully drained; last work was the 2026-07-27 weekly re-collection (above). Prior
+Last work: QT-044, the 👎-reason loop above (tested end-to-end in the live app — pass with a
+reason, note lands in the store, report reads it, un-pass retracts it). Before that, the
+2026-08-22 dual re-collection. Prior
 feature work was QT-033/034/035 (versioned extraction, Idealista filter URL, ORS routed
 walk-times) plus the RECOLLECT.md runbook. No open feature work — the standing task is
 the weekly re-collection (see NEXT.md).

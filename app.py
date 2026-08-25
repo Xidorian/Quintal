@@ -1,8 +1,10 @@
 """Quintal — interactive rental finder (Phase 4).
 
 Reads the collected pool, runs the full brain (screen → enrich → value → score), and
-lets the searcher filter, sort, and 👍/👎 listings and whole areas. Preferences persist
-to data/preferences.json so they survive re-collection.
+lets the searcher filter, sort, and 👍/👎 listings and whole areas. A 👎 asks *why* —
+the reason + note land in the shared preferences log, which `python -m quintal.feedback
+report` reads before the next pull to harden collection. Preferences persist to
+data/preferences.json (or the shared Gist) so they survive re-collection.
 
 Run:  streamlit run app.py
 """
@@ -19,29 +21,18 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 import streamlit as st
 
+from quintal import config
+from quintal.feedback import REASONS, context_from_view, label_of
 from quintal.photos import photo_path
 from quintal.pipeline import run
 from quintal.preferences import GistBackend, Preferences
 from quintal.render_html import _view
 
 PREFS_PATH = "data/preferences.json"
+SEARCHERS = ["Malia", "Alexander"]
 
-# Each pool is its own market, valued against itself (mixing them would mis-value). A pool
-# names its listings file, its region (drives scoring weights + geocoding), and its sidecars.
-# Sidecars left unset fall back to the pipeline defaults (the Algarve pool's).
-POOLS: dict[str, dict] = {
-    "Algarve": {"region": "algarve", "listings": "data/listings.jsonl", "min_beds": 0},
-    "Norte — Porto · Douro · Minho": {
-        "region": "norte",
-        "listings": "data/listings-norte.jsonl",
-        "min_beds": 2,
-        "blocklist_path": "data/blocklist-norte.json",
-        "delisted_path": "data/delisted-norte.json",
-        "geo_path": "data/geo-norte.json",
-        "cache_path": "data/enrichment_cache-norte.json",
-        "descriptions_path": "data/descriptions-norte.json",
-    },
-}
+# Pools live in config.POOLS so the app and the CLIs read one definition.
+POOLS = config.POOLS
 
 st.set_page_config(page_title="Quintal — rental finder", page_icon="🏡", layout="wide")
 
@@ -109,6 +100,13 @@ st.sidebar.caption("Rental finder — for Malia & Luna")
 
 pool_name = st.sidebar.selectbox("Region pool", list(POOLS), index=0)
 pool = POOLS[pool_name]
+default_searcher = _secret("QUINTAL_USER") or SEARCHERS[0]
+searcher = st.sidebar.selectbox(
+    "You are",
+    SEARCHERS,
+    index=SEARCHERS.index(default_searcher) if default_searcher in SEARCHERS else 0,
+    help="Signs your 👎 notes so we know whose call it was.",
+)
 is_norte = pool["region"] == "norte"
 # Norte optimises for greenery/nature/river; Algarve for ocean-beach walkability.
 water_label = "river/ocean" if is_norte else "beach"
@@ -154,6 +152,18 @@ st.sidebar.header("View")
 sort_mode = st.sidebar.radio("Sort", ["Best fit", "Best deal", "Fit + deal"])
 show_disliked = st.sidebar.checkbox("Show 👎 / disliked areas", value=False)
 show_hidden = st.sidebar.checkbox("Show hidden", value=False)
+
+open_notes = [e for e in prefs.open_feedback() if not e.get("pool") or e.get("pool") == pool_name]
+if open_notes:
+    with st.sidebar.expander(f"🗒️ Pass notes ({len(open_notes)})"):
+        st.caption("Feeds the next pull — `python -m quintal.feedback report`.")
+        for entry in reversed(open_notes[-12:]):
+            who = f" · {entry['by']}" if entry.get("by") else ""
+            st.markdown(
+                f"**{label_of(entry.get('reason', 'other'))}**{who}  \n"
+                f"{(entry.get('title') or '')[:60]}"
+                + (f"  \n*“{entry['note']}”*" if entry.get("note") else "")
+            )
 
 if prefs.areas:
     st.sidebar.header("Area sentiment")
@@ -262,6 +272,11 @@ for v in rows:
                 st.caption("💶 " + " · ".join(v["why"]))
             if v["url"]:
                 st.markdown(f"[Open listing ↗]({v['url']})")
+            passed_note = prefs.latest_feedback(v["id"]) if state == "disliked" else None
+            if passed_note:
+                who = f" · {passed_note['by']}" if passed_note.get("by") else ""
+                quote = f" — “{passed_note['note']}”" if passed_note.get("note") else ""
+                st.caption(f"👎 {label_of(passed_note.get('reason', 'other'))}{quote}{who}")
         with actions:
             like_label = "💚 Liked" if state == "liked" else "👍 Like"
             pass_label = "💔 Passed" if state == "disliked" else "👎 Pass"
@@ -269,10 +284,36 @@ for v in rows:
                 prefs.like(v["id"])
                 prefs.save()
                 st.rerun()
-            if st.button(pass_label, key=f"pass-{v['id']}", use_container_width=True):
-                prefs.dislike(v["id"])
-                prefs.save()
-                st.rerun()
+            if state == "disliked":
+                if st.button(pass_label, key=f"pass-{v['id']}", use_container_width=True):
+                    prefs.dislike(v["id"])  # un-pass; retracts the note behind it
+                    prefs.save()
+                    st.rerun()
+            else:
+                with st.popover(pass_label, use_container_width=True):
+                    st.caption("Why? This is what hardens the next pull.")
+                    code = st.selectbox(
+                        "Reason",
+                        list(REASONS),
+                        format_func=label_of,
+                        key=f"why-{v['id']}",
+                    )
+                    st.caption(REASONS[code].hint or "")
+                    note = st.text_input(
+                        "Note (optional)",
+                        key=f"note-{v['id']}",
+                        placeholder="quote the giveaway line if there is one",
+                    )
+                    if st.button("Save pass", key=f"savepass-{v['id']}", type="primary"):
+                        prefs.dislike(
+                            v["id"],
+                            reason=code,
+                            note=note,
+                            by=searcher,
+                            context=context_from_view(v, pool_name),
+                        )
+                        prefs.save()
+                        st.rerun()
             if st.button("🙈 Hide", key=f"hide-{v['id']}", use_container_width=True):
                 prefs.hide(v["id"])
                 prefs.save()
