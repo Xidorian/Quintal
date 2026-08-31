@@ -67,6 +67,11 @@ collect (browser session)  →  data/listings.jsonl
 - With a small pool the hedonic model is low-confidence — the confidence badge is not
   decoration, respect it; peer-median fallback kicks in for thin concelho+bedroom buckets.
 
+## Testing focus
+Per the python profile's "cover the pipeline's brain": scoring, valuation (incl. the
+peer-median fallback), normalization/keyword derivation. a11y: the 🟢/⚪/🔴 valuation
+band is always paired with text — never colour alone.
+
 ## Commands
 ```
 . .venv/bin/activate
@@ -110,7 +115,8 @@ returns the whole thing in one call (readability picks the sole article). Bulk, 
   log**. It prints the store in its header; check it before hardening off the result.
 
 ## Licensing
-Proprietary / all rights reserved (private personal tool).
+Proprietary / all rights reserved. The repo is **public** only because Streamlit Cloud
+hosting requires it — a public repo is not an open-source license.
 
 ## Docs
 @~/.claude/conventions/four-file.md
