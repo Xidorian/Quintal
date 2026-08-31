@@ -31,12 +31,13 @@ auto-redeploy. Remaining Mondays: 07-27, 08-03, 08-10, 08-17, 08-24, 08-31, 09-0
       Streamlit secrets; needs copying locally. The CLI names the store it read, so this is
       visible, not silent.)
 
-## ▶ Outstanding from the 2026-08-31 pull
-- [ ] **Pull Idealista for both pools** — blocked all session: the Claude-in-Chrome extension
-      never connected (`list_connected_browsers` → `[]`) and the in-app browser hits a DataDome
-      CAPTCHA. Nothing was culled, so the data is stale, not wrong. Run RECOLLECT.md steps 1–2
-      for idealista (Faro, then the 5 Norte districts) once Chrome is connected, `--cull` only
-      if the pull reaches plateau.
+## ▶ From the 2026-08-31 pull
+- [x] Idealista pulled for both pools (541 Algarve / 1770 Norte, both to plateau, both culled).
+- [x] QT-047: the cull now writes to its store's own delisted sidecar; 1012 undelisted dead
+      Norte listings cleared. See STATUS.md.
+- [ ] **Norte still has no `descriptions-norte.json` or liveness probe** — the same class of gap
+      QT-047 exposed. Norte yard/pets derive from titles alone, and its only liveness path is the
+      idealista cull (imovirtual dead listings there are never detected). Worth closing next.
 
 ## Soon (do when convenient)
 - [ ] Discover the working Idealista `com-preco-max_…` filter path for every case (some

@@ -96,6 +96,27 @@ drive a filter change. Wired into RECOLLECT.md as **step 0**.
 - **141 tests green.**
 
 ## Re-collection log
+- **2026-08-31 (part 2, same day)** — **Idealista pulled for both pools** once Chrome reconnected,
+  completing the Monday run. Filtered search URL was transiently 503-ing ("Ups! De momento não
+  estamos disponíveis") but recovered after loading the homepage first. **Algarve:** 541 cards
+  (19 pages, plateau == the header's 541) → +123 new, 418 updated, **65 culled**, 6 resurrected;
+  store 1724 → **1847**. Photos +120, liveness +3. **RANKED 628** (173 under / 233 fair /
+  222 over). **Norte:** 1770 cards across the 5 districts (Porto 1041 of a stated 1.045, Braga
+  409, Viana 151, Vila Real 47, Viseu ~122) → +406 new, 1364 updated, **1012 culled**, 16
+  resurrected; store 5550 → **5956**. Photos +402. **RANKED 2333** (695 under / 940 fair /
+  658 over), located 2322 (99.5%).
+  - **QT-047 — a real bug found mid-run, and it predates today.** `liveness.cull_absent()`
+    defaults to `data/delisted.json`, and `collect/run.py: ingest()` never overrode it per
+    store. So **every Norte cull ever run wrote into the Algarve delisted file**, and
+    `data/delisted-norte.json` had never existed — meaning the Norte pipeline (which reads its
+    own sidecar) **applied zero delistings** and kept showing dead listings: 1012 of them
+    (402 from today + ~610 surviving from the 2026-08-22 cull). Fixed by deriving the sidecar
+    from the store path; repaired the data by removing exactly those 1012 foreign `absent`
+    entries from `delisted.json` (1815 → 803) and re-running the Norte cull, which wrote the
+    same 1012 into `delisted-norte.json`. Re-ingest was idempotent (+0 new), so the repair is
+    self-consistent. Two regression tests added, **verified to fail against the old code**.
+  - **This corrects a number reported earlier the same day:** the "Norte ranked 2658" from the
+    Imovirtual-only pass was inflated by those undelisted dead listings. 2333 is the honest count.
 - **2026-08-31** — **Imovirtual-only re-pull, both pools. Idealista NOT pulled** (see below), so
   no `--cull` anywhere and no idealista listing was delisted by absence. **Algarve:** 367 cards
   (298 apartamento / 69 moradia) → +91 new, 279 updated; store 1633 → **1724**; descriptions +78

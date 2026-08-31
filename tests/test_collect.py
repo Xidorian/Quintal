@@ -1,4 +1,6 @@
-from quintal.collect import idealista, imovirtual, receiver, store
+import json
+
+from quintal.collect import idealista, imovirtual, receiver, run, store
 from quintal.collect.base import SearchParams, concelho_from_location
 from quintal.collect.parsing import parse_area, parse_bathrooms, parse_bedrooms, parse_price
 from quintal.normalize import normalize
@@ -210,3 +212,59 @@ def test_imovirtual_price_strips_per_m2_and_tax():
     assert imovirtual.to_raw({"price_text": "1350 €16,88 €/m²"})["price_eur_month"] == 1350.0
     assert imovirtual.to_raw({"price_text": "950 €7,92 €/m²"})["price_eur_month"] == 950.0
     assert imovirtual.to_raw({"price_text": "1300 €+ taxa: 0 €/mês"})["price_eur_month"] == 1300.0
+
+
+# --- the cull writes to the store's OWN delisted sidecar (QT-047) ---------------------
+# Regression: cull_absent defaults to data/delisted.json, and ingest() used to accept that
+# default for every store. A Norte cull therefore landed in the Algarve file while the Norte
+# pipeline read data/delisted-norte.json — which never existed — so culled Norte listings
+# were never actually delisted and stayed on display.
+def test_delisted_path_follows_the_store_region():
+    assert run.delisted_path_for("data/listings.jsonl") == "data/delisted.json"
+    assert run.delisted_path_for("data/listings-norte.jsonl") == "data/delisted-norte.json"
+
+
+def test_ingest_cull_writes_region_sidecar_not_the_default(tmp_path):
+    """The behavioural half: culling a region store must leave the default file untouched."""
+    store_path = tmp_path / "listings-norte.jsonl"
+    store_path.write_text(
+        json.dumps(
+            {
+                "source": "idealista",
+                "source_url": "https://www.idealista.pt/imovel/1/",
+                "title": "gone one",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    rows_path = tmp_path / "rows.json"  # a complete pull that no longer contains /1/
+    rows_path.write_text(
+        json.dumps(
+            [
+                {
+                    "url": "https://www.idealista.pt/imovel/2/",
+                    "title": "T2 em Porto",
+                    "price_text": "900€/mês",
+                    "typology": "T2",
+                    "area_text": "80 m²",
+                    "rooms_text": "T2, 80 m²",
+                    "location": "Porto",
+                    "description": "",
+                    "is_private": True,
+                    "image_url": "",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+    default_sidecar = tmp_path / "delisted.json"
+    region_sidecar = tmp_path / "delisted-norte.json"
+
+    run.ingest("idealista", str(rows_path), str(store_path), cull=True)
+
+    assert region_sidecar.exists(), "the region's own sidecar must be written"
+    assert json.loads(region_sidecar.read_text()) == {
+        "https://www.idealista.pt/imovel/1/": "absent"
+    }
+    assert not default_sidecar.exists(), "the default sidecar must not be touched"

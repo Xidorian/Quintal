@@ -43,6 +43,20 @@ def print_urls(sites: list[str], params: SearchParams, pages: int) -> None:
             print(url)
 
 
+def delisted_path_for(store_path: str) -> str:
+    """The delisted sidecar belonging to a store — `data/listings-norte.jsonl` →
+    `data/delisted-norte.json`, matching how every other per-region sidecar is named.
+
+    Without this the cull writes into the default `data/delisted.json` whatever store it
+    was pointed at, so a region pool's delistings land in the Algarve file and that pool
+    never sees them (it reads its own sidecar) — dead listings stay on display.
+    """
+    p = Path(store_path)
+    stem = p.stem  # "listings" | "listings-norte"
+    suffix = stem[len("listings") :] if stem.startswith("listings") else ""
+    return str(p.with_name(f"delisted{suffix}.json"))
+
+
 def ingest(site: str, rows_path: str, store_path: str, cull: bool = False) -> None:
     rows = json.loads(Path(rows_path).read_text(encoding="utf-8"))
     raw = [ADAPTERS[site].to_raw(row) for row in rows]
@@ -57,8 +71,9 @@ def ingest(site: str, rows_path: str, store_path: str, cull: bool = False) -> No
         # store but not re-seen is no longer listed → cull it (reversible if it reappears).
         # Only valid when the pull paged to exhaustion — see liveness.cull_absent's contract.
         pulled = {r["source_url"] for r in raw if r.get("source_url")}
-        culled, resurrected = liveness.cull_absent(site, pulled, store_path)
-        msg += f" · culled {culled} absent, resurrected {resurrected}"
+        gone_path = delisted_path_for(store_path)
+        culled, resurrected = liveness.cull_absent(site, pulled, store_path, gone_path)
+        msg += f" · culled {culled} absent, resurrected {resurrected} → {gone_path}"
     print(msg)
 
 
