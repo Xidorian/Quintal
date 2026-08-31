@@ -284,14 +284,17 @@ for v in rows:
                 prefs.like(v["id"])
                 prefs.save()
                 st.rerun()
+            # A pass is one click and asks nothing — most passes are just "not for us".
+            # The reason is a separate, optional follow-up (it's what hardens the next
+            # pull, so it's offered, never demanded).
+            if st.button(pass_label, key=f"pass-{v['id']}", use_container_width=True):
+                prefs.dislike(v["id"])  # toggles; un-passing retracts the note behind it
+                prefs.save()
+                st.rerun()
             if state == "disliked":
-                if st.button(pass_label, key=f"pass-{v['id']}", use_container_width=True):
-                    prefs.dislike(v["id"])  # un-pass; retracts the note behind it
-                    prefs.save()
-                    st.rerun()
-            else:
-                with st.popover(pass_label, use_container_width=True):
-                    st.caption("Why? This is what hardens the next pull.")
+                why_label = "✏️ Edit reason" if passed_note else "＋ Add a reason"
+                with st.popover(why_label, use_container_width=True):
+                    st.caption("Optional — but it's what hardens the next pull.")
                     code = st.selectbox(
                         "Reason",
                         list(REASONS),
@@ -300,20 +303,31 @@ for v in rows:
                     )
                     st.caption(REASONS[code].hint or "")
                     note = st.text_input(
-                        "Note (optional)",
+                        "In your own words"
+                        + (" (required for this reason)" if code == "other" else " (optional)"),
                         key=f"note-{v['id']}",
-                        placeholder="quote the giveaway line if there is one",
+                        placeholder=(
+                            "what was wrong with it?"
+                            if code == "other"
+                            else "quote the giveaway line if there is one"
+                        ),
                     )
-                    if st.button("Save pass", key=f"savepass-{v['id']}", type="primary"):
-                        prefs.dislike(
-                            v["id"],
-                            reason=code,
-                            note=note,
-                            by=searcher,
-                            context=context_from_view(v, pool_name),
-                        )
-                        prefs.save()
-                        st.rerun()
+                    if st.button("Save reason", key=f"savepass-{v['id']}", type="primary"):
+                        if code == "other" and not note.strip():
+                            st.warning("Tell us what it was — otherwise the note says nothing.")
+                        else:
+                            # Editing replaces rather than stacks — otherwise one listing's
+                            # change of mind would count twice in the report.
+                            prefs.retract_feedback(v["id"])
+                            prefs.add_feedback(
+                                v["id"],
+                                reason=code,
+                                note=note,
+                                by=searcher,
+                                context=context_from_view(v, pool_name),
+                            )
+                            prefs.save()
+                            st.rerun()
             if st.button("🙈 Hide", key=f"hide-{v['id']}", use_container_width=True):
                 prefs.hide(v["id"])
                 prefs.save()
