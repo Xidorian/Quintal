@@ -59,7 +59,8 @@ helper (page navigation clears `window`, so re-inject each page). `browser_batch
     `--cull` in step 2 delists any idealista listing absent from this pull, so a short pull would
     wrongly cull live listings on the pages you skipped.
 - **Imovirtual** — the CLI URL is wrong (it drops comma-joined types), so use these two searches
-  **separately** (`&page=N`), paging until `total` stops growing (apt ≈ 9 pages/~237, moradia ≈ 5/~46):
+  **separately** (`&page=N`), paging until **two consecutive pages add zero new rows** — not until
+  the reported `totalPages`, which under-reports (see Gotchas). 2026-08-31: apt 10 pages, moradia 3:
   - apt:     `https://www.imovirtual.com/pt/resultados/arrendar/apartamento/faro?priceMax=1500&roomsNumber=%5BTWO%2CTHREE%2CFOUR%5D&page=N`
   - moradia: `https://www.imovirtual.com/pt/resultados/arrendar/moradia/faro?priceMax=1500&roomsNumber=%5BTWO%2CTHREE%2CFOUR%5D&page=N`
   - Page 1 of the apt run: `quintalReset('imovirtual')` first; moradia pages just `quintalExtract('imovirtual')` (same `q_imv` key → apt+moradia accumulate together).
@@ -116,7 +117,14 @@ The enrich run regenerates `data/geo.json` and caches any new ORS routes; `publi
 ## Gotchas (all learned the hard way)
 - Idealista detail pages 403 server-side (DataDome) — thumbnails come from the captured card
   `image_url`, not a detail fetch. Older records without a captured image stay thumbnail-less.
-- Imovirtual pagination clamps past the last page (repeats) — stop when `total` plateaus.
+- **Imovirtual under-reports its own page count (2026-08-31).** `__NEXT_DATA__`'s
+  `searchAds.pagination.totalPages` is *not* the end: paging one past it still returned a full
+  page of new cards on every district we checked (+13 Porto, +16 Braga, +15 Viana, +9 Vila Real,
+  +4 Viseu, and a whole extra Faro apartamento page past its reported 9). A short page isn't the
+  end either — Faro moradia gave 12 on p3 then 37 on p4. **Stop on evidence, not on the reported
+  count: keep paging until two consecutive pages add zero new rows** (`gain === 0` twice). It
+  clamps and repeats past the real end, so over-paging is free — under-paging silently loses
+  listings.
 - The JS `javascript_tool` return caps ~1 KB and the browser tool blocks returning query-string
   URLs — that's why extraction accumulates to `localStorage` and returns only counts.
 - **Idealista render races (2026-08-22):** a `browser_batch` `navigate→eval` pair can run the

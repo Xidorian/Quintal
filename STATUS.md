@@ -31,6 +31,14 @@ greenery/nature/quiet + river/ocean water. **Published** — selectable in the h
 - **Open follow-ups:** Imovirtual descriptions + liveness deferred; routed (ORS) walk-times
   skipped for Norte (straight-line for now — free-tier quota). See NEXT.md.
 
+## Pass UX corrected (2026-08-31, QT-046)
+Malia was being asked *why* on every 👎, including the many that just mean "don't show me this
+again". **A pass is one click again**; the reason is an optional follow-up on the already-passed
+card (＋ Add a reason / ✏️ Edit reason), and free-text is first-class — 🤷 Something else now
+*requires* the note, so a reason the taxonomy misses is recorded as itself instead of mis-filed.
+Editing retracts the prior entry rather than stacking, so one listing can't be double-counted by
+`feedback report`. 141 tests green, `vermin -t=3.10-` clean.
+
 ## 👎-with-a-reason loop — shipped (2026-08-25, QT-044)
 A 👎 in the app now asks **why**: a reason code (seasonal, not-a-rental, wrong-area, duplicate,
 gone, bad-data + taste reasons) plus a free-text note, signed by whoever passed it. Notes append
@@ -88,6 +96,28 @@ drive a filter change. Wired into RECOLLECT.md as **step 0**.
 - **141 tests green.**
 
 ## Re-collection log
+- **2026-08-31** — **Imovirtual-only re-pull, both pools. Idealista NOT pulled** (see below), so
+  no `--cull` anywhere and no idealista listing was delisted by absence. **Algarve:** 367 cards
+  (298 apartamento / 69 moradia) → +91 new, 279 updated; store 1633 → **1724**; descriptions +78
+  (727); liveness **+61 newly delisted** (1306 → 1367); photos +74. **RANKED 622** (178 under /
+  194 fair / 220 over), **622/622 located**. **Norte:** 2227 cards across all 5 districts →
+  +500 new, 1727 updated; store 5050 → **5550**; photos +419. **RANKED 2658** (772 under /
+  1077 fair / 767 over), located 2648 (99.6%). Norte descriptions + liveness still deferred.
+  - **Idealista blocked (verified, not inferred):** the Claude-in-Chrome extension returned
+    `[]` on every retry for the whole session, and the in-app browser hits a DataDome CAPTCHA
+    (`captcha-delivery` iframe, 0 cards) — never solved, per the runbook. The idealista half of
+    both pools is therefore a pull stale; re-run step 1–2 for idealista once Chrome connects.
+  - **Runbook bug found + fixed:** Imovirtual's `__NEXT_DATA__` `pagination.totalPages`
+    **under-reports the real last page**. Paging to it and stopping — what RECOLLECT.md said to
+    do — silently lost listings: one page past the reported end still returned new cards in every
+    district (+13 Porto, +16 Braga, +15 Viana, +9 Vila Real, +4 Viseu, plus a whole extra Faro
+    apartamento page). A short page isn't the end either (Faro moradia: 12 on p3, 37 on p4). The
+    counts above use the new rule — **page until two consecutive pages add zero new rows** — now
+    written into RECOLLECT.md.
+  - **Transport note:** collection ran in the in-app browser, not the extension. Same
+    `extract.js` + `quintalDownload` → `~/Downloads` → `--ingest` flow; page fetch + document
+    swap replaced navigate-per-page. The local `receiver.py` is still unreachable from a portal
+    page (fetch to `127.0.0.1:8231` blocked), so the download remains the transport.
 - **2026-08-22** — **both pools re-pulled** (first dual re-collection). **Algarve:** idealista
   477 (+145 new, 332 resurrected), imovirtual 328 (+148 new, 180 updated); descriptions 649,
   120 newly-delisted; **RANKED 593** (166 under / 183 fair / 213 over). **Norte:** idealista

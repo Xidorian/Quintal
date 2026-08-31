@@ -14,7 +14,8 @@ the only unfinished build work.
       straight-line estimates for now. Route the top-N later, or a paid/self-hosted router.
 - [ ] Imovirtual **descriptions** (yard/pets from detail text) + **liveness** for the norte
       store — deferred (1400+ fetches; liveness moot on a fresh pull).
-- [ ] Fold Norte into the weekly re-collection runbook (RECOLLECT.md is Algarve-only).
+- [x] Fold Norte into the weekly re-collection runbook (done via the Gotchas Norte block;
+      exercised end-to-end on 2026-08-22 and 2026-08-31).
 
 ## ▶ Standing routine — weekly re-collection (every Monday through 2026-10-26)
 Pool decays ~13% / 11 days. Browser-session based, so a **new interactive session drives
@@ -29,6 +30,13 @@ auto-redeploy. Remaining Mondays: 07-27, 08-03, 08-10, 08-17, 08-24, 08-31, 09-0
       feedback CLI reads the local prefs file, not Malia's live notes. (Token already exists in
       Streamlit secrets; needs copying locally. The CLI names the store it read, so this is
       visible, not silent.)
+
+## ▶ Outstanding from the 2026-08-31 pull
+- [ ] **Pull Idealista for both pools** — blocked all session: the Claude-in-Chrome extension
+      never connected (`list_connected_browsers` → `[]`) and the in-app browser hits a DataDome
+      CAPTCHA. Nothing was culled, so the data is stale, not wrong. Run RECOLLECT.md steps 1–2
+      for idealista (Faro, then the 5 Norte districts) once Chrome is connected, `--cull` only
+      if the pull reaches plateau.
 
 ## Soon (do when convenient)
 - [ ] Discover the working Idealista `com-preco-max_…` filter path for every case (some
