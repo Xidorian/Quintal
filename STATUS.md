@@ -95,6 +95,26 @@ drive a filter change. Wired into RECOLLECT.md as **step 0**.
   Malia confirmed it works for her.
 - **141 tests green.**
 
+## Short-term screening hardened (2026-08-31, QT-048)
+Malia was still hitting short-term lets. Root cause was `_SEASONAL_SPAN`: it only knew
+`setembro|outubro` → `maio|junho|julho` joined by "a"/"até", so it missed **every** November/
+December start, every March/April end, the "e" connector, dash spans, and abbreviated months
+("de out/26 a mai/27", "nov 26- abril 27"). Widened, plus explicit duration phrases
+(curta/média duração, curto/médio prazo, winter let, arrendamento de inverno, ano lectivo,
+erasmus, "não é um arrendamento anual"). **101 listings newly caught** — Algarve screening
+226 → 299 purged, Norte 63 → 84. Pools: Algarve **657 → 597**, Norte **2333 → 2316**.
+- **Method — collateral measured before adding, per the runbook.** Phrase counts alone are
+  misleading: `estudantes` matched 19% of the Algarve pool but is Uniplaces boilerplate
+  ("liga indivíduos, sejam estudantes, profissionais ou famílias"); `meses`/`mínimo de` match
+  *"contrato de 12 meses"* (explicitly long-term); `mês de` is a deposit; `hóspedes` is a guest
+  bedroom; `a partir de setembro` is an annual let that starts in September. **All five were
+  rejected**, and `test_long_term_listings_are_not_purged` now pins that decision so a future
+  session can't "helpfully" add them.
+- Every "e"-connector match was hand-audited before widening (14/14 real seasonal lets, one
+  reading *"não é um arrendamento anual"*), and a sample of the 101 was read directly — several
+  say *"não aceitamos contrato anual"* / *"não arrendo ao ano"*. New tests verified to fail
+  against the old regex before committing.
+
 ## Re-collection log
 - **2026-08-31 (part 2, same day)** — **Idealista pulled for both pools** once Chrome reconnected,
   completing the Monday run. Filtered search URL was transiently 503-ing ("Ups! De momento não

@@ -190,11 +190,14 @@ def test_a_single_missed_listing_only_yields_what_the_note_quoted():
 
 
 def test_mining_drops_phrases_a_shorter_one_already_covers():
+    # Uses a phrase that is NOT already in SHORT_TERM_PATTERNS — the miner skips anything
+    # the screener catches already, so a live pattern here would test nothing. ("ano letivo"
+    # used to sit here; QT-048 promoted it to a real pattern, which broke this test.)
     corpus = {"keep": {"title": "x", "text": "arrendamento anual", "url": ""}}
-    missed = ["disponivel para o ano letivo apenas", "so para o ano letivo, professores"]
+    missed = ["disponivel para a epoca escolar apenas", "so para a epoca escolar, professores"]
     phrases = [c.phrase for c in feedback.mine_patterns(missed, corpus)]
-    assert "ano letivo" in phrases
-    assert "o ano letivo" not in phrases  # subsumed by the shorter, equally effective phrase
+    assert "epoca escolar" in phrases
+    assert "a epoca escolar" not in phrases  # subsumed by the shorter, equally effective phrase
 
 
 def test_mining_reports_collateral_and_skips_generic_phrases():
