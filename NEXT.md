@@ -31,6 +31,17 @@ auto-redeploy. Remaining Mondays: 07-27, 08-03, 08-10, 08-17, 08-24, 08-31, 09-0
       Streamlit secrets; needs copying locally. The CLI names the store it read, so this is
       visible, not silent.)
 
+## ▶ From the 2026-09-04 pull
+- [x] Both pools pulled complete on both sites (each district verified against its own header).
+- [x] QT-049: inline CSS in imovirtual's price cell was parsing as the rent (13 listings at
+      €0.63). Fixed in `extract.js` (`txt()` strips nested `<style>`) + `_rent_only`.
+- [ ] **Fold the new transport into RECOLLECT.md.** Downloads now trip Chrome's multiple-download
+      prompt (a Save dialog the owner has to dismiss). This run moved the rows out as
+      **gzip+base64 chunks via `get_page_text`** instead — no dialogs, and it retires the
+      "stale file in ~/Downloads" hazard that steps 2 and the 2026-08-22 incident are built around.
+      Steps 1–2 of the runbook still describe the download flow.
+- [ ] Norte **descriptions + liveness** remain deferred (unchanged gap — see below).
+
 ## ▶ From the 2026-08-31 pull
 - [x] Idealista pulled for both pools (541 Algarve / 1770 Norte, both to plateau, both culled).
 - [x] QT-047: the cull now writes to its store's own delisted sidecar; 1012 undelisted dead

@@ -68,7 +68,7 @@ drive a filter change. Wired into RECOLLECT.md as **step 0**.
 - **Collection** — browser-session based (Chrome, no scraping infra) for Idealista +
   Imovirtual. Extraction is versioned in `collect/extract.js` (per-site selectors +
   accumulate/download helpers). Idealista pre-filters via the real URL token `t4-t5`
-  for T4+. Current store: **1340 listings** (755 idealista / 585 imovirtual) → 594 ranked.
+  for T4+. Current store: **1950 listings** → 619 ranked (Algarve); Norte **6531** → 2374 ranked.
 - **Screening** (`screening.py`) purges short-term/AL/Spacest lets + year-interrupted
   seasonal spans into a persistent blocklist. **Liveness** (`liveness.py`) drops delisted
   listings two ways: Imovirtual by **detail-page 404/410 probe** (sticky); Idealista by
@@ -93,7 +93,7 @@ drive a filter change. Wired into RECOLLECT.md as **step 0**.
 - **Hosting** — live on Streamlit Community Cloud (`deploy` branch), shared prefs via a
   private GitHub Gist (`GistBackend`); `scripts/publish.sh` refreshes → auto-redeploy.
   Malia confirmed it works for her.
-- **141 tests green.**
+- **167 tests green.**
 
 ## Short-term screening hardened (2026-08-31, QT-048)
 Malia was still hitting short-term lets. Root cause was `_SEASONAL_SPAN`: it only knew
@@ -116,6 +116,37 @@ erasmus, "não é um arrendamento anual"). **101 listings newly caught** — Alg
   against the old regex before committing.
 
 ## Re-collection log
+- **2026-09-04** — **both pools re-pulled, both sites, all complete-to-header.** Run driven from
+  the **in-app browser** (no Chrome extension connected — `list_connected_browsers` returned `[]`).
+  Idealista was reachable today with **no CAPTCHA**, unlike 2026-08-31. **Algarve:** imovirtual 395
+  cards (+46 new, 349 updated) → store 1847→1893; idealista 558 cards — **== the header's own "558
+  casas"** — (+57 new, 501 updated, **48 culled**, 8 resurrected) → store **1950**. Descriptions +33,
+  liveness **+38 newly delisted** (delisted 803→881), photos +95. **RANKED 619** (165 under / 211
+  fair / 214 over), **619/619 located**. **Norte:** imovirtual 2261 cards (+326 new, 1935 updated)
+  → 5956→6282; idealista 1812 across the 5 districts — **each district matched its own header
+  exactly** (Porto 1065, Braga 416, Viana 158, Vila Real 45, Viseu 128) — (+249 new, 1563 updated,
+  **226 culled**, 19 resurrected) → store **6531**; `delisted-norte` 1012→1219 while `delisted.json`
+  stayed 881, i.e. **QT-047's sidecar fix confirmed in production**. Photos +546. **RANKED 2374**
+  (679 under / 958 fair / 691 over), located 2363 (99.5%). Norte descriptions + liveness still
+  deferred; Norte walk-times still straight-line (ran with the ORS key unset, per the runbook).
+  - **QT-049 — a data-corrupting bug caught before it reached the pool.** Imovirtual's SSR'd markup
+    emits its styled-components rules *inside* the price cell, so the cell's text read
+    `.css-6t3bie{color:#071121FF;font-size:19px;...}1200 €…`. `_rent_only` only strips from the
+    first euro sign, so `parse_price` read the digits out of the **colour and font size**: 13 Faro
+    listings priced at **€0.63/month**, which would have ranked as the most undervalued properties
+    in the Algarve. Fixed at both ends — `extract.js` now reads every card field through a `txt()`
+    helper that drops nested `<style>`/`<script>`, and `_rent_only` strips any inline CSS rule as a
+    second line of defence. Both tests **verified red against the old code** (reproducing
+    `0.630711211970012` exactly). 167 tests green.
+  - **Transport changed — no more `~/Downloads` round-trip.** Chrome's multiple-download guard
+    started prompting for a Save dialog on the 3rd download, which interrupts the owner. Pages are
+    now fetched + document-swapped as before, but the accumulated rows come back **gzipped +
+    base64 in ~75k-char chunks via `get_page_text`**, reassembled and verified byte-exact
+    (293,272 and 372,060 b64 chars, both matching) before ingest. No file dialogs, and the
+    "stale file in ~/Downloads" hazard disappears with it.
+  - **Not verified this run:** step 0 read `data/preferences.json`, **not** Malia's shared Gist —
+    `QUINTAL_GIST_ID`/`QUINTAL_GITHUB_TOKEN` are still absent from `.env`. Its "0 open notes" says
+    nothing about her real 👎 notes, so **no screener was hardened off it**. Still open in NEXT.md.
 - **2026-08-31 (part 2, same day)** — **Idealista pulled for both pools** once Chrome reconnected,
   completing the Monday run. Filtered search URL was transiently 503-ing ("Ups! De momento não
   estamos disponíveis") but recovered after loading the homepage first. **Algarve:** 541 cards
