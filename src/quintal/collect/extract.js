@@ -57,17 +57,15 @@
       row: (c) => {
         const a = c.querySelector('a[data-cy="listing-item-link"]');
         if (!a) return null;
-        const dd = [...c.querySelectorAll("dl dd")].map((e) => e.textContent.trim());
-        const ps = [...c.querySelectorAll("p")].map((e) => e.textContent.trim());
+        const dd = [...c.querySelectorAll("dl dd")].map(txt);
+        const ps = [...c.querySelectorAll("p")].map(txt);
         const src = c.querySelector("img")?.getAttribute("src") || "";
         return {
           url: location.origin + a.getAttribute("href").split("?")[0],
-          title: c.querySelector('[data-cy="listing-item-title"]')?.textContent?.trim() || "",
+          title: txt(c.querySelector('[data-cy="listing-item-title"]')),
           price_text:
-            c.querySelector('[data-cy="listing-item-price"]')?.textContent?.trim() ||
-            [...c.querySelectorAll("span,p")]
-              .map((e) => e.textContent.trim())
-              .find((t) => /€/.test(t)) ||
+            txt(c.querySelector('[data-cy="listing-item-price"]')) ||
+            [...c.querySelectorAll("span,p")].map(txt).find((t) => /€/.test(t)) ||
             "", // rent + €/m² concatenated; imovirtual._rent_only strips it
           typology: dd.find((d) => /^T\d/.test(d)) || "",
           area_text: dd.find((d) => /m²/.test(d)) || "",
@@ -95,6 +93,18 @@
     const c = SITES[site];
     if (!c) throw new Error("quintal: unknown site '" + site + "' (idealista|imovirtual)");
     return c;
+  }
+
+  // textContent, minus any <style>/<script> the SSR'd markup nested inside the element.
+  // Imovirtual emits its styled-components rules inline in the price cell, so a raw
+  // textContent can read ".css-6t3bie{color:#071121FF;font-size:19px;...}1200 €" — whose
+  // digits parse into an absurd rent (thirteen €0.63 listings, 2026-09-04). Read every
+  // card field through this rather than .textContent.
+  function txt(el) {
+    if (!el) return "";
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll("style, script").forEach((n) => n.remove());
+    return clone.textContent.trim();
   }
 
   // --- Imovirtual structured location (from Next.js __NEXT_DATA__) --------------------

@@ -268,3 +268,20 @@ def test_ingest_cull_writes_region_sidecar_not_the_default(tmp_path):
         "https://www.idealista.pt/imovel/1/": "absent"
     }
     assert not default_sidecar.exists(), "the default sidecar must not be touched"
+
+
+def test_imovirtual_price_ignores_inline_css_rule():
+    """The SSR'd price cell can nest a styled-components rule, so its textContent reads
+    '.css-6t3bie{color:#071121FF;font-size:19px;...}1200 €13,33 €/m²'. The colour and size
+    digits must not be read as the rent — they parsed to €0.63 before this was handled
+    (2026-09-04 pull, 13 listings)."""
+    polluted = (
+        ".css-6t3bie{color:#071121FF;font-size:19px;font-weight:700;white-space:nowrap;}"
+        "1200 \xa0€.css-gsbuib{color:#495260FF;font-size:13px;}13,33 \xa0€/m²"
+    )
+    assert parse_price(imovirtual._rent_only(polluted)) == 1200.0
+
+
+def test_imovirtual_price_unpolluted_still_parses():
+    assert parse_price(imovirtual._rent_only("1350\xa0€16,88\xa0€/m²")) == 1350.0
+    assert parse_price(imovirtual._rent_only("1300\xa0€+ taxa: 0\xa0€/mês")) == 1300.0

@@ -8,6 +8,7 @@ its URL scheme after the OLX migration. The `to_raw` mapping is stable regardles
 
 from __future__ import annotations
 
+import re
 from urllib.parse import quote, urlencode
 
 from .base import ExtractedRow, SearchParams, row_to_raw
@@ -78,13 +79,22 @@ def _parse_location(location: str | None) -> tuple[str | None, str | None]:
     return concelho, freguesia
 
 
+# A styled-components rule that the SSR'd markup emits *inside* the price cell, so the
+# cell's textContent can read '.css-6t3bie{color:#071121FF;font-size:19px;...}1200 €'.
+# extract.js strips <style> nodes at the source; this is the second line of defence, because
+# the digits in a colour/size ('#071121', '19px', '700') parse into an absurd rent — the
+# 2026-09-04 pull produced thirteen listings priced at €0.63.
+_CSS_RULE = re.compile(r"\.css-[0-9a-z]+\{[^}]*\}")
+
+
 def _rent_only(price_text: str | None) -> str | None:
     """Imovirtual's price cell concatenates rent + price-per-m² ('1350 €16,88 €/m²') and
     sometimes a tax note ('1300 €+ taxa: 0 €/mês'). The monthly rent is everything before
-    the first euro sign — take that so parse_price doesn't read '135016.88'."""
+    the first euro sign — take that so parse_price doesn't read '135016.88'. Any inline CSS
+    rule is dropped first, so its digits can't be read as the rent."""
     if not price_text:
         return price_text
-    return price_text.split("€", 1)[0]
+    return _CSS_RULE.sub("", price_text).split("€", 1)[0]
 
 
 def to_raw(row: ExtractedRow) -> dict:
