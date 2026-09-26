@@ -138,15 +138,21 @@
     const loc = item && item.location;
     if (!loc) return "";
     const addr = loc.address || {};
-    const freguesia = addr.city && addr.city.name;
-    const district = addr.province && addr.province.name;
-    let concelho = null;
+    // Read all three levels from reverseGeocoding, which carries the authoritative
+    // parish/council/district. Imovirtual nulled address.city + address.province
+    // (verified live 2026-09-26) — reading the freguesia from addr.city alone left every
+    // card with a bare concelho, and _geocode_queries is freguesia-first for a reason:
+    // a concelho centroid badly inflates beach walk-time for coastal spots (Vilamoura
+    // geocoded to inland Loulé town read as ~119 min from the sea). addr.* stays as the
+    // fallback in case the blob shape moves back.
     const levels = (loc.reverseGeocoding && loc.reverseGeocoding.locations) || [];
-    for (const l of levels)
-      if (l.locationLevel === "council") {
-        concelho = l.name;
-        break;
-      }
+    const level = (name) => {
+      for (const l of levels) if (l.locationLevel === name) return l.name;
+      return null;
+    };
+    const freguesia = level("parish") || (addr.city && addr.city.name);
+    const concelho = level("council");
+    const district = level("district") || (addr.province && addr.province.name);
     // "freguesia, concelho, District" — imovirtual._parse_location strips the trailing
     // district and takes the concelho as the token before it, so a comma-containing
     // freguesia union still parses to the right concelho.
