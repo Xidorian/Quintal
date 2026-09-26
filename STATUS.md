@@ -28,8 +28,9 @@ greenery/nature/quiet + river/ocean water. **Published** — selectable in the h
   Idealista + junk-concelho cards (title-locality recovery gets the comma-less ones to
   geocode first) — junk/freguesia-level concelhos **570+ → 18** (unlocated tail), 99% located.
   Algarve pool untouched.
-- **Open follow-ups:** Imovirtual descriptions + liveness deferred; routed (ORS) walk-times
-  skipped for Norte (straight-line for now — free-tier quota). See NEXT.md.
+- **Open follow-ups:** Imovirtual **descriptions** still deferred for Norte; **liveness closed
+  2026-09-26** (first probe found 1899 dead listings). Routed (ORS) walk-times still skipped for
+  Norte (straight-line — free-tier quota). See NEXT.md.
 
 ## Pass UX corrected (2026-08-31, QT-046)
 Malia was being asked *why* on every 👎, including the many that just mean "don't show me this
@@ -68,7 +69,7 @@ drive a filter change. Wired into RECOLLECT.md as **step 0**.
 - **Collection** — browser-session based (Chrome, no scraping infra) for Idealista +
   Imovirtual. Extraction is versioned in `collect/extract.js` (per-site selectors +
   accumulate/download helpers). Idealista pre-filters via the real URL token `t4-t5`
-  for T4+. Current store: **1950 listings** → 619 ranked (Algarve); Norte **6531** → 2374 ranked.
+  for T4+. Current store: **2307 listings** → 646 ranked (Algarve); Norte **8192** → 2188 ranked.
 - **Screening** (`screening.py`) purges short-term/AL/Spacest lets + year-interrupted
   seasonal spans into a persistent blocklist. **Liveness** (`liveness.py`) drops delisted
   listings two ways: Imovirtual by **detail-page 404/410 probe** (sticky); Idealista by
@@ -116,6 +117,49 @@ erasmus, "não é um arrendamento anual"). **101 listings newly caught** — Alg
   against the old regex before committing.
 
 ## Re-collection log
+- **2026-09-26** — **both pools re-pulled, both sites, all complete-to-header.** First run in
+  22 days (09-07/14/21 missed), so churn was heavy throughout. Driven from the **logged-in Chrome
+  extension** (owner logged in mid-session; `list_connected_browsers` had returned `[]` at start
+  and the in-app browser was the fallback until then). Idealista reachable, **no CAPTCHA**.
+  **Algarve:** idealista 627 cards — **== the header's own "627 casas"** — (+204 new, 423 updated,
+  **145 culled**, 10 resurrected); imovirtual 430 (361 apt / 69 moradia) → +153 new, 277 updated;
+  store 1950→**2307**. Descriptions +141, liveness **+121 newly delisted** (delisted 881→1137),
+  photos +352. **RANKED 646** (174 under / 233 fair / 213 over), **646/646 located**.
+  **Norte:** idealista 1955 across the 5 districts — **each district matched its own header
+  exactly** (Porto 1154, Braga 455, Viana 169, Vila Real 46, Viseu 131) — (+808 new, 1147 updated,
+  **691 culled**, 26 resurrected); imovirtual 2324 across 10 searches (Porto 1591, Braga 450,
+  Viana 155, Vila Real 41, Viseu 87) → +853 new, 1471 updated; store 6531→**8192**. Photos +1636.
+  **RANKED 2188** (636 under / 881 fair / 642 over), located 2187 (99.95%). Norte walk-times still
+  straight-line (ran with the ORS key unset, per the runbook).
+  - **Norte liveness run for the first time — the deferred gap is closed.** `quintal.liveness`
+    accepts `--input`/`--path`, so the norte store was probed directly:
+    **1899 newly-delisted** imovirtual listings (`delisted-norte` 1884→3783) that no prior run
+    could ever have detected, since the idealista cull was that pool's only liveness path.
+    `delisted.json` stayed at 1137 throughout — **QT-047's sidecar fix confirmed in production
+    again**. This is why Norte ranked *fell* 2374→2188: the earlier number was inflated by dead
+    listings, 2188 is the honest count.
+  - **QT-050 — imovirtual nulled `address.city`, costing every card its freguesia.** The
+    `__NEXT_DATA__` blob now emits `address.city = null` and `address.province = null` (verified
+    live on the page); only `reverseGeocoding.locations` still carries parish/council/district.
+    `imvLocation()` read the freguesia from `addr.city.name`, so **every organic card collapsed to
+    a bare concelho** — 430/430 on the first Algarve pull. Not cosmetic: `_geocode_queries` is
+    freguesia-first precisely because a concelho centroid wrecks the beach axis (the code's own
+    note: Vilamoura geocoded to inland Loulé town read as ~119 min from the sea). Fixed to read
+    all three levels from `reverseGeocoding`, keeping `addr.*` as fallback; imovirtual re-pulled
+    before ingest. Verified after: 430/430 carry "freguesia, concelho, District", 430/430
+    concelhos valid, 307 where the freguesia differs from the concelho. 167 tests green.
+  - **Transport: back to the download flow.** The 2026-09-04 gzip+base64-via-`get_page_text`
+    trick **does not work on the Chrome extension** — its `get_page_text` has no `max_chars`, caps
+    page text at 50,000 chars, and only spills to a file above a token threshold, so a 45k-char
+    chunk came back *inline* (unusable for byte-exact reassembly) while a 75k request was silently
+    truncated. Reverted to `quintalDownload` → `~/Downloads` → `--ingest`, which was byte-exact all
+    four times. **Chrome's one-auto-download-per-tab rule bit twice**: the Norte idealista download
+    silently never landed until issued from a *fresh* tab, and the re-pulled imovirtual file landed
+    as `quintal_imovirtual (1).json` — the exact 2026-08-22 hazard. `rm ~/Downloads/quintal_*.json`
+    before *every* download, not just the first.
+  - **Not verified this run:** step 0 read `data/preferences.json`, **not** Malia's shared Gist —
+    `QUINTAL_GIST_ID`/`QUINTAL_GITHUB_TOKEN` are still absent from `.env` (3rd run running). Its
+    "0 open notes" says nothing about her real 👎 notes, so **no screener was hardened off it**.
 - **2026-09-04** — **both pools re-pulled, both sites, all complete-to-header.** Run driven from
   the **in-app browser** (no Chrome extension connected — `list_connected_browsers` returned `[]`).
   Idealista was reachable today with **no CAPTCHA**, unlike 2026-08-31. **Algarve:** imovirtual 395

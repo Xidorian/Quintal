@@ -66,14 +66,17 @@ helper (page navigation clears `window`, so re-inject each page). `browser_batch
   - Page 1 of the apt run: `quintalReset('imovirtual')` first; moradia pages just `quintalExtract('imovirtual')` (same `q_imv` key → apt+moradia accumulate together).
 
 ## 2 · Download + ingest (per site)
-**FIRST: `rm ~/Downloads/quintal_*.json` BEFORE downloading.** If a stale file with that name
-exists, Chrome silently saves the new one as `quintal_<site> (1).json` and you'll ingest the
-*old* file — which, with `--cull`, wrongly delists the whole current pull. (This bit us
-2026-08-22: an old Norte download polluted the Algarve store; recovered by removing the bad
-rows by URL and re-ingesting.) Chrome also blocks a 2nd auto-download in the **same** tab —
-download from a **fresh same-origin tab**: open a new tab → navigate to the site → eval
+**FIRST: `rm ~/Downloads/quintal_*.json` BEFORE *every* download — not just the first.** If a
+file with that name exists, Chrome silently saves the new one as `quintal_<site> (1).json` and
+you'll ingest the *old* file — which, with `--cull`, wrongly delists the whole current pull.
+(This bit us 2026-08-22: an old Norte download polluted the Algarve store. It bit again
+2026-09-26, when a corrected imovirtual re-pull landed as `(1)` because only the *first*
+download had been preceded by an `rm`.) Chrome also blocks a 2nd auto-download **per tab** —
+so **every download needs its own brand-new tab**: open a new tab → navigate to the site → eval
 `<extract.js>` → `quintalDownload('idealista')` (or `'imovirtual'`) → saves
-`~/Downloads/quintal_<site>.json`. **Then verify the row count matches the browser's reported
+`~/Downloads/quintal_<site>.json`. A download issued from a tab that already downloaded once
+**silently never lands** — no error, no file (2026-09-26, Norte idealista). Always `ls` the file
+and check its mtime before ingesting. **Then verify the row count matches the browser's reported
 total before ingesting:**
 ```
 python -c "import json;print(len(json.load(open('/home/xidorian/Downloads/quintal_idealista.json'))))"  # == the plateau total
@@ -95,7 +98,15 @@ python -m quintal.descriptions      # enrich new Imovirtual owner-text (yard/pet
 python -m quintal.liveness          # mark newly-delisted (410/404) → data/delisted.json
 python -m quintal.photos            # download new thumbnails (captured image_url + fallback)
 ```
-Each is a few minutes; run foreground (background tasks get killed by session resets).
+**Norte takes the same passes via `--input`** (its liveness was wrongly assumed impossible until
+2026-09-26; the first probe found **1899** dead listings the idealista cull could never see):
+```
+python -m quintal.liveness --input data/listings-norte.jsonl --path data/delisted-norte.json
+python -m quintal.photos   --input data/listings-norte.jsonl
+```
+(`descriptions` for Norte is still not wired — no `descriptions-norte.json` yet.)
+Each is a few minutes — except the Norte liveness probe, which is ~30 min on a 8k store. Run
+foreground, or background it and poll; don't let a session reset kill it mid-write.
 
 ## 4 · Refresh geo + routes, then publish
 ```
@@ -127,6 +138,18 @@ The enrich run regenerates `data/geo.json` and caches any new ORS routes; `publi
   listings.
 - The JS `javascript_tool` return caps ~1 KB and the browser tool blocks returning query-string
   URLs — that's why extraction accumulates to `localStorage` and returns only counts.
+- **Getting the rows out: use the download, not `get_page_text` (settled 2026-09-26).** The
+  2026-09-04 run moved rows as gzip+base64 chunks read back via `get_page_text`; that works in the
+  *in-app* browser (which takes a `max_chars`) but **not via the Chrome extension**, whose
+  `get_page_text` has no `max_chars`, truncates page text at 50,000 chars, and only spills to a
+  file above a token threshold — so a 45k chunk comes back *inline*, where it cannot be
+  reassembled byte-exact. `quintalDownload` was byte-exact all four times this run. Keep the
+  download; just obey the `rm`-and-fresh-tab rules in step 2.
+- **A long auto-pager outruns the 45s CDP timeout.** Paging a big district (Porto: ~30 imovirtual
+  pages) exceeds `Runtime.evaluate`'s 45s limit and the tool reports a timeout — but **the page
+  keeps running the loop**. Don't re-fire it (you'd double-run): poll
+  `JSON.parse(localStorage.getItem('q_imv')).length` until it stops changing, and have the loop
+  append per-search results to a `window.__qLog` you can read back afterwards.
 - **Idealista render races (2026-08-22):** a `browser_batch` `navigate→eval` pair can run the
   eval before the page's cards render → `page:0` (a *missed* page, not end-of-list). Watch every
   page's count; re-fetch any `page:0` with a **separate** navigate then eval (gives render time).
