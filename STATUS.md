@@ -94,7 +94,7 @@ drive a filter change. Wired into RECOLLECT.md as **step 0**.
 - **Hosting** — live on Streamlit Community Cloud (`deploy` branch), shared prefs via a
   private GitHub Gist (`GistBackend`); `scripts/publish.sh` refreshes → auto-redeploy.
   Malia confirmed it works for her.
-- **175 tests green** (incl. 8 that gate `extract.js` in jsdom — see the 2026-09-26 entry).
+- **184 tests green** (incl. 11 that gate `extract.js` in jsdom — see the 2026-09-26 entry).
 
 ## Short-term screening hardened (2026-08-31, QT-048)
 Malia was still hitting short-term lets. Root cause was `_SEASONAL_SPAN`: it only knew
@@ -176,6 +176,23 @@ erasmus, "não é um arrendamento anual"). **101 listings newly caught** — Alg
     Cost: one devDependency (jsdom) + `npm install`; the tests skip loudly without it.
     **Limit: the fixtures are a snapshot — they catch our regressions, not a portal moving its
     markup.** 175 tests green.
+  - **Collection-time selector check + a cull guard (QT-052).** The gate above catches *our*
+    regressions; these two catch *the portals moving*, which is the failure the fixtures can't
+    see. (a) `quintalExtract` now also returns `expected` — a selector-INDEPENDENT count of the
+    listings the page shows (unique detail-page links) — and a `suspect` verdict. That is what
+    separates a moved card selector from the genuine end of pagination, which were previously
+    indistinguishable (both give zero cards): past the last page there are no listing links
+    either, so `expected === 0` and it stays quiet, while a broken selector reads
+    `expected > 0, page === 0` → `suspect="no-cards"`. Watch it on every page of a pull.
+    (b) The `--cull` caller contract ("only a complete pull") was human-remembered, and a
+    collapsed pull would delist the pool in one command. `cull_absent` now requires the pull to
+    re-surface ≥30% of the site's currently-**live** store entries (already-delisted ones are
+    excluded, or a mature store's dead tail would make every healthy pull look collapsed),
+    raising `CullRefused` **before any write**; the CLI prints `CULL REFUSED …` and exits 1 so a
+    scripted run stops before publish. `--force-cull` overrides. The floor is calibrated against
+    real churn — the worst observed was this very run at 62% and 74%. **Both alarms proved:**
+    with the guard removed a 2%-coverage pull culled 49 of 50 live listings; with the selector
+    check neutered the drift fixture went unflagged. 184 tests green.
   - **Not verified this run:** step 0 read `data/preferences.json`, **not** Malia's shared Gist —
     `QUINTAL_GIST_ID`/`QUINTAL_GITHUB_TOKEN` are still absent from `.env` (3rd run running). Its
     "0 open notes" says nothing about her real 👎 notes, so **no screener was hardened off it**.

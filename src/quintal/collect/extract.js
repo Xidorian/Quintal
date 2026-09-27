@@ -23,6 +23,7 @@
     idealista: {
       key: "q_ide",
       cards: () => [...document.querySelectorAll("article.item")],
+      links: 'a[href*="/imovel/"]',
       row: (c) => {
         const link = c.querySelector("a.item-link");
         if (!link || !/\/imovel\//.test(link.href)) return null; // skip ads / new-dev blocks
@@ -49,6 +50,7 @@
     },
     imovirtual: {
       key: "q_imv",
+      links: 'a[href*="/anuncio/"]',
       cards: () => [
         ...document.querySelectorAll(
           '[data-cy="search.listing.organic"] article, article[data-cy="listing-item"]'
@@ -159,6 +161,24 @@
     return [freguesia, concelho, district].filter(Boolean).join(", ");
   }
 
+  // A selector-INDEPENDENT count of the listings this page is showing: unique detail-page
+  // links. This is what tells a broken card selector apart from the genuine end of
+  // pagination, which otherwise look identical (both give zero cards):
+  //   end of results   → expected === 0 and page === 0   (nothing to find; fine)
+  //   selector moved   → expected  >  0 and page === 0   (the page has listings, we can't see them)
+  // Load-bearing, because a zero-card pull fed to `--ingest --cull` reads as "everything is
+  // delisted" and would wipe the live pool. Counts by href so a card's several links (image,
+  // title, price) collapse to one listing.
+  function expectedCount(site) {
+    const sel = cfg(site).links;
+    if (!sel) return 0;
+    const urls = new Set(
+      [...document.querySelectorAll(sel)].map((a) => (a.getAttribute("href") || "").split("?")[0])
+    );
+    urls.delete("");
+    return urls.size;
+  }
+
   // Extract the current page's cards and merge (dedup by url) into localStorage.
   window.quintalExtract = function (site) {
     const c = cfg(site);
@@ -167,7 +187,20 @@
     rows.forEach((r) => byUrl.set(r.url, r));
     const all = [...byUrl.values()];
     localStorage.setItem(c.key, JSON.stringify(all));
-    return { page: rows.length, total: all.length, with_image: all.filter((r) => r.image_url).length };
+    // `suspect` is the collection-time alarm — watch it on every page of a pull. Anything but
+    // "none" means STOP and re-check the selectors in this file before ingesting, and never
+    // pass --cull on that pull.
+    const expected = expectedCount(site);
+    let suspect = "none";
+    if (expected > 0 && rows.length === 0) suspect = "no-cards";
+    else if (rows.length > 0 && rows.length * 2 < expected) suspect = "few-cards";
+    return {
+      page: rows.length,
+      total: all.length,
+      with_image: all.filter((r) => r.image_url).length,
+      expected: expected,
+      suspect: suspect,
+    };
   };
 
   // Start a fresh accumulation (call on page 1).

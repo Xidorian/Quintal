@@ -1,0 +1,17 @@
+<!doctype html>
+<!--
+  End-of-pagination fixture (idealista).
+
+  Hand-written, deliberately minimal: a results-page shell past the last page. No cards and
+  no /imovel/ links, so expectedCount() === 0 and page === 0 -- which must read as
+  suspect="none". This is the case the selector check must NOT cry wolf on; paging until the
+  count plateaus relies on an empty page being unremarkable.
+-->
+<html lang="pt"><head><meta charset="utf-8"><title>Sem resultados — idealista</title></head>
+<body>
+  <main>
+    <h1>0 casas e apartamentos para arrendar em Faro distrito</h1>
+    <p>Não encontrámos resultados para esta pesquisa.</p>
+    <a href="/arrendar-casas/faro-distrito/">Voltar a a pesquisa</a>
+  </main>
+</body></html>

@@ -82,6 +82,13 @@ the JS extraction and the Python parsing are proved to agree on one shared input
 they catch *our* regressions, not a portal changing its markup.** When a pull looks wrong,
 re-capture first: `tests/fixtures/extract/README.md`.
 
+For the portal-moves case there are two runtime guards (QT-052): `quintalExtract` returns
+`expected` (a selector-independent count of the page's listing links) plus a `suspect` verdict,
+which tells a moved card selector from the genuine end of pagination — watch it on every page of
+a pull; and `liveness.cull_absent` refuses to cull a pull that re-surfaced under
+`MIN_CULL_COVERAGE` (30%) of the site's live listings, so a collapsed pull can't delist the pool
+(`--force-cull` overrides).
+
 ## Commands
 ```
 . .venv/bin/activate

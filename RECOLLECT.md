@@ -49,6 +49,23 @@ the per-site card selectors live there. **Per page**, inject that file's content
 helper (page navigation clears `window`, so re-inject each page). `browser_batch` a
 `navigate` + `javascript_tool` pair per page.
 
+**Watch `suspect` on every page.** `quintalExtract` returns
+`{page, total, with_image, expected, suspect}`. `expected` is a selector-INDEPENDENT count of
+the listings the page shows (unique detail-page links), which is what separates a moved card
+selector from the genuine end of pagination — they otherwise look identical, both giving zero
+cards:
+
+| | `expected` | `page` | `suspect` | meaning |
+|---|---|---|---|---|
+| healthy page | >0 | ≈ expected | `none` | carry on |
+| past the last page | 0 | 0 | `none` | plateau reached, stop |
+| **card selector moved** | **>0** | **0** | **`no-cards`** | **STOP** — fix the selectors in `extract.js` |
+| partial markup change | >0 | < expected/2 | `few-cards` | investigate before ingesting |
+
+Anything but `none` means **stop, and never pass `--cull` on that pull** — a zero-card pull
+reads as "everything is delisted". A render race also shows as `no-cards` (idealista only); re-fetch
+that page with a separate navigate-then-eval before concluding the selector broke.
+
 - **Idealista** — get URLs with `python -m quintal.collect.run --site idealista --print-urls --pages 18`
   (already the correct filtered format `…/com-preco-max_1500,t2,t3,t4-t5/…pagina-N`; ~30 cards/page).
   The full Faro search is **~16 pages / ~456 listings** — the old 6-page cap silently missed ~60%.
@@ -86,7 +103,14 @@ python -m quintal.collect.run --site imovirtual --ingest ~/Downloads/quintal_imo
 `--cull` on idealista is its **only** liveness path (idealista IP-rate-limits detail-page probes,
 so `quintal.liveness` skips it) — it delists any idealista listing in the store that this pull
 didn't re-surface. **Only pass `--cull` when the pull is complete** (step 1 paged to plateau);
-it's reversible, so a listing that reappears next week is automatically un-culled. Imovirtual keeps
+it's reversible, so a listing that reappears next week is automatically un-culled.
+
+**The completeness contract is now machine-checked.** A cull requires the pull to re-surface at
+least 30% of the site's currently-live store entries (`liveness.MIN_CULL_COVERAGE`); below that
+it raises `CullRefused`, writes nothing, prints `CULL REFUSED …` and exits 1 — so a collapsed
+pull can't quietly delist the pool. The preceding upsert is idempotent, so the fix is to re-page
+and re-run the same command. Real churn is nowhere near the floor (the 22-day 2026-09-26 gap
+came in at 62% and 74%). `--force-cull` overrides it, for a genuine mass-delisting only. Imovirtual keeps
 its probe-based liveness (step 3), so no `--cull` there.
 
 Sanity: no absurd prices (the Imovirtual `€/m²` concat bug is handled in the adapter; if a new

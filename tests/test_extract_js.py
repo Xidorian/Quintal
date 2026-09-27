@@ -157,6 +157,51 @@ def test_imovirtual_price_strips_the_per_m2_suffix():
     assert imovirtual.to_raw(row)["price_eur_month"] == 680.0
 
 
+# --- Collection-time selector check ----------------------------------------------------
+# A moved card selector and the genuine end of pagination both yield zero cards, so they were
+# indistinguishable — and a zero-card pull fed to `--ingest --cull` reads as "everything is
+# delisted". extract.js now counts listing *links* (selector-independent) to tell them apart.
+def _counts(fixture: str, site: str) -> dict:
+    proc = subprocess.run(
+        ["node", str(HARNESS), str(FIXTURES / fixture), site],
+        capture_output=True,
+        text=True,
+        timeout=120,
+        cwd=ROOT,
+    )
+    assert proc.returncode == 0, f"harness failed:\n{proc.stderr}"
+    return json.loads(proc.stdout)["counts"]
+
+
+def test_healthy_pages_are_not_suspect():
+    for fixture, site, n in [
+        ("imovirtual-search.html", "imovirtual", 3),
+        ("idealista-search.html", "idealista", 2),
+    ]:
+        c = _counts(fixture, site)
+        assert c["page"] == n
+        assert c["expected"] == n, f"{fixture}: link count should track the cards"
+        assert c["suspect"] == "none", f"{fixture}: healthy page flagged {c['suspect']!r}"
+
+
+def test_moved_card_selector_is_flagged():
+    """The fixture is the real capture with only the two card selectors renamed, so the page
+    still plainly shows 3 listings. This is the alarm that must fire before `--cull` runs."""
+    c = _counts("imovirtual-selector-moved.html", "imovirtual")
+    assert c["page"] == 0, "fixture should no longer match any card"
+    assert c["expected"] == 3, "the listing links are untouched — the page still shows 3"
+    assert c["suspect"] == "no-cards"
+
+
+def test_end_of_pagination_is_not_flagged():
+    """The check must not cry wolf: paging until the count plateaus depends on an empty page
+    being unremarkable. Past the last page there are no listing links either, so expected is 0."""
+    c = _counts("idealista-end-of-results.html", "idealista")
+    assert c["page"] == 0
+    assert c["expected"] == 0
+    assert c["suspect"] == "none"
+
+
 # --- Idealista: private-vs-agency branding, and the title-derived concelho -------------
 def test_idealista_private_landlord_detection():
     """`is_private` decides which duplicate wins as canonical in dedup.py, so a branding

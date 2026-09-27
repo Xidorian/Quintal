@@ -2,6 +2,8 @@
 
 import json
 
+import pytest
+
 from quintal import liveness
 from quintal.schema import Listing
 
@@ -123,3 +125,65 @@ def test_probe_skips_known_gone(monkeypatch, tmp_path):
     monkeypatch.setattr(liveness.requests, "Session", lambda: _Session())
     stats = liveness.probe(listings_path, tmp_path / "d.json", delay=0)
     assert stats.get("known-gone") == 1
+
+
+# --- Cull plausibility guard (the destructive-step half of the selector check) ----------
+# `--cull` trusts a pull to be the complete current search, so a collapsed pull — moved card
+# selector, CAPTCHA page, half-finished paging, wrong file — would delist most of the live pool
+# in one command. The caller contract used to be human-remembered only; it is now checked.
+# alarm-proved 2026-09-26: with the guard removed, test_cull_refused_when_the_pull_collapsed
+# goes green-with-9-culled (i.e. the pool is wiped), which is the failure it exists to stop.
+def _many(site, n, prefix="https://ide/"):
+    return [{"source": site, "source_url": f"{prefix}{i}"} for i in range(n)]
+
+
+def test_cull_refused_when_the_pull_collapsed(tmp_path):
+    store = _store(tmp_path, _many("idealista", 10))
+    path = tmp_path / "d.json"
+    with pytest.raises(liveness.CullRefused) as exc:
+        liveness.cull_absent("idealista", {"https://ide/0"}, store, path)
+    assert "refusing to cull" in str(exc.value)
+    # Raised before any write: the sidecar must not even exist yet.
+    assert not path.exists(), "a refused cull must not touch the delisted sidecar"
+
+
+def test_force_cull_overrides_the_floor(tmp_path):
+    store = _store(tmp_path, _many("idealista", 10))
+    path = tmp_path / "d.json"
+    culled, resurrected = liveness.cull_absent(
+        "idealista", {"https://ide/0"}, store, path, force=True
+    )
+    assert (culled, resurrected) == (9, 0)
+
+
+def test_cull_allowed_at_real_world_churn(tmp_path):
+    # The worst churn actually observed was the 22-day 2026-09-26 gap: 62% of live Norte
+    # idealista listings re-surfaced. The floor must clear that comfortably.
+    store = _store(tmp_path, _many("idealista", 100))
+    path = tmp_path / "d.json"
+    pulled = {f"https://ide/{i}" for i in range(62)}
+    culled, _ = liveness.cull_absent("idealista", pulled, store, path)
+    assert culled == 38
+
+
+def test_cull_coverage_ignores_already_delisted_listings(tmp_path):
+    """The store keeps every listing it ever saw, so most of a mature store is long dead and
+    can never be re-surfaced. Measuring coverage against all of them would make a perfectly
+    healthy pull look collapsed and block every future cull."""
+    store = _store(tmp_path, _many("idealista", 100))
+    path = tmp_path / "d.json"
+    # 90 were culled in earlier weeks; only 10 are live, and the pull re-surfaces 9 of them.
+    liveness.save({f"https://ide/{i}": "absent" for i in range(90)}, path)
+    pulled = {f"https://ide/{i}" for i in range(90, 99)}
+    culled, _ = liveness.cull_absent("idealista", pulled, store, path)
+    assert culled == 1  # only https://ide/99, the one live listing that really did go
+
+
+def test_cull_guard_is_per_site(tmp_path):
+    # A big imovirtual store must not drag the idealista coverage calculation down.
+    store = _store(tmp_path, _many("idealista", 4) + _many("imovirtual", 500, "https://imv/"))
+    path = tmp_path / "d.json"
+    culled, _ = liveness.cull_absent(
+        "idealista", {f"https://ide/{i}" for i in range(3)}, store, path
+    )
+    assert culled == 1

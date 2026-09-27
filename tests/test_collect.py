@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from quintal.collect import idealista, imovirtual, receiver, run, store
 from quintal.collect.base import SearchParams, concelho_from_location
 from quintal.collect.parsing import parse_area, parse_bathrooms, parse_bedrooms, parse_price
@@ -285,3 +287,47 @@ def test_imovirtual_price_ignores_inline_css_rule():
 def test_imovirtual_price_unpolluted_still_parses():
     assert parse_price(imovirtual._rent_only("1350\xa0€16,88\xa0€/m²")) == 1350.0
     assert parse_price(imovirtual._rent_only("1300\xa0€+ taxa: 0\xa0€/mês")) == 1300.0
+
+
+def test_ingest_refuses_to_cull_a_collapsed_pull(tmp_path, capsys):
+    """End-to-end guard: a pull that collapsed (moved selector, CAPTCHA, wrong file) must not
+    delist the pool. Exits non-zero so a scripted run stops instead of going on to publish."""
+    store_path = tmp_path / "listings.jsonl"
+    store_path.write_text(
+        "\n".join(
+            json.dumps(
+                {
+                    "source": "idealista",
+                    "source_url": f"https://www.idealista.pt/imovel/{i}/",
+                    "title": f"live {i}",
+                }
+            )
+            for i in range(50)
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    rows_path = tmp_path / "rows.json"  # the selector broke: one stray card came back
+    rows_path.write_text(
+        json.dumps(
+            [
+                {
+                    "url": "https://www.idealista.pt/imovel/0/",
+                    "title": "T2 em Faro",
+                    "price_text": "900€/mês",
+                    "typology": "T2",
+                    "rooms_text": "T2",
+                    "location": "Faro",
+                    "is_private": True,
+                    "image_url": "",
+                }
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(SystemExit) as exc:
+        run.ingest("idealista", str(rows_path), str(store_path), cull=True)
+    assert exc.value.code == 1
+    assert "CULL REFUSED" in capsys.readouterr().err
+    assert not (tmp_path / "delisted.json").exists(), "nothing may be delisted"

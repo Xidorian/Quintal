@@ -34,6 +34,23 @@ _UA = (
 _ENRICHABLE = {"imovirtual"}  # the only source we can probe server-side
 _GONE = {404, 410}  # deliberate "removed" statuses; NOT 5xx/timeouts (transient)
 
+# A cull trusts a pull to be the complete current search, so a pull that collapsed — a moved
+# card selector, a CAPTCHA page, a half-finished paging run, the wrong file handed to
+# --ingest — would delist most of the live pool in one command. Require the pull to re-surface
+# at least this share of the site's currently-live store entries before culling anything.
+# Calibrated against real churn, which is nowhere near this low: the worst observed was the
+# 22-day 2026-09-26 gap at 62% (Norte idealista) and 74% (Algarve idealista).
+MIN_CULL_COVERAGE = 0.30
+
+
+class CullRefused(RuntimeError):
+    """A cull was refused because the pull was too small to be a complete search.
+
+    Raised *before* anything is written, so the store and the delisted sidecar are untouched.
+    The upsert that precedes a cull is idempotent, so the fix is to re-page the search and
+    re-run the same ingest — or pass force=True if the collapse is genuinely real.
+    """
+
 
 def load(path: str | Path = DEFAULT_PATH) -> dict[str, str]:
     p = Path(path)
@@ -73,6 +90,8 @@ def cull_absent(
     pulled_urls: set[str],
     input_path: str,
     path: str | Path = DEFAULT_PATH,
+    min_coverage: float = MIN_CULL_COVERAGE,
+    force: bool = False,
 ) -> tuple[int, int]:
     """Mark `site` listings absent from a **complete** pull as delisted, and resurrect any
     previously-absent ones that reappeared. Returns (culled, resurrected).
@@ -87,18 +106,57 @@ def cull_absent(
     CALLER CONTRACT: only pass a pull that paged to exhaustion. A partial pull would cull live
     listings sitting on the pages you didn't collect. ``pulled_urls`` is the set of source_urls
     from that pull; ``input_path`` is the store (read to enumerate the site's current listings).
+
+    That contract used to be human-remembered only, which made a collapsed pull silently
+    destructive. It is now machine-checked: the pull must re-surface at least ``min_coverage``
+    of the site's currently-live store entries, or :class:`CullRefused` is raised before any
+    write. ``force=True`` overrides it for a genuine mass-delisting.
     """
     gone = load(path)
-    resurrected = 0
-    for url in pulled_urls:
-        if gone.get(url) == _ABSENT:  # back in the search → no longer gone (404/410 stays sticky)
-            del gone[url]
-            resurrected += 1
     site_urls = {
         r["source_url"]
         for r in store.load(input_path).values()
         if r.get("source") == site and r.get("source_url")
     }
+    # Measure coverage against the *live* subset — the store keeps every listing it ever saw,
+    # including long-dead ones a pull can't possibly re-surface, so counting those would make
+    # a healthy pull look like a collapsed one.
+    #
+    # NOTE on the floor being as low as 30%: `run.ingest` upserts the pull *before* culling, so
+    # this pull's brand-new listings are already in the store and count as matched. Coverage is
+    # therefore always higher than the bare re-surface rate, and legitimate churn — even a
+    # months-long gap — sits far above the floor, while a collapsed pull still reads near 0%
+    # (nothing matches a store full of listings it never saw). Don't "fix" the ordering without
+    # re-deriving this number.
+    live_before = {u for u in site_urls if u not in gone}
+    matched = live_before & pulled_urls
+    coverage = len(matched) / len(live_before) if live_before else 1.0
+    log.info(
+        "cull coverage",
+        extra={
+            "event": "cull_coverage",
+            "ctx_site": site,
+            "ctx_pulled": len(pulled_urls),
+            "ctx_live_before": len(live_before),
+            "ctx_matched": len(matched),
+            "ctx_coverage": round(coverage, 3),
+        },
+    )
+    if coverage < min_coverage and not force:
+        raise CullRefused(
+            f"{site}: pull re-surfaced {len(matched)}/{len(live_before)} live listings "
+            f"({coverage:.1%}, floor {min_coverage:.0%}) — refusing to cull. A pull this small "
+            f"is usually a collapsed one (moved card selector, CAPTCHA page, incomplete paging, "
+            f"or the wrong file). Nothing was written. Re-check extract.js's `suspect` field, "
+            f"re-page the search, and re-run the same ingest (it is idempotent). If the "
+            f"mass-delisting is real, re-run with force."
+        )
+
+    resurrected = 0
+    for url in pulled_urls:
+        if gone.get(url) == _ABSENT:  # back in the search → no longer gone (404/410 stays sticky)
+            del gone[url]
+            resurrected += 1
     culled = 0
     for url in site_urls - pulled_urls:
         if url not in gone:  # don't clobber a real 404/410, don't re-count an existing cull

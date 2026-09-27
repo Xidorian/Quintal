@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 from .. import liveness
@@ -57,7 +58,9 @@ def delisted_path_for(store_path: str) -> str:
     return str(p.with_name(f"delisted{suffix}.json"))
 
 
-def ingest(site: str, rows_path: str, store_path: str, cull: bool = False) -> None:
+def ingest(
+    site: str, rows_path: str, store_path: str, cull: bool = False, force_cull: bool = False
+) -> None:
     rows = json.loads(Path(rows_path).read_text(encoding="utf-8"))
     raw = [ADAPTERS[site].to_raw(row) for row in rows]
     added, updated = store.upsert(store_path, raw)
@@ -72,7 +75,15 @@ def ingest(site: str, rows_path: str, store_path: str, cull: bool = False) -> No
         # Only valid when the pull paged to exhaustion — see liveness.cull_absent's contract.
         pulled = {r["source_url"] for r in raw if r.get("source_url")}
         gone_path = delisted_path_for(store_path)
-        culled, resurrected = liveness.cull_absent(site, pulled, store_path, gone_path)
+        try:
+            culled, resurrected = liveness.cull_absent(
+                site, pulled, store_path, gone_path, force=force_cull
+            )
+        except liveness.CullRefused as exc:
+            # The upsert above already landed and is idempotent; only the cull was skipped.
+            # Non-zero exit so a scripted run stops here instead of moving on to publish.
+            print(f"{msg}\n\nCULL REFUSED — {exc}", file=sys.stderr)
+            raise SystemExit(1) from None
         msg += f" · culled {culled} absent, resurrected {resurrected} → {gone_path}"
     print(msg)
 
@@ -94,6 +105,11 @@ def main() -> None:
         "--ingest", metavar="ROWS_JSON", help="ingest extracted card rows from a JSON file"
     )
     parser.add_argument(
+        "--force-cull",
+        action="store_true",
+        help="cull even when the pull looks too small to be complete (see liveness.CullRefused)",
+    )
+    parser.add_argument(
         "--cull",
         action="store_true",
         help="cull store listings of this site absent from the pull (COMPLETE pulls only)",
@@ -106,7 +122,7 @@ def main() -> None:
     if args.ingest:
         if args.site == "all":
             parser.error("--ingest needs a single --site (rows come from one site)")
-        ingest(args.site, args.ingest, args.store, cull=args.cull)
+        ingest(args.site, args.ingest, args.store, cull=args.cull, force_cull=args.force_cull)
     else:
         print_urls(sites, _params(args), args.pages)
 

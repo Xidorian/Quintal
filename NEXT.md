@@ -45,11 +45,16 @@ churn in one go (145 + 691 culled, 121 + 1899 probed dead). Remaining Mondays: 0
       extract.js in jsdom over real captured fixtures; `tests/test_extract_js.py` asserts the
       rows and pushes them through the Python adapters (cross-surface check on one shared
       input). 8 tests, **both regressions planted and proved red**. 175 tests green.
-- [ ] **Fixtures are a snapshot, not drift detection.** They catch *our* regressions; a portal
-      changing its markup still breaks the pull while the tests stay green. Re-capture when a
-      pull looks wrong (`tests/fixtures/extract/README.md` has the capture snippets). Consider a
-      cheap liveness check on the fixtures — e.g. assert the live page still yields ≥1 card for
-      each site's selector during a pull, so a selector change is loud at collection time.
+- [x] **Collection-time selector check + cull guard built (QT-052).** `quintalExtract` reports
+      `expected` (selector-independent link count) and `suspect`, which distinguishes a moved
+      card selector from the end of pagination; `cull_absent` refuses to cull a pull that
+      re-surfaced <30% of live listings (`--force-cull` overrides). Both alarms proved.
+- [ ] **Fixtures are still a snapshot.** The `suspect` flag catches a portal moving its card
+      selector *during a pull*, but the fixtures themselves only catch our own regressions —
+      a changed *field* selector (price, area, location) that still matches cards stays silent
+      in both. Re-capture when a pull looks wrong (`tests/fixtures/extract/README.md`). A
+      field-level ingest sanity check (warn when >X% of a pull is missing price or location)
+      would close that last gap cheaply.
 - [x] **RECOLLECT.md corrected in the same session** — transport truth (the gzip+base64
       `get_page_text` trick is in-app-browser-only, not byte-exact on the extension), `rm` before
       *every* download, a fresh tab per download, the Norte liveness/photos commands, and the

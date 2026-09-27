@@ -8,14 +8,22 @@ silently corrupting a pull. Asserted in `tests/test_extract_js.py`.
 |---|---|---|
 | `imovirtual-search.html` | captured live **2026-09-26** | 3 real organic cards + the matching trimmed `__NEXT_DATA__`. Two cards are in the blob (so they exercise the `reverseGeocoding` path, one with freguesia ≠ concelho — `São Gonçalo de Lagos, Lagos, Faro`), one is a promoted tile absent from the blob (so it exercises the address-`<p>` fallback). Captured *after* imovirtual nulled `address.city`/`address.province`, so it reproduces the QT-050 shape. One card carries the real `680 €12,36 €/m²` concatenation. |
 | `idealista-search.html` | captured live **2026-09-26** | 2 real cards — one private, one agency-branded — pinning `is_private` (which decides the canonical winner in `dedup.py`) and the title-derived concelho. |
+| `imovirtual-selector-moved.html` | **derived**, not captured as-is | `imovirtual-search.html` with only the two card selectors renamed, listing links untouched. The selector-drift alarm: zero cards while the page plainly shows 3 listings → `suspect="no-cards"`. |
+| `idealista-end-of-results.html` | hand-written | A results page past the last page: no cards **and** no listing links → `expected=0`, `suspect="none"`. Pins the no-false-alarm side, which paging-to-plateau depends on. |
 | `imovirtual-price-css-incident.html` | **derived**, not captured as-is | Card 1 of `imovirtual-search.html` with the styled-components `<style>` that imovirtual's SSR emitted *inside* the price cell re-injected verbatim (QT-049). Only the price cell differs from the real capture. |
 
-## Why one fixture is derived
+## Why two fixtures are derived rather than captured
 
-The QT-049 markup is **intermittent**. It was present on 2026-09-04, where a raw `.textContent`
-read the rent out of a colour and a font-size and priced thirteen Faro listings at €0.63/month.
-It was **absent** from the live page on 2026-09-26 — verified directly (`priceHasStyle: false`
-on all 40 cards) — so a freshly captured fixture does not reproduce it. Hence the reconstruction.
+**`imovirtual-price-css-incident.html`** — the QT-049 markup is *intermittent*. It was present
+on 2026-09-04, where a raw `.textContent` read the rent out of a colour and a font-size and
+priced thirteen Faro listings at €0.63/month. It was **absent** from the live page on 2026-09-26
+— verified directly (`priceHasStyle: false` on all 40 cards) — so a freshly captured fixture
+does not reproduce it. Hence the reconstruction.
+
+**`imovirtual-selector-moved.html`** — you cannot capture a portal breaking its own markup on
+demand, so the break is simulated by renaming the card selectors on a real capture. That is
+exactly the shape the alarm must catch: the listing links are untouched, so the page still
+plainly shows 3 listings while the card selector finds none.
 
 ## What these fixtures do NOT do
 
@@ -72,8 +80,20 @@ a.download='quintal_fx.html'; document.body.appendChild(a); a.click(); a.remove(
 ```
 
 Move it into this directory, update the expected ids/values in `tests/test_extract_js.py`
-(they are asserted by listing id, e.g. `ID1iUGn`), regenerate the derived incident fixture from
-the new card 1, and update the capture dates in the table above.
+(they are asserted by listing id, e.g. `ID1iUGn`), and update the capture dates in the table
+above. Then regenerate **both** derived fixtures from the new capture:
+
+```python
+# imovirtual-selector-moved.html — rename only the card selectors, leave the links alone.
+src = open("imovirtual-search.html").read()
+moved = (src.replace('data-cy="search.listing.organic"', 'data-cy="search.listing.organic-RENAMED"')
+            .replace('data-cy="listing-item"', 'data-cy="listing-item-RENAMED"'))
+```
+
+For `imovirtual-price-css-incident.html`, take card 1 of the new capture and re-inject the
+`<style>` block immediately after the `listing-item-price` opening tag (keep the `__NEXT_DATA__`
+blob so the location path still resolves). Preserve the provenance comment at the top of each —
+it is the only thing telling a future reader they are not raw captures.
 
 **Check for PII before committing** — these are public search-results cards (no account data),
 but the capture is raw markup, so skim it rather than trusting that.
