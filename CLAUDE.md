@@ -72,6 +72,16 @@ Per the python profile's "cover the pipeline's brain": scoring, valuation (incl.
 peer-median fallback), normalization/keyword derivation. a11y: the 🟢/⚪/🔴 valuation
 band is always paired with text — never colour alone.
 
+**`extract.js` is gated too** (`tests/test_extract_js.py`, added 2026-09-26). It is injected
+into a live browser, so it used to have no test at all — and both bugs it produced (QT-049,
+QT-050) reached the collected pool as corrupted data rather than failing a test.
+`tests/extract_harness.mjs` runs the *real* extract.js in jsdom over the saved fixtures in
+`tests/fixtures/extract/`, and the tests push those rows through the real Python adapters, so
+the JS extraction and the Python parsing are proved to agree on one shared input. Needs
+`npm install` (jsdom only); the tests skip loudly without it. **The fixtures are a snapshot —
+they catch *our* regressions, not a portal changing its markup.** When a pull looks wrong,
+re-capture first: `tests/fixtures/extract/README.md`.
+
 ## Commands
 ```
 . .venv/bin/activate
@@ -80,7 +90,9 @@ python -m quintal.collect.run --print-urls                                      
 python -m quintal.collect.run --site idealista --ingest rows.json                         # map extracted cards → listings.jsonl
 python -m quintal.feedback report --pool algarve                                          # why we passed → what to harden (run before a pull)
 python -m quintal.feedback block --pool algarve                                           # hard-block the flagged misses by id
-pytest                                                                                    # run the brain's tests
+pytest                                                                                    # run the brain's tests (incl. the extract.js gate)
+npm install                                                                               # once: jsdom, for the extract.js harness
+node tests/extract_harness.mjs tests/fixtures/extract/imovirtual-search.html imovirtual    # replay a fixture by hand
 streamlit run app.py                                                                      # interactive UI (post step-1)
 ```
 

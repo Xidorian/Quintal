@@ -35,3 +35,6 @@ out/
 
 # Downloaded listing thumbnails (re-fetchable from source_url)
 data/photos/
+
+# Node (extract.js test harness only — jsdom)
+node_modules/

@@ -1,0 +1,13 @@
+{
+  "name": "quintal-extract-harness",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Node/jsdom harness that runs src/quintal/collect/extract.js over saved fixtures, so a selector or blob-shape regression fails pytest instead of corrupting a pull.",
+  "type": "module",
+  "scripts": {
+    "extract-harness": "node tests/extract_harness.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1"
+  }
+}

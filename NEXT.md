@@ -41,11 +41,15 @@ churn in one go (145 + 691 culled, 121 + 1899 probed dead). Remaining Mondays: 0
       freguesia and geocoded to a concelho centroid (wrecks the beach axis). `extract.js` now
       reads parish/council/district from `reverseGeocoding`. See STATUS.md.
 - [x] Norte liveness run for the first time — 1899 dead listings purged.
-- [ ] **`extract.js` has no automated gate.** QT-049 and QT-050 were both live-found data
-      corruptions in the same file, and every selector in it is validated by eye. A node-based
-      harness (export the pure helpers — `txt`, `imvLocation`, `row` — and run them over saved
-      fixture HTML/`__NEXT_DATA__` blobs) would have caught QT-050 on the first pull. Worth
-      building before the next portal change.
+- [x] **`extract.js` gate built (2026-09-26).** `tests/extract_harness.mjs` runs the real
+      extract.js in jsdom over real captured fixtures; `tests/test_extract_js.py` asserts the
+      rows and pushes them through the Python adapters (cross-surface check on one shared
+      input). 8 tests, **both regressions planted and proved red**. 175 tests green.
+- [ ] **Fixtures are a snapshot, not drift detection.** They catch *our* regressions; a portal
+      changing its markup still breaks the pull while the tests stay green. Re-capture when a
+      pull looks wrong (`tests/fixtures/extract/README.md` has the capture snippets). Consider a
+      cheap liveness check on the fixtures — e.g. assert the live page still yields ≥1 card for
+      each site's selector during a pull, so a selector change is loud at collection time.
 - [x] **RECOLLECT.md corrected in the same session** — transport truth (the gzip+base64
       `get_page_text` trick is in-app-browser-only, not byte-exact on the extension), `rm` before
       *every* download, a fresh tab per download, the Norte liveness/photos commands, and the

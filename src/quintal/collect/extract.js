@@ -189,4 +189,13 @@
     a.remove();
     return JSON.parse(data).length;
   };
+
+  // --- Test seam -----------------------------------------------------------------------
+  // Exposes the closure-private helpers so tests/extract_harness.mjs can drive the *same*
+  // code the browser runs, over the saved fixtures in tests/fixtures/extract/. Both
+  // data-corrupting bugs in this file (QT-049 inline CSS read as the rent, QT-050 the
+  // nulled address.city that cost every card its freguesia) were found in production data,
+  // not in a test — this is the seam that lets `pytest` catch the next one. In the browser
+  // it is just one more property on window; the paste-and-call flow is unchanged.
+  window.quintalInternals = { SITES, txt, imvId, imvIndex, imvLocation };
 })();

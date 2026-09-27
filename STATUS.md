@@ -94,7 +94,7 @@ drive a filter change. Wired into RECOLLECT.md as **step 0**.
 - **Hosting** — live on Streamlit Community Cloud (`deploy` branch), shared prefs via a
   private GitHub Gist (`GistBackend`); `scripts/publish.sh` refreshes → auto-redeploy.
   Malia confirmed it works for her.
-- **167 tests green.**
+- **175 tests green** (incl. 8 that gate `extract.js` in jsdom — see the 2026-09-26 entry).
 
 ## Short-term screening hardened (2026-08-31, QT-048)
 Malia was still hitting short-term lets. Root cause was `_SEASONAL_SPAN`: it only knew
@@ -157,6 +157,25 @@ erasmus, "não é um arrendamento anual"). **101 listings newly caught** — Alg
     silently never landed until issued from a *fresh* tab, and the re-pulled imovirtual file landed
     as `quintal_imovirtual (1).json` — the exact 2026-08-22 hazard. `rm ~/Downloads/quintal_*.json`
     before *every* download, not just the first.
+  - **`extract.js` now has a real gate (the follow-up to QT-049/QT-050).** It is injected into
+    a live browser, so it had no test at all — and both of its bugs reached the pool as corrupted
+    data instead of failing a check. `tests/extract_harness.mjs` loads a saved fixture into jsdom,
+    evaluates the **real** extract.js in that window, and calls the same `quintalReset`/
+    `quintalExtract` entry points a pull uses; `tests/test_extract_js.py` (8 tests) asserts the
+    rows and then pushes them through the real Python adapters, so the JS extraction and the
+    Python parsing are proved to agree on **one shared input** rather than merely looking aligned.
+    Fixtures are **real captured markup** (2026-09-26): 3 imovirtual cards covering both location
+    paths (two in `__NEXT_DATA__`, one promoted tile on the `<p>` fallback, one with
+    freguesia ≠ concelho) plus 2 idealista cards (one private, one agency-branded). The QT-049
+    price-cell CSS is **intermittent** — verified absent from all 40 live cards today — so that
+    one fixture is the real card with the incident's `<style>` re-injected, documented as such.
+    **Alarm proved:** both regressions were planted into a throwaway copy and each turned the
+    matching test red (the QT-049 plant reproduced `.css-6t3bie{…}1000 €` exactly). Worth
+    knowing: `_rent_only`'s CSS strip *masks* a JS regression, so the price assertion stayed
+    green — the gate has to assert at the JS boundary, and a comment in the test says so.
+    Cost: one devDependency (jsdom) + `npm install`; the tests skip loudly without it.
+    **Limit: the fixtures are a snapshot — they catch our regressions, not a portal moving its
+    markup.** 175 tests green.
   - **Not verified this run:** step 0 read `data/preferences.json`, **not** Malia's shared Gist —
     `QUINTAL_GIST_ID`/`QUINTAL_GITHUB_TOKEN` are still absent from `.env` (3rd run running). Its
     "0 open notes" says nothing about her real 👎 notes, so **no screener was hardened off it**.
