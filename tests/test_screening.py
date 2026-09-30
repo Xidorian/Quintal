@@ -104,10 +104,60 @@ def test_duration_language_is_caught(text):
         "nota: o valor é para um contrato de 8 meses, se o contrato for de 12 meses a renda é 950",
         "pagar de início: 1 mês de renda e 2 de caução",
         "divisão extra ideal para escritório ou quarto de hóspedes. arrendamento anual.",
-        "a Uniplaces liga indivíduos, sejam estudantes, profissionais ou famílias, a alojamentos",
+        # NOTE (QT-053): this case used to name Uniplaces. The point it was making is about
+        # "estudantes" — a platform blurb listing students *and* professionals *and* families
+        # says nothing about the term — so it keeps making that point with the platform name
+        # removed. The platform itself is now blocked; see the QT-053 block below for why.
+        "arrendo a indivíduos, sejam estudantes, profissionais ou famílias, arrendamento anual",
         "condições do arrendamento: 3.100 €/mês (disponível a partir de setembro), arrendamento anual",
         "moradia T3 | arrendamento de longa duração | disponível a partir de setembro",
     ],
 )
 def test_long_term_listings_are_not_purged(text):
+    assert short_term_reason(text) is None
+
+
+# --- QT-053: booking-platform syndication ------------------------------------------------
+# Malia: "lots and lots of short term rentals are showing up when they should be
+# automatically filtered out." They were one platform. Imovirtual carries Uniplaces stock
+# verbatim, and on 2026-09-30 that was 118 of the 646 ranked Algarve listings — 18% of the
+# pool — every one of them quoting a minimum stay in DAYS.
+@pytest.mark.parametrize(
+    "text",
+    [
+        # The real boilerplate, as it appears in the pool (trimmed).
+        "RESERVAS E PEDIDOS DE INFORMAÇÃO TERMOS E CONDIÇÕES DE ALOJAMENTO: - Data de"
+        " Disponibilidade: 04/10/2026 - Duração Mínima de Aluguer: 30 dias",
+        "Descrição da Propriedade na Uniplaces: Flat with two rooms, located in Albufeira",
+        # The syndication title template, which is all we get for the Norte pool (those
+        # cards carry no description at all). The plural after "1" is the giveaway.
+        "Apartamento com 1 quartos - localizado em Bonfim Porto",
+        "Casa com 3 quartos - localizado em Albufeira",
+        # A minimum stay counted in days is a booking, never a lease.
+        "equipada para estadias curtas (mínimo de 5 dias até um máximo de 1 mês)",
+        # Booking/Airbnb "entire place" phrasing, and company-only worker housing.
+        "Alojamento inteiro: moradia geminada em Olhos de Água, Portugal",
+        "Disponível para arrendamento exclusivamente a empresas que necessitem de"
+        " alojamento para os seus colaboradores",
+    ],
+)
+def test_syndicated_short_stays_are_caught(text):
+    assert short_term_reason(text) is not None
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        # A minimum stated in MONTHS is what a real lease does — the days rule must not
+        # reach it, and neither must anything else added for QT-053.
+        "contrato de arrendamento, mínimo de 12 meses, disponível já",
+        "Apartamento T2 com 2 quartos em Albufeira, arrendamento anual",
+        "Moradia T3 com 3 quartos, localizada em Braga, para arrendamento de longa duração",
+        # "localizado em" on its own is ordinary Portuguese; only the full template counts.
+        "Moradia T4 localizado em Tavira, arrendamento anual, aceita animais",
+        # 30 days' notice is a lease term, not a minimum stay.
+        "rescisão com aviso prévio de 30 dias",
+    ],
+)
+def test_long_term_survives_the_syndication_rules(text):
     assert short_term_reason(text) is None

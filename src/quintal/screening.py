@@ -1,9 +1,14 @@
 """Screen out short-term / holiday (Alojamento Local) rentals, and remember offenders.
 
-We only want long-term rentals. Idealista's long-term search still leaks holiday/AL
-listings (weekly/nightly pricing, "para férias", AL registration numbers). This detects
-them and records each in a persistent blocklist ("shitlist") so a re-run purges them
-immediately without re-reviewing.
+We only want long-term rentals. Both portals' long-term searches leak them anyway:
+Idealista carries holiday/AL stock (weekly/nightly pricing, "para férias", AL registration
+numbers), and Imovirtual syndicates booking platforms whose listings quote a *minimum stay
+in days* (QT-053). This detects them and records each in a persistent blocklist
+("shitlist") so a re-run purges them immediately without re-reviewing.
+
+Three shapes of evidence, in the order `short_term_reason` asks:
+an AL registration number · a structural regex (seasonal month span, syndication title,
+minimum stay in days) · a folded substring from `SHORT_TERM_PATTERNS`.
 """
 
 from __future__ import annotations
@@ -49,10 +54,11 @@ SHORT_TERM_PATTERNS = [
     "temporada baixa",
     # explicit duration language (QT-048). Verified against the live pool: each of these
     # only ever appeared on genuinely short/medium-term lets. Deliberately NOT added, because
-    # they read short-term but aren't: "estudantes" (Uniplaces boilerplate names students,
+    # they read short-term but aren't: "estudantes" (a syndicated boilerplate names students,
     # professionals and families alike), "meses"/"minimo de" (match "contrato de 12 meses"),
     # "mes de" (a deposit), "hospedes" (a guest bedroom), "a partir de setembro" (an annual
-    # let that starts in September).
+    # let that starts in September). Note "estudantes" stays out on its own merits — the
+    # platform whose boilerplate contains it is blocked by name below (QT-053).
     "curta duracao",
     "media duracao",
     "curto prazo",
@@ -68,6 +74,27 @@ SHORT_TERM_PATTERNS = [
     "ano letivo",
     "ano lectivo",
     "erasmus",
+    # Booking-platform syndication (QT-053). Imovirtual carries Uniplaces stock verbatim,
+    # boilerplate and all: a "TERMOS E CONDIÇÕES DE ALOJAMENTO" header, a per-stay
+    # "Duração Mínima de Aluguer: 30 dias", instant-book language. These are *stays*, not
+    # home leases — 118 of the 646 ranked Algarve listings on 2026-09-30 were this one
+    # platform, which is what "lots and lots of short-term rentals" actually was.
+    #
+    # The platform name is the pattern. It only ever appears in that syndicated block, so
+    # unlike "estudantes" (which its boilerplate also contains, alongside "profissionais"
+    # and "famílias") it carries no collateral: all 118 matches were minimum-stay bookings,
+    # and nothing else in either pool mentions it. This REVERSES the QT-048 decision to
+    # whitelist Uniplaces text — that call was aimed at "estudantes" and took the platform
+    # name with it by accident.
+    "uniplaces",
+    "duracao minima de aluguer",
+    "termos e condicoes de alojamento",
+    "reservas e pedidos de informacao",
+    # Booking/Airbnb "entire place" phrasing — a home lease never describes itself this way.
+    "alojamento inteiro",
+    # Corporate worker housing / company-only lets: a real listing, but never a home.
+    "exclusivamente a empresas",
+    "alojamento de trabalhadores",
 ]
 # Alojamento Local registration, e.g. "151506/AL".
 _AL_REGISTRATION = re.compile(r"\b\d{3,6}\s*/\s*al\b")
@@ -89,6 +116,16 @@ _SEASONAL_SPAN = re.compile(
     rf"\b{_START_MONTH}\b[^.\n]{{0,20}}(?:\b(?:a|ate|e)\b|[-\u2013\u2014])[^.\n]{{0,15}}\b{_END_MONTH}\b"
 )
 
+# A minimum stay quoted in *days* is a booking, not a lease — "duração mínima de aluguer: 30
+# dias", "mínimo de 5 dias". A year-round let states its minimum in months, or not at all.
+_MIN_STAY_DAYS = re.compile(r"\bminim[ao]\b[^.\n]{0,40}?\b\d{1,3}\s*dias\b")
+# Machine-generated syndication title: "Apartamento com 2 quartos - localizado em Albufeira".
+# The plural after "1" ("com 1 quartos") gives the template away. Verified across both pools
+# on 2026-09-30: 187 of 187 template titles that carried a description were Uniplaces stays
+# and zero were anything else — and it catches the 830 Norte cards that carry NO description
+# for the text patterns above to bite on.
+_SYNDICATED_TITLE = re.compile(r"\bcom \d+ quartos? - localizado em\b")
+
 
 def short_term_reason(raw_text: str) -> str | None:
     """Reason string if this *text* reads short-term/AL, else None. Folds the text itself.
@@ -101,6 +138,10 @@ def short_term_reason(raw_text: str) -> str | None:
         return "AL registration number"
     if _SEASONAL_SPAN.search(text):
         return "seasonal month-range span"
+    if _SYNDICATED_TITLE.search(text):
+        return "booking-platform syndication title"
+    if _MIN_STAY_DAYS.search(text):
+        return "minimum stay quoted in days"
     for pattern in SHORT_TERM_PATTERNS:
         if pattern in text:
             return f"matched '{pattern}'"
