@@ -32,6 +32,19 @@ greenery/nature/quiet + river/ocean water. **Published** — selectable in the h
   2026-09-26** (first probe found 1899 dead listings). Routed (ORS) walk-times still skipped for
   Norte (straight-line — free-tier quota). See NEXT.md.
 
+## Pipeline CLI crossed the pools (2026-09-30, QT-056)
+Found by making the mistake: refreshing the blocklists before publishing, `python -m
+quintal.pipeline --region norte` put **714 Norte listings into `data/blocklist.json`** and
+screened them against the *Algarve* delisted set. `main()` passed no sidecar paths at all, so
+every `run()` default applied whatever `--region` said — blocklist, delisted, geo, cache and
+descriptions alike. With `--enrich` it would have overwritten `data/geo.json` with Norte
+coordinates, which is the destructive version of the same bug. The app was never affected
+(it resolves sidecars from `config.POOLS`); the CLI now does exactly the same.
+Same class as QT-047, other entry point. Blocklists restored from backup and redone
+correctly (Algarve 811 unchanged — the UI test session had already refreshed it; Norte
+176 → 439). Verified afterwards that neither blocklist holds any of the other pool's ids.
+`tests/test_pipeline.py` pins it, **alarm-proved** — reverting the fix turns 3 of its 4 red.
+
 ## Three fixes off Malia's 2026-09-30 report (QT-053/054/055)
 All three verified against the collected pools, not reasoned about.
 - **"Lots and lots of short-term rentals"** was essentially *one platform* (QT-053).
@@ -335,7 +348,8 @@ erasmus, "não é um arrendamento anual"). **101 listings newly caught** — Alg
     Re-ranked **594** (idealista 283 / imovirtual 311), delisted set 137 → 436, re-published.
 
 ## Where work stopped
-Last work: **QT-053/054/055 above** — the three fixes off Malia's 2026-09-30 report
+Last work: **QT-056 above** (the CLI pool-crossing bug, found while publishing), and before
+it **QT-053/054/055** — the three fixes off Malia's 2026-09-30 report
 (short-term leak, property-type mislabel, the unreachable "why"). All committed and tested;
 **the hosted app has not been republished yet**, so Malia is still on the old build until
 `scripts/publish.sh` runs. Before that: QT-051/052 (the extract.js jsdom gate and the

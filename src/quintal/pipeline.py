@@ -165,7 +165,9 @@ def main() -> None:
         "--enrich", action="store_true", help="geocode + beach walk-time + ruralness (OSM APIs)"
     )
     parser.add_argument(
-        "--region", default="algarve", help="scoring/geocoding region (algarve | norte)"
+        "--region",
+        default="algarve",
+        help="region pool (algarve | norte) — selects scoring, geocoding AND its sidecars",
     )
     parser.add_argument("--min-beds", type=int, default=None, help="drop listings below N beds")
     args = parser.parse_args()
@@ -178,6 +180,13 @@ def main() -> None:
         except ImportError:
             pass
 
+    # Resolve the sidecars from the region's pool, exactly as the app does. Without this the
+    # CLI silently used the Algarve sidecars for every region: `--region norte` wrote its
+    # short-term hits into data/blocklist.json, screened against the Algarve delisted set,
+    # and with --enrich would have overwritten the Algarve geo.json with Norte coordinates.
+    pool = config.pool_by_region(args.region)
+    sidecars = {k: v for k, v in pool.items() if k.endswith("_path")}
+
     listings = run(
         args.input,
         args.html,
@@ -185,6 +194,7 @@ def main() -> None:
         enrich=args.enrich,
         region=args.region,
         min_beds=args.min_beds,
+        **sidecars,
     )
 
     print(f"\n{len(listings)} listings (top by match):")
