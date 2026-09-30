@@ -1,3 +1,5 @@
+import pytest
+
 from quintal.normalize import fold, normalize
 
 
@@ -114,3 +116,63 @@ def test_implausible_size_dropped_to_none():
     # Real sizes pass through untouched.
     assert normalize({**base, "size_m2": 85}).size_m2 == 85
     assert normalize({**base, "size_m2": 21}).size_m2 == 21  # a genuine T0 studio
+
+
+# --- QT-054: property type comes from the title, matched as whole words ------------------
+# Malia: "there are instances where the app says house but even in the title it says
+# apartamento." Substring matching over title+description mistyped 201 of the 2307 collected
+# Algarve listings. Every string below is a real title or description fragment from the pool
+# on 2026-09-30, with the count it stood for.
+@pytest.mark.parametrize(
+    ("title", "description", "expected"),
+    [
+        # "villa" inside "Village" — 18 listings.
+        ("Apartamento T2 em Balaia Golf Village, Albufeira", "", "apartment"),
+        # "house" inside "penthouse" — 15 listings.
+        ("Apartamento T2, Vale do Lobo", "penthouse com 133 m2 de area bruta", "apartment"),
+        # "banda" inside a street name — 4 listings.
+        ("Apartamento T2 na Rua da Banda Musical de Tavira, 18", "", "apartment"),
+        # The big one: the description's generic "a casa" — 145 listings. A PT listing calls
+        # any home "a casa" in its prose, so the description never outranks the title.
+        ("Apartamento T3 na Urbanização Mar e Serra, Alvor", "Casa mobilada e equipada.", "apartment"),
+        ("Apartamento T2 na Rua das Moradias, Quarteira", "", "apartment"),
+        # The title still wins when it genuinely names a house...
+        ("Moradia T3 com quintal", "O apartamento tem 2 frentes.", "house"),
+        ("Casa com 3 quartos em Albufeira", "", "house"),
+        ("Vivenda T4 com piscina", "", "house"),
+        # ...and a townhouse/studio marker refines its own base noun, never the other one.
+        ("Moradia em banda na Rua dos Portugueses", "", "townhouse"),
+        ("Moradia geminada T3", "", "townhouse"),
+        ("Apartamento T0 na Estrada N125-9, Odiáxere", "", "studio"),
+        ("Apartamento duplex num 1º andar de moradia geminada", "", "apartment"),
+        # Plurals count as the noun.
+        ("Apartamentos T1 em Albufeira", "", "apartment"),
+        # No dwelling noun in the title → the description gets a say, but stays blind to
+        # "casa"/"house", which mean nothing in prose.
+        ("T2 renovado em Faro", "A casa fica no centro.", "other"),
+        ("T3 em Braga", "Moradia isolada com terreno.", "house"),
+    ],
+)
+def test_property_type_reads_the_title_first(title, description, expected):
+    listing = normalize(
+        {
+            "title": title,
+            "description_raw": f"{title} {description}".strip(),
+            "price_eur_month": 1000,
+            "concelho": "Faro",
+        }
+    )
+    assert listing.property_type == expected
+
+
+def test_explicit_site_property_type_still_wins():
+    listing = normalize(
+        {
+            "title": "Apartamento T2",
+            "description_raw": "",
+            "property_type": "house",
+            "price_eur_month": 1000,
+            "concelho": "Faro",
+        }
+    )
+    assert listing.property_type == "house"
