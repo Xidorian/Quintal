@@ -1,9 +1,13 @@
 """Quintal — interactive rental finder (Phase 4).
 
 Reads the collected pool, runs the full brain (screen → enrich → value → score), and
-lets the searcher filter, sort, and 👍/👎 listings and whole areas. A 👎 asks *why* —
-the reason + note land in the shared preferences log, which `python -m quintal.feedback
-report` reads before the next pull to harden collection. Preferences persist to
+lets the searcher filter, sort, and 👍/👎 listings and whole areas.
+
+There is **one** dismiss action ("🙈 Not for us"). It passes in a single click and then
+holds the card on screen with the reason ask attached, because a reason is the only thing
+that trains the next pull — and a card that vanishes on click can never be explained. The
+reason + note land in the shared preferences log, which `python -m quintal.feedback report`
+reads before the next pull to harden collection. Preferences persist to
 data/preferences.json (or the shared Gist) so they survive re-collection.
 
 Run:  streamlit run app.py
@@ -151,7 +155,10 @@ max_green = (
 st.sidebar.header("View")
 sort_mode = st.sidebar.radio("Sort", ["Best fit", "Best deal", "Fit + deal"])
 show_disliked = st.sidebar.checkbox("Show 👎 / disliked areas", value=False)
-show_hidden = st.sidebar.checkbox("Show hidden", value=False)
+# Legacy: "hide" used to be a second, separate dismiss that recorded nothing. The button is
+# gone (it only ever duplicated a pass), but anything hidden back then stays hidden until
+# this is ticked — no stored preference is dropped on the floor.
+show_hidden = st.sidebar.checkbox("Show previously hidden", value=False)
 
 open_notes = [e for e in prefs.open_feedback() if not e.get("pool") or e.get("pool") == pool_name]
 if open_notes:
@@ -178,8 +185,16 @@ if prefs.areas:
 pcts = [v["valuation_pct"] for v in views if v["valuation_pct"] is not None]
 lo, hi = (min(pcts + [0]), max(pcts + [0]))
 
+# Listings dismissed *during this session* stay on screen regardless of the filters, so the
+# "why?" ask is reachable at the moment of the pass. Without this the card is gone on the
+# next rerun and the reason can only be added by hunting it down behind "Show 👎" — which is
+# why the reason log stayed empty. Session-scoped: a reload clears it.
+just_passed: set[str] = st.session_state.setdefault("just_passed", set())
+
 
 def keep(v: dict) -> bool:
+    if v["id"] in just_passed:
+        return True  # held open for its reason ask — see above
     if v["id"] in prefs.hidden and not show_hidden:
         return False
     if not show_disliked and (
@@ -210,12 +225,21 @@ def keep(v: dict) -> bool:
     return True
 
 
+def sort_rank(v: dict) -> int:
+    """Ranking weight — 👍 pins up, 👎 / disliked area pushes down.
+
+    A listing passed *during this session* keeps the rank it had a moment ago, so the card
+    stays put under its reason ask instead of sliding to the bottom of several hundred. The
+    empty id is in neither set, which leaves just the area component. The 👎 penalty applies
+    from the next reload, once the reason has been asked for.
+    """
+    listing_id = "" if v["id"] in just_passed else v["id"]
+    return prefs.preference_rank(listing_id, v["concelho"])
+
+
 rows = [v for v in views if keep(v)]
 rows.sort(
-    key=lambda v: (
-        prefs.preference_rank(v["id"], v["concelho"]),
-        base_sort_value(v, sort_mode, lo, hi),
-    ),
+    key=lambda v: (sort_rank(v), base_sort_value(v, sort_mode, lo, hi)),
     reverse=True,
 )
 
@@ -279,57 +303,23 @@ for v in rows:
                 st.caption(f"👎 {label_of(passed_note.get('reason', 'other'))}{quote}{who}")
         with actions:
             like_label = "💚 Liked" if state == "liked" else "👍 Like"
-            pass_label = "💔 Passed" if state == "disliked" else "👎 Pass"
+            # One dismiss action. "Pass" and "Hide" used to sit here side by side doing
+            # almost the same thing — except only a pass could carry a reason, and `hidden`
+            # is read by nothing but this app's own filter. Two buttons, one of which threw
+            # the training signal away, and no way to tell them apart from the outside.
+            pass_label = "💔 Passed" if state == "disliked" else "🙈 Not for us"
             if st.button(like_label, key=f"like-{v['id']}", use_container_width=True):
                 prefs.like(v["id"])
+                just_passed.discard(v["id"])
                 prefs.save()
                 st.rerun()
-            # A pass is one click and asks nothing — most passes are just "not for us".
-            # The reason is a separate, optional follow-up (it's what hardens the next
-            # pull, so it's offered, never demanded).
             if st.button(pass_label, key=f"pass-{v['id']}", use_container_width=True):
                 prefs.dislike(v["id"])  # toggles; un-passing retracts the note behind it
-                prefs.save()
-                st.rerun()
-            if state == "disliked":
-                why_label = "✏️ Edit reason" if passed_note else "＋ Add a reason"
-                with st.popover(why_label, use_container_width=True):
-                    st.caption("Optional — but it's what hardens the next pull.")
-                    code = st.selectbox(
-                        "Reason",
-                        list(REASONS),
-                        format_func=label_of,
-                        key=f"why-{v['id']}",
-                    )
-                    st.caption(REASONS[code].hint or "")
-                    note = st.text_input(
-                        "In your own words"
-                        + (" (required for this reason)" if code == "other" else " (optional)"),
-                        key=f"note-{v['id']}",
-                        placeholder=(
-                            "what was wrong with it?"
-                            if code == "other"
-                            else "quote the giveaway line if there is one"
-                        ),
-                    )
-                    if st.button("Save reason", key=f"savepass-{v['id']}", type="primary"):
-                        if code == "other" and not note.strip():
-                            st.warning("Tell us what it was — otherwise the note says nothing.")
-                        else:
-                            # Editing replaces rather than stacks — otherwise one listing's
-                            # change of mind would count twice in the report.
-                            prefs.retract_feedback(v["id"])
-                            prefs.add_feedback(
-                                v["id"],
-                                reason=code,
-                                note=note,
-                                by=searcher,
-                                context=context_from_view(v, pool_name),
-                            )
-                            prefs.save()
-                            st.rerun()
-            if st.button("🙈 Hide", key=f"hide-{v['id']}", use_container_width=True):
-                prefs.hide(v["id"])
+                # Hold it open for the reason ask below, or let go of it on un-pass.
+                if v["id"] in prefs.disliked:
+                    just_passed.add(v["id"])
+                else:
+                    just_passed.discard(v["id"])
                 prefs.save()
                 st.rerun()
             area = prefs.area_of(v["concelho"])
@@ -350,3 +340,60 @@ for v in rows:
                 prefs.set_area(v["concelho"], None if area == "dislike" else "dislike")
                 prefs.save()
                 st.rerun()
+
+        # --- The reason ask, in place, on the card just passed ---------------------
+        # Full width under the card rather than tucked in a popover: it is the whole point
+        # of the pass, so it gets the room to be answered. Still optional — "Done" closes
+        # it and the pass stands on its own.
+        if state == "disliked" and v["id"] in just_passed:
+            st.divider()
+            st.markdown(
+                "**Why not?** Optional — but it's the only thing that trains the next pull."
+            )
+            reason_col, note_col, save_col = st.columns([2, 3, 1.2])
+            code = reason_col.selectbox(
+                "Reason", list(REASONS), format_func=label_of, key=f"why-{v['id']}"
+            )
+            requires_note = code == "other"
+            note = note_col.text_input(
+                "In your own words"
+                + (" (required for this reason)" if requires_note else " (optional)"),
+                key=f"note-{v['id']}",
+                placeholder=(
+                    "what was wrong with it?"
+                    if requires_note
+                    else "quote the giveaway line if there is one"
+                ),
+            )
+            save_col.markdown("<div style='height:1.7rem'></div>", unsafe_allow_html=True)
+            if save_col.button(
+                "Save reason", key=f"savepass-{v['id']}", type="primary", use_container_width=True
+            ):
+                if requires_note and not note.strip():
+                    st.warning("Tell us what it was — otherwise the note says nothing.")
+                else:
+                    # Saving replaces rather than stacks — otherwise one listing's change of
+                    # mind would count twice in the report.
+                    prefs.retract_feedback(v["id"])
+                    prefs.add_feedback(
+                        v["id"],
+                        reason=code,
+                        note=note,
+                        by=searcher,
+                        context=context_from_view(v, pool_name),
+                    )
+                    prefs.save()
+                    just_passed.discard(v["id"])  # answered — let the card go
+                    st.toast(f"Noted: {label_of(code)}", icon="🗒️")
+                    st.rerun()
+            if save_col.button("Done", key=f"donepass-{v['id']}", use_container_width=True):
+                just_passed.discard(v["id"])
+                st.rerun()
+            hint = REASONS[code].hint
+            if hint:
+                st.caption(f"💡 {hint}")
+            if REASONS[code].screenable:
+                st.caption(
+                    "🔧 Screenable — this one says we should never have shown it, and "
+                    f"`feedback report` will point at **{REASONS[code].target}**."
+                )
