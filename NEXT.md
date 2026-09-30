@@ -2,7 +2,15 @@
 
 **Now:** maintenance mode — the weekly re-collection is the standing job, and it now starts by
 reading the 👎 notes (step 0 of RECOLLECT.md). Both pools are live; the Norte tail below is
-the only unfinished build work.
+the only unfinished build work. **One thing is waiting on you: publish.**
+
+## ▶ Do first — ship QT-053/054/055 to Malia
+- [ ] **Run `scripts/publish.sh`.** The three fixes off her 2026-09-30 report (short-term
+      leak, house/apartamento mislabel, the missing "why") are committed and tested but
+      **not live** — she is still on the old build. Screening runs at app load, so the code
+      alone fixes the pool; no re-collection needed first.
+- [ ] After publishing, check the pool sizes look right in the hosted app: Algarve **534**,
+      Norte **2064** (down from 646 / 2188 — that drop is the short-term purge, not data loss).
 
 ## ▶ Norte expansion — shipped (2026-08-06), tail to finish
 - [x] Regions wired + district-agnostic parsing (QT-038); first pull → 2188 ranked.
@@ -30,10 +38,28 @@ churn in one go (145 + 691 culled, 121 + 1899 probed dead). Remaining Mondays: 0
 
 ## ▶ Feedback loop (QT-044, shipped 2026-08-25) — one thing left
 - [x] 👎 asks why (reason + note), logged in the shared prefs store; report / block / resolve CLI.
+- [x] **QT-055 (2026-09-30): the reason ask was unreachable.** A pass dropped the card from the
+      default view on the same click, so the follow-up "＋ Add a reason" button only existed
+      behind the "Show 👎" toggle — which is why the log stayed empty. One dismiss button now,
+      and the card holds its place with the reason ask attached. Pass and Hide were also
+      duplicates (`hidden` is read by nothing but the app's own filter), so half the dismissals
+      recorded nothing; Hide is gone, old hidden ids kept behind "Show previously hidden".
 - [ ] **Add `QUINTAL_GIST_ID` + `QUINTAL_GITHUB_TOKEN` to the local `.env`** — until then the
       feedback CLI reads the local prefs file, not Malia's live notes. (Token already exists in
       Streamlit secrets; needs copying locally. The CLI names the store it read, so this is
       visible, not silent.)
+
+## ▶ From Malia's 2026-09-30 report
+- [x] QT-053 short-term leak (one platform, 18% of the Algarve pool), QT-054 property-type
+      mislabel (201 → 1), QT-055 the unreachable "why". See STATUS.md.
+- [ ] **Watch whether the short-term purge is now over-eager.** The syndication-title rule was
+      187/187 precise on the pool it was built from, which is exactly the sample that can't
+      show its own blind spot. If Malia reports a *good* listing vanishing, `data/blocklist.json`
+      names the rule that took it.
+- [ ] **Raise the priority of the deferred imovirtual descriptions backfill for Norte.** With
+      4353 Norte cards carrying no description, every text-based screen and every yard/pets
+      derivation there is running on titles alone. QT-053 worked around it with a title rule;
+      the next leak may not have one.
 
 ## ▶ From the 2026-09-26 pull
 - [x] Both pools pulled complete on both sites (every district verified against its own header).

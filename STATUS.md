@@ -32,6 +32,41 @@ greenery/nature/quiet + river/ocean water. **Published** — selectable in the h
   2026-09-26** (first probe found 1899 dead listings). Routed (ORS) walk-times still skipped for
   Norte (straight-line — free-tier quota). See NEXT.md.
 
+## Three fixes off Malia's 2026-09-30 report (QT-053/054/055)
+All three verified against the collected pools, not reasoned about.
+- **"Lots and lots of short-term rentals"** was essentially *one platform* (QT-053).
+  Imovirtual syndicates Uniplaces stock verbatim — booking boilerplate and a
+  "Duração Mínima de Aluguer: 30 dias" — and it was **118 of the 646 ranked Algarve
+  listings, 18% of the pool**. Its machine-generated title ("Apartamento com 1 quartos -
+  localizado em …", plural after "1") is the tell that works even where descriptions are
+  missing: **187/187 precise** where a description existed to check it against, zero false
+  positives across 10,499 listings. New patterns purge **365** by that title + **60** more
+  by a minimum stay quoted in *days*. Ranked pools: Algarve 646 → **534**, Norte 2188 → **2064**.
+  This deliberately **reverses** QT-048's decision to whitelist Uniplaces text — that call
+  was aimed at "estudantes" and took the platform name with it. Its guard test now makes the
+  "estudantes" point without naming the platform.
+- **"Says house but the title says apartamento"** was naive substring matching (QT-054):
+  `"villa"` matched *Village* (18), `"house"` matched *penthouse* (15), `"banda"` matched
+  *Rua da Banda Musical* (4), and the `"casa "` trailing-space hack matched the description's
+  generic "a casa é mobilada" (**145**) — a PT listing calls any home "a casa" in prose.
+  **201 of 2307 Algarve listings were mistyped; now 1** (a title typo'd "AApartamento").
+  Not cosmetic: `property_type` is worth **12/100** in the match score and is a hedonic
+  regression feature, so every one of those was carrying an undeserved house bonus.
+  Types now match on whole words, against the **title first**; the description only speaks
+  when the title names no dwelling, and stays blind to "casa"/"house".
+- **The hide button lost its "why"** (QT-055) — because the reason was unreachable, not
+  because it was removed. QT-046 moved it to a follow-up on an *already-passed* card, but a
+  pass drops the card out of the default view on the same click, so the "＋ Add a reason"
+  button only existed behind the "Show 👎" toggle. **Pass and Hide were also near-duplicates**:
+  both just removed the card, and `hidden` is read by nothing but the app's own filter — so
+  half the dismissals threw the training signal away. Now **one** dismiss ("🙈 Not for us"),
+  and the card **holds its place** with the reason ask attached (reason + note + Done + the
+  module the reason points at). Anything hidden under the old button stays hidden behind
+  "Show previously hidden". Verified end to end in the live app: pass → reason in place →
+  entry in the store → `feedback report` reads it back.
+- 212 tests green (`extract.js` jsdom gate included), `vermin -t=3.10-` clean, ruff clean
+  bar two pre-existing E501s. **Not yet published — `scripts/publish.sh` still to run.**
+
 ## Pass UX corrected (2026-08-31, QT-046)
 Malia was being asked *why* on every 👎, including the many that just mean "don't show me this
 again". **A pass is one click again**; the reason is an optional follow-up on the already-passed
@@ -300,14 +335,18 @@ erasmus, "não é um arrendamento anual"). **101 listings newly caught** — Alg
     Re-ranked **594** (idealista 283 / imovirtual 311), delisted set 137 → 436, re-published.
 
 ## Where work stopped
-Last work: QT-044, the 👎-reason loop above (tested end-to-end in the live app — pass with a
-reason, note lands in the store, report reads it, un-pass retracts it). Before that, the
-2026-08-22 dual re-collection. Prior
-feature work was QT-033/034/035 (versioned extraction, Idealista filter URL, ORS routed
-walk-times) plus the RECOLLECT.md runbook. No open feature work — the standing task is
+Last work: **QT-053/054/055 above** — the three fixes off Malia's 2026-09-30 report
+(short-term leak, property-type mislabel, the unreachable "why"). All committed and tested;
+**the hosted app has not been republished yet**, so Malia is still on the old build until
+`scripts/publish.sh` runs. Before that: QT-051/052 (the extract.js jsdom gate and the
+collection-time selector check) and the 2026-09-26 re-collection. The standing task remains
 the weekly re-collection (see NEXT.md).
 
 ## Known issues / debugging
+- **The screener is mostly blind on Norte.** All 4353 Norte imovirtual listings carry *no*
+  description and the idealista ones only a ≤400-char card preview, so text patterns have
+  almost nothing to read — which is why QT-053's *title*-based rule matters there (210 of its
+  351 purges). Fixing this properly is the deferred imovirtual descriptions backfill (NEXT.md).
 - **Pool decays fast** — ~13% delisted per 11 days; re-collection must be regular.
 - **Idealista detail pages** can't be fetched programmatically (DataDome 403 server-side; even
   in-browser XHR trips a 429 IP rate-limit fast — learned 2026-07-27). So idealista descriptions

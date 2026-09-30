@@ -126,6 +126,15 @@ returns the whole thing in one call (readability picks the sole article). Bulk, 
 ### Caveats
 - Idealista's long-term search leaks Spacest.com "Reserve em linha" medium-term listings and
   AL/holiday lets — `screening.py` catches them; extend its patterns as new ones appear.
+- **Imovirtual syndicates booking platforms.** Uniplaces stock arrives verbatim, boilerplate
+  and all, and was 18% of the ranked Algarve pool before QT-053. Its machine-generated title
+  ("Apartamento com 1 quartos - localizado em …") is what `screening.py` matches, because the
+  Norte cards carry no description for a text pattern to bite on. Expect other syndicators to
+  show up the same way — a platform name and a minimum stay in *days* are the reliable tells.
+- **Property type is inferred from the title, matched as whole words** (`normalize.py`), and
+  it is not cosmetic: it is worth 12/100 in `score.py` and is a hedonic regression feature.
+  The description is a fallback only, and is blind to "casa"/"house" — a PT listing calls any
+  home "a casa" in its prose, which is how 145 apartments became houses before QT-054.
 - The filter-URL schemes in the adapters are best-effort; the guessed price/bedroom path 404s
   and still needs discovering from the live UI.
 - Search cards give ~300-char description previews; full amenities need per-listing detail pages.
