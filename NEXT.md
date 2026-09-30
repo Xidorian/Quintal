@@ -2,15 +2,16 @@
 
 **Now:** maintenance mode — the weekly re-collection is the standing job, and it now starts by
 reading the 👎 notes (step 0 of RECOLLECT.md). Both pools are live; the Norte tail below is
-the only unfinished build work. **One thing is waiting on you: publish.**
+the only unfinished build work.
 
-## ▶ Do first — ship QT-053/054/055 to Malia
-- [ ] **Run `scripts/publish.sh`.** The three fixes off her 2026-09-30 report (short-term
-      leak, house/apartamento mislabel, the missing "why") are committed and tested but
-      **not live** — she is still on the old build. Screening runs at app load, so the code
-      alone fixes the pool; no re-collection needed first.
-- [ ] After publishing, check the pool sizes look right in the hosted app: Algarve **534**,
-      Norte **2064** (down from 646 / 2188 — that drop is the short-term purge, not data loss).
+## ▶ Shipped 2026-09-30 — one thing left to eyeball
+- [x] **Published.** QT-053/054/055/056 are on `deploy` (snapshot `d325b65` on `0b9f1c0`),
+      so Malia has the short-term fix, the house/apartamento fix and the working "why".
+- [ ] **Open the hosted app and confirm the pool sizes:** Algarve **534**, Norte **2064**
+      (down from 646 / 2188 — that drop is the short-term purge, not data loss). The deploy
+      URL is not recorded in this repo; it is the Streamlit Cloud app on branch `deploy`.
+- [ ] **Tell Malia the 👎 button changed** — Pass and Hide are now one "🙈 Not for us", and it
+      asks why *in place* instead of hiding the card. Her older notes are unaffected.
 
 ## ▶ Norte expansion — shipped (2026-08-06), tail to finish
 - [x] Regions wired + district-agnostic parsing (QT-038); first pull → 2188 ranked.
