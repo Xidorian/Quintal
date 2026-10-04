@@ -136,6 +136,7 @@ def test_gist_backend_load_parses_file_content(monkeypatch):
     assert data["liked"] == ["x"]
 
 
+@pytest.mark.exercises_gist_backend
 def test_gist_backend_save_sends_file_payload(monkeypatch):
     fake = _FakeRequests()
     _install_fake_requests(monkeypatch, fake)

@@ -37,18 +37,34 @@ auto-redeploy. **09-07, 09-14 and 09-21 were missed** — the 09-26 run covered 
 churn in one go (145 + 691 culled, 121 + 1899 probed dead). Remaining Mondays: 09-28,
 10-05, 10-12, 10-19, 10-26. Reassess after October.
 
-## ▶ Feedback loop (QT-044, shipped 2026-08-25) — one thing left
+## ▶ Feedback loop (QT-044, shipped 2026-08-25) — wired up
 - [x] 👎 asks why (reason + note), logged in the shared prefs store; report / block / resolve CLI.
 - [x] **QT-055 (2026-09-30): the reason ask was unreachable.** A pass dropped the card from the
       default view on the same click, so the follow-up "＋ Add a reason" button only existed
-      behind the "Show 👎" toggle — which is why the log stayed empty. One dismiss button now,
+      behind the "Show 👎" toggle. One dismiss button now,
       and the card holds its place with the reason ask attached. Pass and Hide were also
       duplicates (`hidden` is read by nothing but the app's own filter), so half the dismissals
       recorded nothing; Hide is gone, old hidden ids kept behind "Show previously hidden".
-- [ ] **Add `QUINTAL_GIST_ID` + `QUINTAL_GITHUB_TOKEN` to the local `.env`** — until then the
-      feedback CLI reads the local prefs file, not Malia's live notes. (Token already exists in
-      Streamlit secrets; needs copying locally. The CLI names the store it read, so this is
-      visible, not silent.)
+- [x] **`QUINTAL_GIST_ID` + `QUINTAL_GITHUB_TOKEN` are in the local `.env` (2026-10-04).**
+      `feedback report` now prints *"store: shared Gist (both searchers)"* — check that line
+      before acting on a report; the local-file fallback looks identical otherwise. Both keys
+      are documented in `.env.example`.
+- [x] **What the shared log turned out to hold: 45 open notes, all from Malia, and not one
+      with free text.** Reason codes only. That corrects the QT-055 write-up, which said the
+      log "stayed empty" — it wasn't empty, it was *half* empty, and the missing half is the
+      half that matters. The dropdown survived because picking it was the click that passed
+      the card; the note needed a second visit the vanishing card denied. Post-QT-055 the
+      note is in the same panel, so this should start filling — worth re-checking in a week.
+- [ ] **Don't add any pattern `feedback report` currently proposes.** With no quoted text to
+      anchor on, the miner is reading 300-char card previews of ordinary prose: its top
+      candidates are "a casa e", "na rua de", "lavar loica", each of which would purge 40–50
+      real listings. The candidates become useful only once notes carry quotes.
+- [ ] **The 15 still-slipping seasonal misses are not a pattern gap — they are a text gap.**
+      Every one still in the store has only a ≤400-char card preview and *zero* have a full
+      description (all idealista, whose detail pages are DataDome-blocked). The screener never
+      saw the line that gives them away. Two ways out, neither a new regex: Malia quoting the
+      line in her note, or `python -m quintal.feedback block --pool algarve` to hard-block
+      them by id — which is exactly what `block` exists for when no pattern can reach them.
 
 ## ▶ From Malia's 2026-09-30 report
 - [x] QT-053 short-term leak (one platform, 18% of the Algarve pool), QT-054 property-type

@@ -187,8 +187,14 @@ lo, hi = (min(pcts + [0]), max(pcts + [0]))
 
 # Listings dismissed *during this session* stay on screen regardless of the filters, so the
 # "why?" ask is reachable at the moment of the pass. Without this the card is gone on the
-# next rerun and the reason can only be added by hunting it down behind "Show 👎" — which is
-# why the reason log stayed empty. Session-scoped: a reload clears it.
+# next rerun and the reason can only be added by hunting it down behind "Show 👎".
+#
+# What that actually cost, measured against the shared Gist on 2026-10-04: 45 notes, every
+# one of them a bare reason code and **not one carrying a free-text note**. The dropdown
+# survived because it was the click that passed the card; the note field needed a second
+# visit that the vanishing card made impossible. The free text is the half the pattern
+# miner runs on, so losing it is what left `feedback report` proposing "na rua de".
+# Session-scoped: a reload clears it.
 just_passed: set[str] = st.session_state.setdefault("just_passed", set())
 
 

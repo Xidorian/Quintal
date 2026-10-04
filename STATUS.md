@@ -32,6 +32,36 @@ greenery/nature/quiet + river/ocean water. **Published** — selectable in the h
   2026-09-26** (first probe found 1899 dead listings). Routed (ORS) walk-times still skipped for
   Norte (straight-line — free-tier quota). See NEXT.md.
 
+## Shared prefs wired locally, and a test that could have written to it (2026-10-04, QT-057)
+`QUINTAL_GIST_ID` + `QUINTAL_GITHUB_TOKEN` are now in the local `.env`, so the feedback CLI
+finally reads the real log — it prints *"store: shared Gist (both searchers)"*, and the local
+fallback looks identical otherwise, so check that line.
+
+**Adding them armed a hazard nobody had hit.** `feedback._load_prefs()` calls `load_dotenv()`
+*inside* the function, which re-reads `.env` and undoes a test's `monkeypatch.delenv` — so
+`pytest` started talking to the live store the moment the keys existed.
+`test_cli_report_block_resolve_round_trip` read 45 of Malia's real notes instead of its own
+fixture, and its next two lines call `block` and `resolve`, which **save**. It assert-failed on
+the report first, so nothing was written — verified against the Gist's revision history (last
+write 2026-09-30T10:37:30Z, zero resolved and zero retracted entries). That was luck, not
+safety. `tests/conftest.py` now guards every test: the keys are cleared, `load_dotenv` is
+neutered, and `GistBackend.save` raises so a test that somehow reaches a real backend fails
+loudly instead of writing. The one test that legitimately drives `GistBackend.save` against a
+fake `requests` opts out by marker. **alarm-proved per layer** — and they needed separate
+proofs, because with layer 1 off the round-trip test still dies on its report assertion and
+never reaches the tripwire.
+
+**What the log actually holds: 45 open notes, every one a bare reason code, none with free
+text.** This corrects the QT-055 write-up, which said the log "stayed empty" — it was half
+empty, and the missing half is the half that matters. Also in the payload: **32 hidden ids**,
+every one of which recorded nothing, which is the QT-055 rationale in numbers.
+Two consequences, both filed in NEXT.md: **add none of the patterns `feedback report`
+currently proposes** (with nothing quoted, the miner is reading 300-char previews of ordinary
+prose — "a casa e", "na rua de", each would purge 40–50 real listings), and the 15 still-slipping
+seasonal misses are a **text** gap, not a pattern gap — every one still in the store has only a
+card preview, none a full description, all idealista (DataDome-blocked). `feedback block` is the
+tool for those, not a new regex.
+
 ## Pipeline CLI crossed the pools (2026-09-30, QT-056)
 Found by making the mistake: refreshing the blocklists before publishing, `python -m
 quintal.pipeline --region norte` put **714 Norte listings into `data/blocklist.json`** and
@@ -348,8 +378,9 @@ erasmus, "não é um arrendamento anual"). **101 listings newly caught** — Alg
     Re-ranked **594** (idealista 283 / imovirtual 311), delisted set 137 → 436, re-published.
 
 ## Where work stopped
-Last work: **QT-056 above** (the CLI pool-crossing bug, found while publishing), and before
-it **QT-053/054/055** — the three fixes off Malia's 2026-09-30 report
+Last work: **QT-057 above** (shared-prefs env wired locally; the test-isolation hazard it
+armed, closed and alarm-proved). Before it **QT-056** (the CLI pool-crossing bug, found while
+publishing) and **QT-053/054/055** — the three fixes off Malia's 2026-09-30 report
 (short-term leak, property-type mislabel, the unreachable "why"). All committed and tested;
 **the hosted app has not been republished yet**, so Malia is still on the old build until
 `scripts/publish.sh` runs. Before that: QT-051/052 (the extract.js jsdom gate and the
