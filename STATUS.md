@@ -378,6 +378,11 @@ erasmus, "não é um arrendamento anual"). **101 listings newly caught** — Alg
     Re-ranked **594** (idealista 283 / imovirtual 311), delisted set 137 → 436, re-published.
 
 ## Where work stopped
+**Carry forward:** `feedback block` was run on both pools 2026-10-04 (38 listings off Malia's
+notes; Algarve 811 → 828, Norte 439 → 460) and is **not published** — the 10-05 re-collection
+is meant to carry it, and publishing alone suffices if that run slips. Ranked after the block:
+Algarve 528, Norte 2058.
+
 Last work: **QT-057 above** (shared-prefs env wired locally; the test-isolation hazard it
 armed, closed and alarm-proved). Before it **QT-056** (the CLI pool-crossing bug, found while
 publishing) and **QT-053/054/055** — the three fixes off Malia's 2026-09-30 report

@@ -4,6 +4,12 @@
 reading the 👎 notes (step 0 of RECOLLECT.md). Both pools are live; the Norte tail below is
 the only unfinished build work.
 
+> ⚠️ **Unpublished change waiting (as of 2026-10-04).** Both blocklists hold 38 listings
+> blocked off Malia's notes that the hosted app has NOT got yet — deliberately left for the
+> 10-05 re-collection to carry, since `scripts/publish.sh` is its last step. **If that run
+> slips, this slips with it**; publishing alone is enough to deliver it (no re-collection
+> needed). Ranked pools after the block: Algarve **528**, Norte **2058**.
+
 ## ▶ Shipped 2026-09-30 — one thing left to eyeball
 - [x] **Published.** QT-053/054/055/056 are on `deploy` (snapshot `d325b65` on `0b9f1c0`),
       so Malia has the short-term fix, the house/apartamento fix and the working "why".
@@ -59,6 +65,16 @@ churn in one go (145 + 691 culled, 121 + 1899 probed dead). Remaining Mondays: 0
       anchor on, the miner is reading 300-char card previews of ordinary prose: its top
       candidates are "a casa e", "na rua de", "lavar loica", each of which would purge 40–50
       real listings. The candidates become useful only once notes carry quotes.
+- [x] **`feedback block` run on both pools, 2026-10-04 — 38 listings.** Algarve 17 (15
+      seasonal, 1 wrong-area, 1 not-a-rental; blocklist 811 → 828), Norte 21 (14 dead links,
+      7 seasonal; 439 → 460). Each blocklist entry carries its provenance
+      (`feedback:gone — … (Malia, <date>)`). The notes are stamped `blocked_at` but stay
+      **open** by design — blocked is not the same as acted-on, so they keep showing in the
+      report until someone runs `feedback resolve`. **Not yet published** (see the banner).
+- [ ] **Norte's misses are mostly a liveness problem, not a screening one** — 14 of its 21
+      were "already rented / dead link". Blocking by id only catches the ones Malia happened
+      to click; a liveness run is the general fix and its first pass (2026-09-26) found 1899
+      dead listings. Run it as part of the weekly routine rather than blocking by hand again.
 - [ ] **The 15 still-slipping seasonal misses are not a pattern gap — they are a text gap.**
       Every one still in the store has only a ≤400-char card preview and *zero* have a full
       description (all idealista, whose detail pages are DataDome-blocked). The screener never
