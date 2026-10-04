@@ -4,11 +4,16 @@
 reading the 👎 notes (step 0 of RECOLLECT.md). Both pools are live; the Norte tail below is
 the only unfinished build work.
 
-> ⚠️ **Unpublished change waiting (as of 2026-10-04).** Both blocklists hold 38 listings
-> blocked off Malia's notes that the hosted app has NOT got yet — deliberately left for the
-> 10-05 re-collection to carry, since `scripts/publish.sh` is its last step. **If that run
-> slips, this slips with it**; publishing alone is enough to deliver it (no re-collection
-> needed). Ranked pools after the block: Algarve **528**, Norte **2058**.
+> 🛑 **Skip the 2026-10-05 re-collection — Alexander's call, 2026-10-04.** Everything that
+> run would have delivered is already live: the 38-listing block was published the same day
+> (snapshot `8c7f1ee`), so the hosted app is current at Algarve **528** / Norte **2058**.
+> Nothing is waiting on a publish.
+>
+> The cost of skipping is pool freshness, not correctness — listings decay ~13% per 11 days,
+> and the last pull was 09-26, so by 10-12 the pool is ~2.5 weeks stale. That is the thing to
+> weigh when deciding whether 10-12 also slips. *(If the intent was only "don't publish
+> again tomorrow" rather than "skip the run", the collect + maintenance passes are still
+> worth doing — just stop before `scripts/publish.sh`.)*
 
 ## ▶ Shipped 2026-09-30 — one thing left to eyeball
 - [x] **Published.** QT-053/054/055/056 are on `deploy` (snapshot `d325b65` on `0b9f1c0`),
@@ -40,8 +45,9 @@ Pool decays ~13% / 11 days. Browser-session based, so a **new interactive sessio
 it** — full step-by-step in **[RECOLLECT.md](RECOLLECT.md)**. After each pull, run the
 maintenance passes (descriptions, liveness, photos) and `scripts/publish.sh` →
 auto-redeploy. **09-07, 09-14 and 09-21 were missed** — the 09-26 run covered 22 days of
-churn in one go (145 + 691 culled, 121 + 1899 probed dead). Remaining Mondays: 09-28,
-10-05, 10-12, 10-19, 10-26. Reassess after October.
+churn in one go (145 + 691 culled, 121 + 1899 probed dead). **10-05 is deliberately skipped**
+(see the banner at the top). Remaining Mondays: ~~10-05~~, 10-12, 10-19, 10-26.
+Reassess after October.
 
 ## ▶ Feedback loop (QT-044, shipped 2026-08-25) — wired up
 - [x] 👎 asks why (reason + note), logged in the shared prefs store; report / block / resolve CLI.
@@ -70,7 +76,7 @@ churn in one go (145 + 691 culled, 121 + 1899 probed dead). Remaining Mondays: 0
       7 seasonal; 439 → 460). Each blocklist entry carries its provenance
       (`feedback:gone — … (Malia, <date>)`). The notes are stamped `blocked_at` but stay
       **open** by design — blocked is not the same as acted-on, so they keep showing in the
-      report until someone runs `feedback resolve`. **Not yet published** (see the banner).
+      report until someone runs `feedback resolve`. **Published 2026-10-04** (`8c7f1ee`).
 - [ ] **Norte's misses are mostly a liveness problem, not a screening one** — 14 of its 21
       were "already rented / dead link". Blocking by id only catches the ones Malia happened
       to click; a liveness run is the general fix and its first pass (2026-09-26) found 1899
