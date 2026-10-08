@@ -200,9 +200,13 @@ Reassess after October.
       still soft-404 → currently price/beds filtered post-collection as a fallback).
 - [ ] Idealista detail-page enrichment (descriptions + liveness) via the logged-in browser
       session — headless 403s (DataDome), so it needs the same Chrome flow as collection.
-- [ ] `use_container_width` is deprecated in Streamlit (removal announced for after 2025-12-31,
-      still working on 1.58) — swap the app's buttons/images/popovers to `width="stretch"`
-      before a Cloud upgrade breaks Malia's view.
+- [ ] **`use_container_width` — overdue, and now noisy.** Deprecated with removal announced
+      for after **2025-12-31**, a date that passed **over nine months ago**. Still working on
+      Streamlit **1.65.0** (what Cloud served on 2026-10-08, up from 1.58), but every page
+      render now floods the deploy log with hundreds of replacement warnings — enough that
+      the log is hard to read for anything else. Swap the app's buttons/images/popovers to
+      `width="stretch"`. This is the single likeliest way Malia's view breaks without warning:
+      it is live on borrowed time and the next Cloud bump could carry the removal.
 
 ## Later / maybe (deferred, not scheduled)
 - [ ] **AI review layer (Phase 5)** — opt-in local Ollama pass that re-verifies

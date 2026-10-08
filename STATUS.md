@@ -221,6 +221,30 @@ before publishing. A real blocklist refresh belongs in the 10-12 pull, run delib
 confirming Streamlit Cloud actually redeployed and that Malia sees Algarve 528 / Norte 2058
 is still open — same gap as the 09-30 entry. Worth writing the URL down somewhere.
 
+## Live app verified (2026-10-08) — and two surprises in the deploy log
+Checked in Alexander's signed-in Chrome; the app is **private**, so a browser without his
+session gets a Streamlit sign-in wall rather than the app. URL now recorded in DEPLOY.md.
+
+**The publish landed.** Deploy log: `🚀 Starting up repository: 'quintal', branch: 'deploy'`
+at 10:54:25, and the sidebar now carries **"Exclude suspected short-term"**, a checkbox that
+exists only in the new code. The pipeline numbers on Cloud are **identical** to the local
+post-fix run — normalized 2305/2307, delisted 1137, screened 506 purged / 662 kept, geo 517,
+valuation trim 35 of 491 — so the deployed code is doing exactly what was tested.
+
+Showing **415 of 528**. That is not comparable to the "453 of 528" from local testing and
+the earlier ~446 prediction was wrong-headed: local ran against `data/preferences.json`
+(1 dismissal), the live app against the shared Gist (88 disliked + 32 hidden). The gap is
+Malia's dismissals, not the pets fix.
+
+**Streamlit Cloud is on Python 3.14.8, not 3.10.** The deploy log says so twice (`uv` env,
+and the runtime traceback path `venv/lib/python3.14`). The gotcha in CLAUDE.md said 3.10
+since 2026-08-25. The `vermin -t=3.10-` gate stays regardless — see CLAUDE.md for why.
+
+**`use_container_width` is now flooding the log.** Hundreds of deprecation warnings per
+render on Streamlit **1.65.0**. Its announced removal date (2025-12-31) passed nine months
+ago and it still works, which is luck, not safety. Promoted in NEXT.md: this is the likeliest
+way Malia's view breaks without warning.
+
 ## Norte expansion — live (2026-08-06)
 A second, separate pool (Porto + Douro + Minho), valued against itself, optimised for
 greenery/nature/quiet + river/ocean water. **Published** — selectable in the hosted app
