@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 import streamlit as st
 
 from quintal import config
-from quintal.feedback import REASONS, context_from_view, label_of
+from quintal.feedback import PICKABLE, REASONS, context_from_view, label_of
 from quintal.photos import photo_path
 from quintal.pipeline import run
 from quintal.preferences import GistBackend, Preferences
@@ -320,7 +320,12 @@ for v in rows:
                 prefs.save()
                 st.rerun()
             if st.button(pass_label, key=f"pass-{v['id']}", use_container_width=True):
-                prefs.dislike(v["id"])  # toggles; un-passing retracts the note behind it
+                # Carries `by` + the listing snapshot even with no reason chosen: this
+                # click is the only one ~half of all dismissals ever get, so it has to be
+                # the one that records. The reason ask below upgrades it if she answers.
+                prefs.dislike(
+                    v["id"], by=searcher, context=context_from_view(v, pool_name)
+                )  # toggles; un-passing retracts the note behind it
                 # Hold it open for the reason ask below, or let go of it on un-pass.
                 if v["id"] in prefs.disliked:
                     just_passed.add(v["id"])
@@ -358,7 +363,7 @@ for v in rows:
             )
             reason_col, note_col, save_col = st.columns([2, 3, 1.2])
             code = reason_col.selectbox(
-                "Reason", list(REASONS), format_func=label_of, key=f"why-{v['id']}"
+                "Reason", PICKABLE, format_func=label_of, key=f"why-{v['id']}"
             )
             requires_note = code == "other"
             note = note_col.text_input(

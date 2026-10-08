@@ -15,6 +15,34 @@ the only unfinished build work.
 > again tomorrow" rather than "skip the run", the collect + maintenance passes are still
 > worth doing — just stop before `scripts/publish.sh`.)*
 
+## ▶ QT-058 — the dismiss button becomes the instrument (started 2026-10-08)
+Malia does the bulk of the searching, so the 👎 *is* the data collection. Three tiers, by
+how much effort she feels like spending. See STATUS.md for the numbers behind this.
+- [x] **Tier 1 — one click, zero decisions.** A bare dismiss always logs an `unspecified`
+      receipt with the listing snapshot. Was silently discarding 43 of 88 dismissals.
+- [ ] **Write the backfill** — `python -m quintal.feedback backfill --pool <region> --write`
+      recovers all **75** reasonless dismissals (68 Algarve + 7 Norte), dry-run verified
+      2026-10-08. **Do this before the next cull** — it works only while those listings are
+      still in the store. Writes to the shared Gist, so it needs Alexander's go-ahead.
+- [ ] **Tier 2 — one-click reason pills.** Replace the `selectbox` + "Save reason" (two
+      clicks and a dropdown today) with a row of single-click buttons, ordered by her actual
+      usage: seasonal 22 · gone 18 · no_pets 3 · wrong_area 1 · not_a_rental 1.
+- [ ] **Tier 3 — free text behind "Other".** Already works; keep it, rely on it never.
+- [ ] **Rules module + `rules test`** (collateral count before anything commits) and
+      `feedback inspect` (the raw material for inference). Rules **mark attributes**;
+      provenance-stamped; tracked in `src/`, because `data/*.json` is gitignored and would
+      never reach the deploy branch.
+- [ ] **Rewrite RECOLLECT.md step 0** as the inference workflow: read the dismissals and
+      their text, infer the rule, prove it, commit it — instead of reading a miner's output.
+- [ ] **Pets regex fix** — 23 missed denials in the Algarve pool, **17 of them inverted to
+      `yes`**; the misses are all verb→noun word order, which `_PETS_DENY_REVERSED` has no
+      twin for. Plus ~30 conditional ("sem prévia autorização") currently read as `yes` —
+      those should read `unknown`, which needs no schema change.
+- [ ] **Short-term has no text to match on.** The 15 still-slipping seasonal listings are
+      idealista cards with no description. No rule can reach them; the only lever is
+      capturing more from the search card (platform name / minimum stay in days). Unverified
+      whether those fields are on the card — check the fixtures before assuming.
+
 ## ▶ Shipped 2026-09-30 — one thing left to eyeball
 - [x] **Published.** QT-053/054/055/056 are on `deploy` (snapshot `d325b65` on `0b9f1c0`),
       so Malia has the short-term fix, the house/apartamento fix and the working "why".

@@ -7,6 +7,34 @@ search is expanding to **Porto + the Douro + the Minho** (Norte), optimising for
 dog-walkable greenery/nature/quiet and river-beach proximity rather than ocean beaches —
 kept as a **separate pool** (`data/listings-norte.jsonl`) so Algarve valuations stay clean.
 
+## The dismiss button now records (2026-10-08, QT-058 tier 1)
+**Half of every dismissal was being thrown away.** `Preferences.dislike()` logged an entry
+only `if reason or note`, so a 👎 with no reason chosen added the id to a set and nothing
+else — no date, no author, no snapshot of what the listing was. Measured against the shared
+Gist: **88 dismissed listings, 45 with an entry, 43 with nothing**, plus **32 legacy `hidden`
+ids**, all reasonless. **0 of the 45 entries carry free text** — all 45 are Malia's, and a
+week after QT-055 made the note field reachable in place she still has not typed one. The
+report's ★ ("the searcher quoted these words") marks nothing.
+
+So the zero-effort click is the one that has to capture. A bare dismiss now always logs a
+receipt: `reason="unspecified"`, with `by` + the listing snapshot (title, url, concelho,
+price, pool, timestamp). The reason ask still upgrades it if she answers; un-passing still
+retracts it. `unspecified` is a **third bucket** in the taxonomy — `Reason.bucket` is now
+`miss | taste | unclassified`, with `screenable` derived from it — because filing a
+reasonless 👎 under *taste* would read as "she just didn't like it", a verdict nobody gave.
+`feedback report` grew an UNCLASSIFIED section that marks which dismissals are still in the
+pool (so still readable) and which survive only as their snapshot.
+
+`test_plain_dislike_still_toggles_and_logs_nothing` **asserted the old behaviour** — the data
+loss was tested and documented. It is replaced by `test_plain_dislike_logs_an_unspecified_receipt`.
+
+**All 75 lost dismissals are still recoverable** — every one was still in a pool store on
+2026-10-08, so `feedback backfill` can rebuild its receipt from the stored title/text
+(68 Algarve + 7 Norte, dry-run verified). It cannot rebuild *when* or *who* — neither was
+ever written — so backfilled entries carry `backfilled_at` + `provenance` and leave `by`
+empty rather than guessing. **Not yet written to the shared store** (opt-in `--write`);
+do it before the next cull drops those listings and the text goes with them.
+
 ## Norte expansion — live (2026-08-06)
 A second, separate pool (Porto + Douro + Minho), valued against itself, optimised for
 greenery/nature/quiet + river/ocean water. **Published** — selectable in the hosted app

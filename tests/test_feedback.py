@@ -46,17 +46,119 @@ def test_dislike_with_a_reason_logs_why(tmp_path):
     assert entry["at"] and entry["entry_id"]
 
 
-def test_plain_dislike_still_toggles_and_logs_nothing(tmp_path):
+def test_plain_dislike_logs_an_unspecified_receipt(tmp_path):
+    """A reasonless 👎 must still leave something to infer from.
+
+    This replaces `test_plain_dislike_still_toggles_and_logs_nothing`, which asserted the
+    opposite and so locked in the data loss: measured against the shared Gist on
+    2026-10-08, 43 of 88 dismissed listings had no entry at all. The searcher doing the
+    bulk of the dismissing picks a reason about half the time and has never typed a note,
+    so the no-effort click is the one that has to record.
+    """
     p = Preferences(tmp_path / "prefs.json")
-    p.dislike("abc")
+    p.dislike("abc", by="Malia", context={"pool": "Algarve", "title": "T2 em Olhão"})
+
     assert p.listing_state("abc") == "disliked"
-    assert p.feedback == []
+    entry = p.latest_feedback("abc")
+    assert entry["reason"] == feedback.UNSPECIFIED
+    assert entry["by"] == "Malia"
+    assert entry["title"] == "T2 em Olhão"  # the snapshot outlives the listing
+    assert entry["at"] and entry["entry_id"]
+    assert entry["note"] == ""  # nothing was claimed on her behalf
+
+
+def test_unspecified_is_neither_a_miss_nor_taste(tmp_path):
+    """It must not land in `taste` — that would read as "she just didn't like it", which
+    is a verdict nobody gave. It is raw material for the pull-time inference pass."""
+    p = Preferences(tmp_path / "prefs.json")
+    p.dislike("u1", context={"pool": "Algarve", "title": "A"})
+    p.dislike("t1", reason="price", note="caro")
+    p.dislike("m1", reason="seasonal")
+
+    report = feedback.build_report(p, "Algarve", _pool(tmp_path, []))
+    assert [e["listing_id"] for e in report.unclassified] == ["u1"]
+    assert [t["reason"] for t in report.taste] == ["price"]
+    assert [f.listing_id for f in report.findings] == ["m1"]
+    assert feedback.REASONS[feedback.UNSPECIFIED].bucket == "unclassified"
+    assert not feedback.REASONS[feedback.UNSPECIFIED].screenable
+
+
+def test_unspecified_is_not_offered_in_the_dropdown():
+    """The button writes it; a human would never pick "no reason given" from a menu."""
+    assert feedback.UNSPECIFIED in feedback.REASONS
+    assert feedback.UNSPECIFIED not in feedback.PICKABLE
+    assert set(feedback.PICKABLE) | {feedback.UNSPECIFIED} == set(feedback.REASONS)
+
+
+def test_backfill_reconstructs_only_the_silent_dismissals(tmp_path):
+    """Rebuilds a receipt for a dismissal that recorded nothing, leaves the rest alone,
+    and refuses to invent the two things that were never written down."""
+    pool = _pool(
+        tmp_path,
+        [
+            _row("https://x/1", "Silent dismissal", "casa com quintal"),
+            _row("https://x/2", "Already explained", "arrendamento para ferias"),
+        ],
+    )
+    silent, explained = feedback._id_for_url("https://x/1"), feedback._id_for_url("https://x/2")
+    p = Preferences(tmp_path / "prefs.json")
+    p.disliked.add(silent)  # the pre-fix shape: set membership, no entry
+    p.hidden.add("hidden-only")
+    p.dislike(explained, reason="seasonal", note="férias")
+
+    added = feedback.backfill_receipts(p, "Algarve", pool, dry_run=False)
+
+    assert [e["listing_id"] for e in added] == [silent]  # not the explained one
+    entry = p.latest_feedback(silent)
+    assert entry["reason"] == feedback.UNSPECIFIED
+    assert entry["title"] == "Silent dismissal"  # recovered from the store
+    assert entry["by"] == ""  # never recorded — not guessed
+    assert entry["backfilled_at"] and "QT-058" in entry["provenance"]
+    # "hidden-only" has no row in this pool, so it is skipped rather than faked.
+    assert p.latest_feedback("hidden-only") is None
+
+
+def test_backfill_is_idempotent(tmp_path):
+    """It runs at the start of a pull; a second run must not double-count a dismissal."""
+    pool = _pool(tmp_path, [_row("https://x/1", "T2", "casa")])
+    lid = feedback._id_for_url("https://x/1")
+    p = Preferences(tmp_path / "prefs.json")
+    p.disliked.add(lid)
+
+    assert len(feedback.backfill_receipts(p, "Algarve", pool, dry_run=False)) == 1
+    assert feedback.backfill_receipts(p, "Algarve", pool, dry_run=False) == []
+    assert len(p.feedback) == 1
+
+
+def test_backfill_dry_run_writes_nothing(tmp_path):
+    pool = _pool(tmp_path, [_row("https://x/1", "T2", "casa")])
+    p = Preferences(tmp_path / "prefs.json")
+    p.disliked.add(feedback._id_for_url("https://x/1"))
+
+    assert len(feedback.backfill_receipts(p, "Algarve", pool)) == 1  # reports it
+    assert p.feedback == []  # but the store is untouched
+
+
+def test_report_marks_which_unclassified_are_still_readable(tmp_path):
+    """The point of the section is deciding what to go read, so a dismissal whose listing
+    has left the pool must not look identical to one still in it."""
+    p = Preferences(tmp_path / "prefs.json")
+    here = feedback._id_for_url("https://x/1")
+    p.dislike(here, context={"pool": "Algarve", "title": "Still here"})
+    p.dislike("long-gone", context={"pool": "Algarve", "title": "Vanished"})
+
+    pool = _pool(tmp_path, [_row("https://x/1", "Still here", "casa com quintal")])
+    report = feedback.build_report(p, "Algarve", pool)
+    text = feedback.render_report(report)
+    assert "Still here" in text and "Vanished" in text
+    assert "✗ gone from pool" in text
+    assert "1/2 still in the pool" in text
 
 
 def test_un_passing_retracts_the_note(tmp_path):
     p = Preferences(tmp_path / "prefs.json")
     p.dislike("abc", reason="seasonal", note="wrong call")
-    p.dislike("abc")  # toggles the 👎 back off
+    p.dislike("abc")  # toggles the 👎 back off — and logs no fresh receipt for the un-pass
 
     assert p.listing_state("abc") == "neutral"
     assert p.feedback[0]["retracted"] is True

@@ -160,6 +160,11 @@ def default_backend(local_path: str | Path) -> PrefsBackend:
     return LocalFileBackend(local_path)
 
 
+# The reason a dismissal carries when the searcher gave none. `feedback.REASONS` describes
+# it; this layer only needs the string, since it must not import the taxonomy upwards.
+UNSPECIFIED_REASON = "unspecified"
+
+
 class Preferences:
     def __init__(
         self, path: str | Path | None = None, *, backend: PrefsBackend | None = None
@@ -211,7 +216,16 @@ class Preferences:
         by: str | None = None,
         context: dict | None = None,
     ) -> None:
-        """Toggle 👎. Passing a `reason` (and optional note) also logs *why*.
+        """Toggle 👎. **Always** logs an entry — `reason` only decides how specific it is.
+
+        A dismissal with no reason logs `unspecified`, which is a receipt rather than a
+        verdict: it keeps the timestamp and the `context` snapshot so a later pull can
+        still infer *why* from the listing itself. This used to be conditional on a
+        reason being given, and the cost was measured on 2026-10-08 — of 88 dismissed
+        listings in the shared Gist, **43 had no entry at all**, plus 32 legacy `hidden`
+        ids. No reason, no date, no record of what the listing was once it left the pool.
+        The searcher who does the bulk of the dismissing types nothing and picks a reason
+        about half the time, so the zero-effort path is the one that has to capture.
 
         Un-passing retracts the listing's open notes: a reversed 👎 must not go on
         justifying a filter change.
@@ -222,10 +236,9 @@ class Preferences:
             self.retract_feedback(listing_id)
             return
         self.disliked.add(listing_id)
-        if reason or note:
-            self.add_feedback(
-                listing_id, reason=reason or "other", note=note, by=by, context=context
-            )
+        self.add_feedback(
+            listing_id, reason=reason or UNSPECIFIED_REASON, note=note, by=by, context=context
+        )
 
     def hide(self, listing_id: str) -> None:
         self.hidden.symmetric_difference_update({listing_id})

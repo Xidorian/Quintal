@@ -32,23 +32,38 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Literal
 
 from . import config, descriptions
 from .normalize import fold
-from .preferences import GistBackend, Preferences, default_backend, utc_now_iso
+from .preferences import (
+    UNSPECIFIED_REASON,
+    GistBackend,
+    Preferences,
+    default_backend,
+    utc_now_iso,
+)
 from .screening import SHORT_TERM_PATTERNS, Blocklist, short_term_reason
 
 PREFS_PATH = "data/preferences.json"
 
 
 # --- The taxonomy -------------------------------------------------------------
+Bucket = Literal["miss", "taste", "unclassified"]
+
+
 @dataclass(frozen=True)
 class Reason:
     code: str
     label: str  # what the app shows in the dropdown
-    screenable: bool  # True = a filter bug (shouldn't have been shown at all)
+    bucket: Bucket  # miss = a filter bug · taste = a preference · unclassified = no reason given
     target: str  # where the fix belongs
     hint: str = ""  # what a good note looks like for this reason
+
+    @property
+    def screenable(self) -> bool:
+        """A filter bug — the pool should never have shown it."""
+        return self.bucket == "miss"
 
 
 REASONS: dict[str, Reason] = {
@@ -57,54 +72,68 @@ REASONS: dict[str, Reason] = {
         Reason(
             "seasonal",
             "🗓️ Seasonal / short-term let",
-            True,
+            "miss",
             "screening.py — SHORT_TERM_PATTERNS",
             "quote the words that give it away (e.g. 'só até junho', 'época escolar')",
         ),
         Reason(
             "not_a_rental",
             "🚫 Not a long-term rental (sale, room, commercial)",
-            True,
+            "miss",
             "screening.py / collect adapters",
             "say what it actually is",
         ),
         Reason(
             "wrong_area",
             "🗺️ Outside the area we're searching",
-            True,
+            "miss",
             "enrich.py regions / concelho filter",
             "name where it really is",
         ),
         Reason(
             "duplicate",
             "👯 Duplicate of another listing",
-            True,
+            "miss",
             "dedup.py",
             "paste the other listing's URL if you have it",
         ),
         Reason(
             "gone",
             "💨 Already rented / dead link / scam",
-            True,
+            "miss",
             "liveness.py",
             "what happened when you opened it",
         ),
         Reason(
             "bad_data",
             "🧮 Wrong details (price, size, beds, photos)",
-            True,
+            "miss",
             "collect/extract.js, normalize.py",
             "what the listing actually says vs what we showed",
         ),
-        Reason("location", "📍 Area doesn't work for us", False, "area sentiment / scoring"),
-        Reason("price", "💶 Not worth the price", False, "valuation / budget filter"),
-        Reason("no_yard", "🌳 No real outdoor space", False, "normalize.py yard keywords"),
-        Reason("no_pets", "🐾 No pets allowed", False, "normalize.py pets keywords"),
-        Reason("condition", "🔨 Condition / layout", False, "taste only"),
-        Reason("other", "🤷 Something else", False, "taste only"),
+        Reason("location", "📍 Area doesn't work for us", "taste", "area sentiment / scoring"),
+        Reason("price", "💶 Not worth the price", "taste", "valuation / budget filter"),
+        Reason("no_yard", "🌳 No real outdoor space", "taste", "normalize.py yard keywords"),
+        Reason("no_pets", "🐾 No pets allowed", "taste", "normalize.py pets keywords"),
+        Reason("condition", "🔨 Condition / layout", "taste", "taste only"),
+        Reason("other", "🤷 Something else", "taste", "taste only"),
+        # Written by the dismiss button itself when nothing else was offered. Not a verdict —
+        # a receipt, so a reasonless 👎 still leaves something to infer from at pull time.
+        # Before this existed a bare dismiss recorded only set membership: 43 of Malia's 88
+        # (2026-10-08, measured against the shared Gist) had no reason, no timestamp and no
+        # snapshot of what the listing even was.
+        Reason(
+            "unspecified",
+            "🙈 Not for us — no reason given",
+            "unclassified",
+            "inferred at pull time — RECOLLECT.md step 0",
+        ),
     )
 }
+UNSPECIFIED = UNSPECIFIED_REASON
 SCREENABLE = [code for code, r in REASONS.items() if r.screenable]
+# What the app offers in its dropdown: everything a human would actually pick.
+PICKABLE = [code for code in REASONS if code != UNSPECIFIED]
 
 
 def label_of(code: str) -> str:
@@ -202,9 +231,13 @@ class Report:
     store: str
     findings: list[Finding]
     taste: list[dict]
+    unclassified: list[dict]
     candidates: list[Candidate]
     corpus_size: int
     open_total: int
+    # Which listing ids the pool still holds — lets the unclassified section say which
+    # dismissals are still readable and which survive only as their snapshot.
+    corpus_ids: frozenset[str] = frozenset()
 
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
@@ -309,11 +342,18 @@ def build_report(
 
     findings: list[Finding] = []
     taste_entries: list[dict] = []
+    unclassified: list[dict] = []
     for entry in entries:
-        if REASONS.get(entry.get("reason", ""), REASONS["other"]).screenable:
+        bucket = REASONS.get(entry.get("reason", ""), REASONS["other"]).bucket
+        if bucket == "miss":
             row = corpus.get(entry.get("listing_id", ""), {})
             text = row.get("text", "")
             findings.append(Finding(entry, text, short_term_reason(text) if text else None))
+        elif bucket == "unclassified":
+            # No verdict to act on — these are raw material for the pull-time inference
+            # pass, not something a pattern can be mined from. Kept out of `taste` on
+            # purpose: filing them there would read as "she just didn't like it".
+            unclassified.append(entry)
         else:
             taste_entries.append(entry)
 
@@ -343,6 +383,8 @@ def build_report(
 
     return Report(
         pool_name=pool_name,
+        unclassified=unclassified,
+        corpus_ids=frozenset(corpus),
         store=store_label(prefs),
         findings=findings,
         taste=taste,
@@ -388,6 +430,55 @@ def _fmt_entry(entry: dict) -> str:
     return f"{head} · {title}" if head else title
 
 
+def backfill_receipts(
+    prefs: Preferences, pool_name: str, pool: dict, *, dry_run: bool = True
+) -> list[dict]:
+    """Reconstruct `unspecified` receipts for dismissals that recorded nothing.
+
+    Before the dismiss button logged unconditionally, a 👎 with no reason chosen added the
+    id to a set and nothing else — 75 of them (43 `disliked`, 32 legacy `hidden`) as of
+    2026-10-08. Every one was still in a pool store on that date, so the title and text
+    survive and a receipt can be rebuilt from them.
+
+    What cannot be rebuilt is **when** she dismissed it or **who** did: neither was ever
+    written down. So the entry carries `backfilled_at`, `by` stays empty rather than
+    guessing, and `at` is the backfill time, not the dismissal time. A future session
+    reading the log can tell a reconstructed receipt from a captured one — which matters,
+    because the reconstructed ones can only ever say "this was rejected", never why.
+
+    Idempotent: a listing that already has any entry is skipped, so re-running adds nothing.
+    """
+    corpus = load_corpus(pool)
+    already = {e.get("listing_id") for e in prefs.feedback}
+    at = utc_now_iso()
+    added: list[dict] = []
+    for listing_id in sorted((prefs.disliked | prefs.hidden) - already):
+        row = corpus.get(listing_id)
+        if row is None:
+            continue  # belongs to the other pool, or its text is already gone
+        entry = {
+            "entry_id": f"backfill-{listing_id[:12]}",
+            "listing_id": listing_id,
+            "reason": UNSPECIFIED,
+            "note": "",
+            "by": "",  # never recorded — do not attribute
+            "at": at,
+            "backfilled_at": at,
+            "provenance": (
+                "backfill QT-058: dismissed before the receipt existed; "
+                "original date and author unknown"
+            ),
+            "title": row.get("title", ""),
+            "url": row.get("url", ""),
+            "pool": pool_name,
+            "was_hidden": listing_id in prefs.hidden,
+        }
+        added.append(entry)
+        if not dry_run:
+            prefs.feedback.append(entry)
+    return added
+
+
 def render_report(report: Report) -> str:
     out: list[str] = []
     misses = report.findings
@@ -395,7 +486,8 @@ def render_report(report: Report) -> str:
     out.append(f"store: {report.store}")
     out.append(
         f"{report.open_total} open note(s): {len(misses)} filter miss(es), "
-        f"{sum(t['count'] for t in report.taste)} taste · pool store {report.corpus_size} rows"
+        f"{sum(t['count'] for t in report.taste)} taste, "
+        f"{len(report.unclassified)} unclassified · pool store {report.corpus_size} rows"
     )
 
     if misses:
@@ -441,6 +533,27 @@ def render_report(report: Report) -> str:
             " would drop — check a couple before adding."
         )
 
+    if report.unclassified:
+        out.append(
+            f"\nUNCLASSIFIED — {len(report.unclassified)} dismissed with no reason given"
+        )
+        out.append(
+            "  Nothing to act on mechanically. Read the listings, find what they share,"
+            "\n  then write the rule yourself — RECOLLECT.md step 0."
+        )
+        in_pool = 0
+        for entry in report.unclassified:
+            here = entry.get("listing_id", "") in report.corpus_ids
+            in_pool += here
+            out.append(f"    {'·' if here else '✗ gone from pool'}  {_fmt_entry(entry)}")
+            if entry.get("url"):
+                out.append(f"        {entry['url']}")
+            out.append(f"        entry {entry.get('entry_id', '?')}")
+        out.append(
+            f"  {in_pool}/{len(report.unclassified)} still in the pool — those have full text"
+            " to read; the rest have only the snapshot above."
+        )
+
     if report.taste:
         out.append("\nTASTE — feeds scoring/filters and area sentiment, never the screener")
         for item in report.taste:
@@ -465,6 +578,10 @@ def _report_json(report: Report) -> str:
             "store": report.store,
             "open_total": report.open_total,
             "corpus_size": report.corpus_size,
+            "unclassified": [
+                {**entry, "in_pool": entry.get("listing_id", "") in report.corpus_ids}
+                for entry in report.unclassified
+            ],
             "findings": [
                 {
                     **finding.entry,
@@ -505,14 +622,21 @@ def _load_prefs(path: str) -> Preferences:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Read the 👎 reason log and harden the pull.")
-    parser.add_argument("command", choices=["report", "block", "resolve"])
+    parser.add_argument("command", choices=["report", "block", "resolve", "backfill"])
     parser.add_argument("--pool", default="algarve", help="region slug (algarve | norte)")
     parser.add_argument("--prefs", default=PREFS_PATH, help="local preferences file (Gist wins)")
     parser.add_argument("--json", action="store_true", help="machine-readable report")
     parser.add_argument("--all", action="store_true", help="resolve: every open entry")
     parser.add_argument("--entry", action="append", default=[], help="resolve: one entry id")
     parser.add_argument("--note", default="", help="resolve: what was done about it")
-    parser.add_argument("--dry-run", action="store_true", help="block: show, don't write")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="block: show, don't write (backfill: default)"
+    )
+    parser.add_argument(
+        "--write",
+        action="store_true",
+        help="backfill: actually write the reconstructed receipts to the store",
+    )
     parser.add_argument(
         "--include-resolved", action="store_true", help="report: show acted-on entries too"
     )
@@ -524,7 +648,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "report":
         report = build_report(prefs, pool_name, pool, include_resolved=args.include_resolved)
-        print(_report_json(report) if args.json else render_report(report))
+        print(
+            _report_json(report) if args.json else render_report(report)
+        )
         return 0
 
     if args.command == "block":
@@ -536,6 +662,22 @@ def main(argv: list[str] | None = None) -> int:
             prefs.save()
         verb = "would block" if args.dry_run else "blocked"
         print(f"{verb} {len(blocked)} listing(s) → {pool['blocklist_path']}")
+        return 0
+
+    if args.command == "backfill":
+        # Writing to a store two people share, so it opts IN rather than out.
+        dry = not args.write
+        print(f"store: {store_label(prefs)}" + ("  (dry run)" if dry else "  (WRITING)"))
+        added = backfill_receipts(prefs, pool_name, pool, dry_run=dry)
+        for entry in added:
+            tag = " [was hidden]" if entry["was_hidden"] else ""
+            print(f"  {entry['listing_id']}{tag}  {entry['title'][:66]}")
+        verb = "would reconstruct" if dry else "reconstructed"
+        print(f"{verb} {len(added)} receipt(s) for {pool_name}")
+        if dry:
+            print("Nothing written. Re-run with --write to commit.")
+        else:
+            prefs.save()
         return 0
 
     # resolve
