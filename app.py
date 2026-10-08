@@ -298,7 +298,7 @@ for v in rows:
         photo = photo_path(v["id"])
         if photo.exists():
             photo_col, top, actions = st.columns([1, 2.4, 1])
-            photo_col.image(str(photo), use_container_width=True)
+            photo_col.image(str(photo), width="stretch")
         else:
             top, actions = st.columns([3, 1])
         with top:
@@ -348,12 +348,12 @@ for v in rows:
             # is read by nothing but this app's own filter. Two buttons, one of which threw
             # the training signal away, and no way to tell them apart from the outside.
             pass_label = "💔 Passed" if state == "disliked" else "🙈 Not for us"
-            if st.button(like_label, key=f"like-{v['id']}", use_container_width=True):
+            if st.button(like_label, key=f"like-{v['id']}", width="stretch"):
                 prefs.like(v["id"])
                 just_passed.discard(v["id"])
                 prefs.save()
                 st.rerun()
-            if st.button(pass_label, key=f"pass-{v['id']}", use_container_width=True):
+            if st.button(pass_label, key=f"pass-{v['id']}", width="stretch"):
                 # Carries `by` + the listing snapshot even with no reason chosen: this
                 # click is the only one ~half of all dismissals ever get, so it has to be
                 # the one that records. The reason ask below upgrades it if she answers.
@@ -404,11 +404,11 @@ for v in rows:
                 if col.button(
                     pill_of(code),
                     key=f"pill-{code}-{v['id']}",
-                    use_container_width=True,
+                    width="stretch",
                 ):
                     record_reason(v, code)
             if pill_cols[-1].button(
-                "Skip", key=f"donepass-{v['id']}", use_container_width=True
+                "Skip", key=f"donepass-{v['id']}", width="stretch"
             ):
                 just_passed.discard(v["id"])
                 st.rerun()
@@ -420,7 +420,7 @@ for v in rows:
                     if more_cols[n % 3].button(
                         pill_of(code),
                         key=f"pill-{code}-{v['id']}",
-                        use_container_width=True,
+                        width="stretch",
                     ):
                         record_reason(v, code)
                 st.caption("…or say it in your own words:")
@@ -432,7 +432,7 @@ for v in rows:
                     placeholder="quote the giveaway line — that is what a rule can match",
                 )
                 if save_col.button(
-                    "Save", key=f"savepass-{v['id']}", type="primary", use_container_width=True
+                    "Save", key=f"savepass-{v['id']}", type="primary", width="stretch"
                 ):
                     if not note.strip():
                         st.warning("Nothing typed — tap a reason above instead.")
