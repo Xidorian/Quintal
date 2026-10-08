@@ -50,9 +50,11 @@ how much effort she feels like spending. See STATUS.md for the numbers behind th
       patterns, and conditionals ("sem prévia autorização") now read `unknown` instead of
       `yes`. **91 verdicts changed across both pools** — 58 to `no` (43 from `yes`), 33 to
       `unknown`; all 91 hand-read, no false positives. See STATUS.md.
-- [ ] **Re-run the pipeline and republish so Malia gets it.** The fix only reaches her
-      through a publish; until then the hosted app still shows the 43 wrongly-permissive
-      listings. Fold into the 10-12 pull rather than publishing twice.
+- [x] **Published 2026-10-08.** The fix reaches her through the code on `deploy` (the app
+      derives at load time), so no data change was needed. Effect: **13** listings newly
+      hidden — Algarve `pets=no` 12 → 19 of 528 ranked, Norte 3 → 9 of 2058. *(Not the ~58
+      stated earlier: that counted raw-store flips, most of which are already delisted,
+      screened or bed-filtered out before ranking.)*
 - [ ] **Short-term has no text to match on.** The 15 still-slipping seasonal listings are
       idealista cards with no description. No rule can reach them; the only lever is
       capturing more from the search card (platform name / minimum stay in days). Unverified

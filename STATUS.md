@@ -130,9 +130,13 @@ a preference) and "não se admite animais" (where the earlier draft's `admitid\w
 "admite"). 59 tests in `test_normalize.py`, each denial and conditional quoted from the
 live pool, plus the inverse: five real *allows* asserted to survive the new patterns.
 
-**Effect on Malia's view:** roughly 58 fewer listings with the default filter on, every one
-of which explicitly refuses pets. The 33 conditionals stay visible — `unknown` is kept and
-flagged, which is both the honest answer and the legally safer one in a PT long-let.
+**Effect on Malia's view: 13 listings, not 58.** Corrected 2026-10-08 by measuring the
+*ranked* pools rather than the raw stores: Algarve `pets=no` 12 → 19 (+7) of 528 ranked,
+Norte 3 → 9 (+6) of 2058. The 91 raw-store flips are mostly listings already removed by
+delisting, screening, dedup or the ≥2-bed filter before ranking — so the raw count was never
+the number Malia sees. `pets=yes` also fell 7 → 1 and 3 → 1 as the conditionals moved to
+`unknown`, which changes nothing visible: `unknown` is kept and flagged, the honest answer
+and the legally safer one in a PT long-let.
 
 Two `test_rules.py` tests broke on this and were rewritten: they used real derivation gaps
 as fixtures, and this fix closed those gaps. They now stand on gaps the derivation
