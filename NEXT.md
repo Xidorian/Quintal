@@ -205,11 +205,16 @@ Reassess after October.
       the app: **zero** deprecation warnings in the log (was hundreds per render) and the
       layout is unchanged — buttons still span their column. Its announced removal date
       (2025-12-31) had passed over nine months earlier, so this was live on borrowed time.
-- [ ] **Local Streamlit is 1.58, Cloud serves 1.65** — `requirements.txt` says
-      `streamlit>=1.33`, unpinned, so Cloud silently resolves to latest. That version gap is
-      why local testing could not have caught the warning flood that only showed up in the
-      deploy log. Either bump the local venv to match Cloud, or pin both to one version.
-      Worth deciding before the next Streamlit release does it for us.
+- [x] **Streamlit pinned to 1.65.0 and local bumped to match — 2026-10-08.** `requirements.txt`
+      said `streamlit>=1.33`, so Cloud silently resolved to 1.65 while local dev sat on 1.58;
+      that gap is why the deprecation flood was visible only in the deploy log. Verified by
+      booting the app on 1.65: zero warnings, no errors, layout unchanged, same 446 of 528.
+      Every other dependency was only patch-drift (pydantic 2.13.4/.5, pandas 3.0.3/.6,
+      sklearn 1.9.0/.1, numpy 2.5.0/.3), so streamlit was the only one worth pinning.
+- [ ] **No Dependabot on this repo — there is no `.github/` directory at all.** The house
+      standard wants `.github/dependabot.yml` on every repo, and pinning streamlit makes it
+      matter more, not less: a pin with no update mechanism is how you end up three years
+      stale. Adding it starts opening PRs, so it is Alexander's call.
 
 ## Later / maybe (deferred, not scheduled)
 - [ ] **AI review layer (Phase 5)** — opt-in local Ollama pass that re-verifies

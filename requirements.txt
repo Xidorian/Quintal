@@ -4,6 +4,10 @@ scikit-learn>=1.4
 numpy>=1.26
 jinja2>=3.1
 python-dotenv>=1.0
-streamlit>=1.33
+# Pinned, not floated: Cloud resolves `requirements.txt` itself, so an unpinned
+# `streamlit>=1.33` let it run 1.65 while local dev sat on 1.58 (2026-10-08). The
+# `use_container_width` deprecation flood was only ever visible in the deploy log
+# because of that gap. Bump this deliberately, and boot the app locally after.
+streamlit==1.65.0
 requests>=2.31
 pillow>=10  # perceptual photo-hash dedup (quintal.photo_hash)
