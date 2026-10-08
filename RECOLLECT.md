@@ -21,27 +21,117 @@ then work top to bottom here. Everything is resumable — a mid-run interruption
   says so in its header. Check that header; don't harden off the wrong store.
 - No CAPTCHA wall on the portals (if one appears, **stop** and tell the owner — never solve it).
 
-## 0 · Read the 👎 notes and harden (before pulling anything)
-Every 👎 in the app can carry a reason + note. This is where they get spent.
+## 0 · Read the dismissals and write the rules (before pulling anything)
+Every 👎 records something, even when the searcher picked nothing — a bare dismiss logs an
+`unspecified` receipt with the listing's snapshot. **You** are the inference step. There is a
+pattern miner and it is *not* the path: with no quoted text to anchor on it proposes
+`a casa e` (47 collateral) and `na rua de` (50). Reading five listings beats it outright.
+
+**First, check the store line.** Every command prints it. `store: shared Gist (both
+searchers)` is the real log; `local file` is nobody's notes. Harden off the wrong one and
+you have hardened off nothing.
+
+### 0a · Read them
 ```
-python -m quintal.feedback report --pool algarve     # and --pool norte
+python -m quintal.feedback inspect --pool algarve                 # and --pool norte
+python -m quintal.feedback inspect --pool algarve --reason unspecified --chars 0
 ```
-- **Filter misses** are listings the pool should never have shown. Each names the module that
-  should have caught it. Entries marked `✗ still slips` are live bugs; `✓ now caught` means an
-  earlier hardening already covers it (nothing to do).
-- **Candidate patterns** are mined from the still-slipping *seasonal* ones, ★-marked when the
-  searcher quoted the words themselves. Each shows **`also purges`** — how many other pool
-  listings it would drop. **Read that number before adding anything**: a careless phrase
-  ("moradia") would purge the pool. Add the safe ones to `SHORT_TERM_PATTERNS` in
-  [`src/quintal/screening.py`](src/quintal/screening.py), then re-run the report to confirm they
-  flip to `✓ now caught`.
-- **Taste** notes never touch the screener — they inform scoring weights / area sentiment.
+Each dismissal comes with its note, its snapshot, **the text the detector actually read**,
+whether the screener catches it, and what we derive for pets/yard/short-term. Three kinds:
+- **Filter misses** (seasonal, gone, wrong area, not-a-rental, duplicate, bad data) — the
+  pool should never have shown it. Each names the module at fault.
+- **Unclassified** — dismissed with no reason given. No verdict to act on, so read the text
+  and decide what they have in common. This is the biggest bucket and the whole reason the
+  receipt exists.
+- **Taste** (price, location, condition, no-yard, no-pets) — informs weights and area
+  sentiment, never the screener.
+
+`in_pool: false` means the listing is gone and only its snapshot survives — no text, so no
+rule can come from it. Those are a liveness signal (step 3), not a screening one.
+
+**Watch for the text simply not being there.** Idealista detail pages are DataDome-blocked,
+so many rows are ~400-char card previews and the giveaway sits past the cut. `inspect`
+prints the real character count for exactly this reason. No text ⇒ no pattern ⇒ go to 0d.
+
+### 0b · Prove the pattern before you write it
 ```
-python -m quintal.feedback block --pool algarve      # hard-block the misses by id (--dry-run first)
-python -m quintal.feedback resolve --all --pool algarve --note "QT-xxx: added <pattern>"
+python -m quintal.rules test --attribute pets --verdict no --pool norte \
+    --pattern 'nao se admite anima'
 ```
-`block` is the specific fix (this listing, never again), a pattern is the general one — do both.
-Only `resolve` what you actually acted on; unresolved notes resurface next week on purpose.
+It prints how many listings match, what we say about each today, how many the rule would
+**change**, and sample lines with the match bracketed.
+
+That exact command is worth running once, because of what it answers: *matches 1, would
+change 0, 1 already agree*. The derivation already handles it, so **the rule would be dead
+weight — do not add it.** `would change 0` always means that.
+
+**Read the samples, not just the count.** Two real near-misses from 2026-10-08: `anima` on
+the Norte pool would change 29 listings including one reading *"animais de estimação
+**bem vindos**"*, and a candidate of mine matched *"renda de caução cada mês"* — a
+monthly-paid deposit, not a seasonal let. A large "would change" is not automatically wrong
+— it may be a real structural tell — but you have to read enough samples to know which.
+
+### 0c · Write it in the right place
+Two sinks, and the choice is about blast radius, not convenience:
+
+| | `src/quintal/rules.py` | `src/quintal/screening.py` |
+|---|---|---|
+| what it does | **marks** an attribute | **purges** into the blocklist |
+| recoverable | yes — untick a filter | no, you notice by absence |
+| use for | one listing's own phrasing, species names, a refusal written oddly | a structural tell that generalises: AL number, month span, minimum stay in days |
+| needs | `Rule(...)` with provenance | a phrase in `SHORT_TERM_PATTERNS` |
+
+**Default to `rules.py`.** A rule is cheap to add and cheap to be wrong about. Reach for
+`screening.py` only when the tell is structural and you have read the collateral.
+
+A rule carries its origin — `source` is required and construction fails without it. The
+shape (**illustrative — see the note below, this one is not needed**):
+```python
+Rule(
+    id="pets-example-001",
+    attribute="pets",            # pets | yard | bathtub | short_term
+    verdict="no",                # short_term may only assert "yes"
+    pattern=r"so inquilinos sem bichos",
+    source="feedback entry d4bf835622 — Malia, 2026-08-31",
+    added="2026-10-08",
+    note="colloquial 'bichos'; the built-in lists are all 'animais'/'caes'",
+)
+```
+Then `pytest` (a bad pattern fails at import, not mid-pull) and
+`python -m quintal.rules list` to confirm it loaded.
+
+> **`RULES` ships empty, and as of 2026-10-08 nothing in either pool needs one.** Every
+> pets phrasing in both stores is covered by the derivation after the QT-058 fix — checked
+> with `rules test`. That is the normal state: `rules.py` is for a phrasing that shows up
+> *later* and is too idiosyncratic to be worth a built-in pattern. If you find yourself
+> wanting several rules at once, that is a built-in gap — fix `normalize.py` instead.
+
+### 0d · Block what no pattern can reach
+```
+python -m quintal.feedback block --pool algarve --dry-run   # then without --dry-run
+```
+For the ones with no text to match on, blocking by id is not a fallback — it is the right
+tool. The 15 Algarve seasonal misses are in exactly this state.
+
+It is **idempotent**: an already-blocked entry is skipped, so a dry run that says
+`would block 0` while `report` shows misses marked `🔒 blocked` is correct, not broken —
+the 38 from 2026-10-04 are already in the blocklists. Blocking stamps `blocked_at` but
+leaves the note **open** on purpose: blocked is not the same as acted-on, so it keeps
+appearing until someone runs `resolve`.
+
+### 0e · Resolve only what you acted on
+```
+python -m quintal.feedback resolve --all --pool algarve --note "QT-xxx: added <rule id>"
+```
+Unresolved notes resurface next week on purpose. Resolving something you did not fix is how
+a miss becomes invisible.
+
+> **Pending candidate (filed 2026-10-08, not applied).** `_SEASONAL_SPAN` only covers
+> *winter* lets (Sep–Dec → Mar–Jul), so a same-month window ("de 1 de setembro a 30 de
+> setembro") and any *summer* span ("junho a setembro" — the actual holiday let) slip
+> through. An any-month-to-any-month span matches 344 Algarve listings, 323 already caught,
+> **21 new**. Read those 21 first, and make sure a full-year span ("janeiro a dezembro")
+> cannot match — that is a long let.
 
 ## 1 · Collect (per site: idealista, then imovirtual)
 Extraction is versioned in [`src/quintal/collect/extract.js`](src/quintal/collect/extract.js) —
@@ -142,8 +232,15 @@ The enrich run regenerates `data/geo.json` and caches any new ORS routes; `publi
 `listings.jsonl` + all sidecars + photos. The app needs no ORS key (routes read from the cache).
 
 ## 5 · Verify + record
-- **Re-run `python -m quintal.feedback report`** for each pool — the notes you hardened against
-  should now read `✓ now caught`. Record any pattern you added in the STATUS.md entry.
+- **Re-check what you hardened**, per sink — they are verified differently:
+  - a `screening.py` phrase: `python -m quintal.feedback report --pool <region>` — the notes
+    you hardened against should flip from `✗ still slips` to `✓ now caught`.
+  - a `rules.py` rule: `python -m quintal.feedback inspect --pool <region>` and read the
+    `pets:`/`yard:`/`short_term:` line on the listings it was written for. A rule that fired
+    shows its verdict there; `report`'s `✓ now caught` only ever reflects the screener, so it
+    will *not* move for a rule and that is not a failure.
+  - either way, `python -m quintal.rules list` should show what you added, with provenance.
+  Record the rule id or pattern in the STATUS.md entry.
 - Check the ranked count and band spread look sane (roughly balanced under/fair/over, not all-one).
 - Spot-check `git show origin/deploy:data/listings.jsonl | wc -l` grew and the top listings look right.
 - **Append a short dated entry to `STATUS.md`** with the run's numbers (store total, new/updated,

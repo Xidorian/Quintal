@@ -43,8 +43,9 @@ how much effort she feels like spending. See STATUS.md for the numbers behind th
       slip through. An any-month-to-any-month span matches 344 Algarve listings, 323
       already caught, **21 new**. Prove it with `rules test` and read the 21 before
       touching `screening.py` — a full-year span ("janeiro a dezembro") must not match.
-- [ ] **Rewrite RECOLLECT.md step 0** as the inference workflow: read the dismissals and
-      their text, infer the rule, prove it, commit it — instead of reading a miner's output.
+- [x] **RECOLLECT.md step 0 rewritten** as 0a read → 0b prove → 0c write → 0d block → 0e
+      resolve, with the sink decision table and per-sink verification in step 5. Every
+      command was run before being written down. **QT-058 is complete.**
 - [x] **Pets regex fix — done 2026-10-08.** Forward-order + "proibido" + English denial
       patterns, and conditionals ("sem prévia autorização") now read `unknown` instead of
       `yes`. **91 verdicts changed across both pools** — 58 to `no` (43 from `yes`), 33 to
@@ -110,7 +111,9 @@ Reassess after October.
       half that matters. The dropdown survived because picking it was the click that passed
       the card; the note needed a second visit the vanishing card denied. Post-QT-055 the
       note is in the same panel, so this should start filling — worth re-checking in a week.
-- [ ] **Don't add any pattern `feedback report` currently proposes.** With no quoted text to
+- [x] **Superseded 2026-10-08 by the QT-058 workflow** — RECOLLECT.md step 0 no longer
+      routes through the miner at all, and names it as not the path. Kept below for the
+      reasoning, which still holds: **don't add any pattern `feedback report` proposes.** With no quoted text to
       anchor on, the miner is reading 300-char card previews of ordinary prose: its top
       candidates are "a casa e", "na rua de", "lavar loica", each of which would purge 40–50
       real listings. The candidates become useful only once notes carry quotes.

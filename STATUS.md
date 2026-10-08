@@ -170,6 +170,33 @@ rule asserts, and only the verdict is compared. `ATTRIBUTES` still constrains wh
 may *assert* (short_term: only `yes`) — the current state may be any of the three, which is
 a different vocabulary sharing the same words, and the test now says so.
 
+## RECOLLECT.md step 0 rewritten around inference (2026-10-08, QT-058 — complete)
+The runbook told a fresh session to read the pattern miner's proposals, while NEXT.md told
+it to add none of them. Step 0 is now the loop the rest of QT-058 was built for:
+**0a read** (`feedback inspect`) → **0b prove** (`rules test`) → **0c write** (`rules.py`
+to mark, or `screening.py` to purge) → **0d block** what no pattern can reach → **0e
+resolve** only what was acted on. The miner is named and explicitly demoted.
+
+0c carries the sink decision as a table — `rules.py` marks and is recoverable, `screening.py`
+purges and you notice by absence — with "default to `rules.py`" stated outright. Step 5's
+verification is split per sink, because `report`'s `✓ now caught` only ever reflects the
+screener: a `rules.py` rule will **not** move it, and a session that expected otherwise
+would think its rule had failed.
+
+**Every command in the rewrite was run before it was written down.** Two were wrong as
+first drafted: the `rules test` example used `--pool algarve` for a phrasing that only
+exists in Norte (so it printed "Nothing matched"), and 0d implied you would block the 15
+seasonal misses when they were already blocked on 10-04. Both corrected — and the first
+turned into a better lesson than intended, since on Norte it reports *matches 1, would
+change 0*, which is the guard saying **do not add this rule**.
+
+**Verified while writing it: nothing in either pool currently needs a rule.** All 24
+remaining `pets = yes` verdicts were re-read after the QT-058 widening and every one is a
+genuine allow ("animais de estimação permitido", "bem vindos", "pet friendly", "aceita
+animais pequeno porte"). `RULES` staying empty is the expected state — it is for a phrasing
+that appears *later* and is too idiosyncratic for a built-in. The runbook now says that,
+plus the escalation rule: wanting several rules at once means `normalize.py` has a gap.
+
 ## Norte expansion — live (2026-08-06)
 A second, separate pool (Porto + Douro + Minho), valued against itself, optimised for
 greenery/nature/quiet + river/ocean water. **Published** — selectable in the hosted app
