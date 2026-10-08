@@ -59,6 +59,7 @@ class Reason:
     bucket: Bucket  # miss = a filter bug · taste = a preference · unclassified = no reason given
     target: str  # where the fix belongs
     hint: str = ""  # what a good note looks like for this reason
+    pill: str = ""  # short label for the app's one-tap reason row (falls back to `label`)
 
     @property
     def screenable(self) -> bool:
@@ -75,6 +76,7 @@ REASONS: dict[str, Reason] = {
             "miss",
             "screening.py — SHORT_TERM_PATTERNS",
             "quote the words that give it away (e.g. 'só até junho', 'época escolar')",
+            pill="🗓️ Seasonal",
         ),
         Reason(
             "not_a_rental",
@@ -82,6 +84,7 @@ REASONS: dict[str, Reason] = {
             "miss",
             "screening.py / collect adapters",
             "say what it actually is",
+            pill="🚫 Not a rental",
         ),
         Reason(
             "wrong_area",
@@ -89,6 +92,7 @@ REASONS: dict[str, Reason] = {
             "miss",
             "enrich.py regions / concelho filter",
             "name where it really is",
+            pill="🗺️ Wrong area",
         ),
         Reason(
             "duplicate",
@@ -96,6 +100,7 @@ REASONS: dict[str, Reason] = {
             "miss",
             "dedup.py",
             "paste the other listing's URL if you have it",
+            pill="👯 Duplicate",
         ),
         Reason(
             "gone",
@@ -103,6 +108,7 @@ REASONS: dict[str, Reason] = {
             "miss",
             "liveness.py",
             "what happened when you opened it",
+            pill="💨 Already gone",
         ),
         Reason(
             "bad_data",
@@ -110,13 +116,50 @@ REASONS: dict[str, Reason] = {
             "miss",
             "collect/extract.js, normalize.py",
             "what the listing actually says vs what we showed",
+            pill="🧮 Wrong details",
         ),
-        Reason("location", "📍 Area doesn't work for us", "taste", "area sentiment / scoring"),
-        Reason("price", "💶 Not worth the price", "taste", "valuation / budget filter"),
-        Reason("no_yard", "🌳 No real outdoor space", "taste", "normalize.py yard keywords"),
-        Reason("no_pets", "🐾 No pets allowed", "taste", "normalize.py pets keywords"),
-        Reason("condition", "🔨 Condition / layout", "taste", "taste only"),
-        Reason("other", "🤷 Something else", "taste", "taste only"),
+        Reason(
+            "location",
+            "📍 Area doesn't work for us",
+            "taste",
+            "area sentiment / scoring",
+            pill="📍 Area's wrong",
+        ),
+        Reason(
+            "price",
+            "💶 Not worth the price",
+            "taste",
+            "valuation / budget filter",
+            pill="💶 Too pricey",
+        ),
+        Reason(
+            "no_yard",
+            "🌳 No real outdoor space",
+            "taste",
+            "normalize.py yard keywords",
+            pill="🌳 No outdoor space",
+        ),
+        Reason(
+            "no_pets",
+            "🐾 No pets allowed",
+            "taste",
+            "normalize.py pets keywords",
+            pill="🐾 No pets",
+        ),
+        Reason(
+            "condition",
+            "🔨 Condition / layout",
+            "taste",
+            "taste only",
+            pill="🔨 Condition",
+        ),
+        Reason(
+            "other",
+            "🤷 Something else",
+            "taste",
+            "taste only",
+            pill="🤷 Something else",
+        ),
         # Written by the dismiss button itself when nothing else was offered. Not a verdict —
         # a receipt, so a reasonless 👎 still leaves something to infer from at pull time.
         # Before this existed a bare dismiss recorded only set membership: 43 of Malia's 88
@@ -132,8 +175,22 @@ REASONS: dict[str, Reason] = {
 }
 UNSPECIFIED = UNSPECIFIED_REASON
 SCREENABLE = [code for code, r in REASONS.items() if r.screenable]
-# What the app offers in its dropdown: everything a human would actually pick.
+# What the app offers: everything a human would actually pick.
 PICKABLE = [code for code in REASONS if code != UNSPECIFIED]
+# The one-tap pill row, most-used first — measured against the shared Gist on 2026-10-08:
+# seasonal 22 · gone 18 · no_pets 3 · wrong_area 1 · not_a_rental 1. Every other reason has
+# never been picked once, so it waits behind "Something else" instead of competing for the
+# first tap. Derived, not listed, so a new reason can never be silently dropped from the UI.
+PILLS_PRIMARY = ["seasonal", "gone", "no_pets", "wrong_area", "not_a_rental"]
+PILLS_MORE = [code for code in PICKABLE if code not in PILLS_PRIMARY]
+
+
+def pill_of(code: str) -> str:
+    """Short label for the reason row; falls back to the full label."""
+    reason = REASONS.get(code)
+    if reason is None:
+        return code
+    return reason.pill or reason.label
 
 
 def label_of(code: str) -> str:

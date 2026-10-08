@@ -35,6 +35,32 @@ ever written — so backfilled entries carry `backfilled_at` + `provenance` and 
 empty rather than guessing. **Not yet written to the shared store** (opt-in `--write`);
 do it before the next cull drops those listings and the text goes with them.
 
+## One tap per reason, and the 75 recovered (2026-10-08, QT-058 tier 2 + backfill)
+**The backfill ran on both pools** — 68 Algarve + 7 Norte written to the shared Gist. The
+store went 45 → 120 entries and **`DISLIKED WITH NO ENTRY` is now 0, `HIDDEN WITH NO ENTRY` 0**.
+The 75 reconstructed entries are `unspecified` and **unsigned** (`by: ""`): who dismissed
+them and when was never recorded, so they carry `backfilled_at` + `provenance` instead of a
+guess. A second norte run reported 0 — the idempotence guard, proved on the live store.
+
+**Tier 2: the reason row is now one tap.** It was a `selectbox` plus a separate "Save
+reason" button — two clicks and a dropdown to record one fact. The five reasons she has
+actually used sit in a pill row, most-used first (seasonal 22 · gone 18 · no_pets 3 ·
+wrong_area 1 · not_a_rental 1); the seven she never has wait behind "Something else…",
+along with the free-text field. `PILLS_MORE` is **derived** from `PICKABLE`, so a new reason
+cannot be silently missing from the UI, and a test asserts the two cover it exactly.
+
+Verified by driving the running app, not just by unit test — QT-055's lesson was that this
+data layer can be correct while the UI path is broken:
+- **one click, nothing else asked** → a full receipt (reason `unspecified`, author, title,
+  url, concelho, price, pool, timestamp). Before, that click appended a string to a set.
+- **one more tap** → the receipt is retracted with `retracted_at` and a `seasonal` entry
+  replaces it. `open_feedback()` skips retracted, so the report counts one, not two.
+- **the typed path** → `reason="other"` with the note intact, Portuguese accents and all.
+
+`record_reason` is a module-level function rather than a closure over the card loop: as a
+closure it captured the loop variable, which is only safe because Streamlit happens to call
+it inside the same iteration.
+
 ## Norte expansion — live (2026-08-06)
 A second, separate pool (Porto + Douro + Minho), valued against itself, optimised for
 greenery/nature/quiet + river/ocean water. **Published** — selectable in the hosted app

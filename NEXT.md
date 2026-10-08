@@ -20,14 +20,16 @@ Malia does the bulk of the searching, so the 👎 *is* the data collection. Thre
 how much effort she feels like spending. See STATUS.md for the numbers behind this.
 - [x] **Tier 1 — one click, zero decisions.** A bare dismiss always logs an `unspecified`
       receipt with the listing snapshot. Was silently discarding 43 of 88 dismissals.
-- [ ] **Write the backfill** — `python -m quintal.feedback backfill --pool <region> --write`
-      recovers all **75** reasonless dismissals (68 Algarve + 7 Norte), dry-run verified
-      2026-10-08. **Do this before the next cull** — it works only while those listings are
-      still in the store. Writes to the shared Gist, so it needs Alexander's go-ahead.
-- [ ] **Tier 2 — one-click reason pills.** Replace the `selectbox` + "Save reason" (two
-      clicks and a dropdown today) with a row of single-click buttons, ordered by her actual
-      usage: seasonal 22 · gone 18 · no_pets 3 · wrong_area 1 · not_a_rental 1.
-- [ ] **Tier 3 — free text behind "Other".** Already works; keep it, rely on it never.
+- [x] **Backfill run on both pools, 2026-10-08** — 68 Algarve + 7 Norte written to the
+      shared Gist; store 45 → 120 entries, zero dismissals left without one. The 75 are
+      `unspecified` and unsigned by design (date and author were never recorded).
+- [x] **Tier 2 — one-tap reason pills.** Five primary (her measured usage), seven behind
+      "Something else…", `PILLS_MORE` derived from `PICKABLE` so none can go missing.
+- [x] **Tier 3 — free text behind "Something else…".** Verified saving `reason="other"`
+      with the note intact. Still expect her to use it rarely; the pills carry the load.
+- [ ] **Check in a week whether the pills actually moved the numbers.** The thing to watch
+      is the `unspecified` share of *new* entries (anything after 2026-10-08) — if it stays
+      high, the pill row is still too much friction and the next lever is inference, not UI.
 - [ ] **Rules module + `rules test`** (collateral count before anything commits) and
       `feedback inspect` (the raw material for inference). Rules **mark attributes**;
       provenance-stamped; tracked in `src/`, because `data/*.json` is gitignored and would

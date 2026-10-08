@@ -139,6 +139,26 @@ def test_backfill_dry_run_writes_nothing(tmp_path):
     assert p.feedback == []  # but the store is untouched
 
 
+def test_every_pickable_reason_reaches_the_pill_row():
+    """A reason the app cannot show is a reason nobody can pick. PILLS_MORE is derived from
+    PICKABLE so a new entry lands in the UI automatically — this asserts that stays true,
+    and that each one has a label short enough to be a pill."""
+    assert set(feedback.PILLS_PRIMARY) | set(feedback.PILLS_MORE) == set(feedback.PICKABLE)
+    assert not set(feedback.PILLS_PRIMARY) & set(feedback.PILLS_MORE)
+    for code in feedback.PICKABLE:
+        assert feedback.REASONS[code].pill, f"{code} has no pill label"
+        assert len(feedback.pill_of(code)) <= 22, f"{code} pill too long for the row"
+
+
+def test_primary_pills_are_the_reasons_actually_used():
+    """Ordered by measured usage on the shared Gist (2026-10-08), not by guesswork:
+    seasonal 22 · gone 18 · no_pets 3 · wrong_area 1 · not_a_rental 1."""
+    assert feedback.PILLS_PRIMARY == [
+        "seasonal", "gone", "no_pets", "wrong_area", "not_a_rental",
+    ]
+    assert "other" in feedback.PILLS_MORE  # the one path that needs typing stays tucked away
+
+
 def test_report_marks_which_unclassified_are_still_readable(tmp_path):
     """The point of the section is deciding what to go read, so a dismissal whose listing
     has left the pool must not look identical to one still in it."""

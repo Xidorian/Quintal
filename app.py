@@ -26,7 +26,13 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 import streamlit as st
 
 from quintal import config
-from quintal.feedback import PICKABLE, REASONS, context_from_view, label_of
+from quintal.feedback import (
+    PILLS_MORE,
+    PILLS_PRIMARY,
+    context_from_view,
+    label_of,
+    pill_of,
+)
 from quintal.photos import photo_path
 from quintal.pipeline import run
 from quintal.preferences import GistBackend, Preferences
@@ -231,6 +237,27 @@ def keep(v: dict) -> bool:
     return True
 
 
+def record_reason(v: dict, code: str, note: str = "") -> None:
+    """Upgrade a dismissal's receipt to a specific reason, then release the card.
+
+    Replaces rather than stacks: one listing's change of mind must count once, or the
+    report double-counts it. The pass already logged an `unspecified` receipt, so this
+    only ever makes an existing entry more specific.
+    """
+    prefs.retract_feedback(v["id"])
+    prefs.add_feedback(
+        v["id"],
+        reason=code,
+        note=note,
+        by=searcher,
+        context=context_from_view(v, pool_name),
+    )
+    prefs.save()
+    just_passed.discard(v["id"])  # answered — let the card go
+    st.toast(f"Noted: {label_of(code)}", icon="🗒️")
+    st.rerun()
+
+
 def sort_rank(v: dict) -> int:
     """Ranking weight — 👍 pins up, 👎 / disliked area pushes down.
 
@@ -353,58 +380,54 @@ for v in rows:
                 st.rerun()
 
         # --- The reason ask, in place, on the card just passed ---------------------
-        # Full width under the card rather than tucked in a popover: it is the whole point
-        # of the pass, so it gets the room to be answered. Still optional — "Done" closes
-        # it and the pass stands on its own.
+        # One tap per reason. This replaced a selectbox + a separate "Save reason" button:
+        # two clicks and a dropdown interaction to record one fact, which is two more than
+        # the searcher doing the bulk of the dismissing will spend. Measured on the shared
+        # Gist (2026-10-08): she picked a reason on 45 of 88 dismissals and typed a note on
+        # none of them, so the dropdown was costing roughly half the reasons and the text
+        # field all of them. The pass itself already recorded an `unspecified` receipt, so
+        # every tap here is an upgrade and nothing is lost by ignoring the row entirely.
         if state == "disliked" and v["id"] in just_passed:
             st.divider()
-            st.markdown(
-                "**Why not?** Optional — but it's the only thing that trains the next pull."
-            )
-            reason_col, note_col, save_col = st.columns([2, 3, 1.2])
-            code = reason_col.selectbox(
-                "Reason", PICKABLE, format_func=label_of, key=f"why-{v['id']}"
-            )
-            requires_note = code == "other"
-            note = note_col.text_input(
-                "In your own words"
-                + (" (required for this reason)" if requires_note else " (optional)"),
-                key=f"note-{v['id']}",
-                placeholder=(
-                    "what was wrong with it?"
-                    if requires_note
-                    else "quote the giveaway line if there is one"
-                ),
-            )
-            save_col.markdown("<div style='height:1.7rem'></div>", unsafe_allow_html=True)
-            if save_col.button(
-                "Save reason", key=f"savepass-{v['id']}", type="primary", use_container_width=True
+            st.markdown("**Why not?** One tap — or skip it, the pass already counted.")
+
+            # The five she has actually used, most-used first, plus a way out.
+            pill_cols = st.columns(len(PILLS_PRIMARY) + 1)
+            for col, code in zip(pill_cols[:-1], PILLS_PRIMARY, strict=True):
+                if col.button(
+                    pill_of(code),
+                    key=f"pill-{code}-{v['id']}",
+                    use_container_width=True,
+                ):
+                    record_reason(v, code)
+            if pill_cols[-1].button(
+                "Skip", key=f"donepass-{v['id']}", use_container_width=True
             ):
-                if requires_note and not note.strip():
-                    st.warning("Tell us what it was — otherwise the note says nothing.")
-                else:
-                    # Saving replaces rather than stacks — otherwise one listing's change of
-                    # mind would count twice in the report.
-                    prefs.retract_feedback(v["id"])
-                    prefs.add_feedback(
-                        v["id"],
-                        reason=code,
-                        note=note,
-                        by=searcher,
-                        context=context_from_view(v, pool_name),
-                    )
-                    prefs.save()
-                    just_passed.discard(v["id"])  # answered — let the card go
-                    st.toast(f"Noted: {label_of(code)}", icon="🗒️")
-                    st.rerun()
-            if save_col.button("Done", key=f"donepass-{v['id']}", use_container_width=True):
                 just_passed.discard(v["id"])
                 st.rerun()
-            hint = REASONS[code].hint
-            if hint:
-                st.caption(f"💡 {hint}")
-            if REASONS[code].screenable:
-                st.caption(
-                    "🔧 Screenable — this one says we should never have shown it, and "
-                    f"`feedback report` will point at **{REASONS[code].target}**."
+
+            # Everything below her measured usage, plus the one path that needs typing.
+            with st.expander("Something else…"):
+                more_cols = st.columns(3)
+                for n, code in enumerate(c for c in PILLS_MORE if c != "other"):
+                    if more_cols[n % 3].button(
+                        pill_of(code),
+                        key=f"pill-{code}-{v['id']}",
+                        use_container_width=True,
+                    ):
+                        record_reason(v, code)
+                st.caption("…or say it in your own words:")
+                note_col, save_col = st.columns([4, 1])
+                note = note_col.text_input(
+                    "In your own words",
+                    key=f"note-{v['id']}",
+                    label_visibility="collapsed",
+                    placeholder="quote the giveaway line — that is what a rule can match",
                 )
+                if save_col.button(
+                    "Save", key=f"savepass-{v['id']}", type="primary", use_container_width=True
+                ):
+                    if not note.strip():
+                        st.warning("Nothing typed — tap a reason above instead.")
+                    else:
+                        record_reason(v, "other", note)
