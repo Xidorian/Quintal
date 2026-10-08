@@ -245,6 +245,40 @@ render on Streamlit **1.65.0**. Its announced removal date (2025-12-31) passed n
 ago and it still works, which is luck, not safety. Promoted in NEXT.md: this is the likeliest
 way Malia's view breaks without warning.
 
+## Re-collection 2026-10-08 — both pools, published (`deploy` `cd8595b`)
+First pull since 09-26 (12 days; covers the skipped 10-05). Both pools, both sites, paged to
+the true end of every search.
+
+| | pulled | new | culled | cull coverage |
+|---|---|---|---|---|
+| Algarve · idealista | 610 / 615 | +96 | 124 | 82.8% |
+| Algarve · imovirtual | 437 | +96 | — (never culls) | — |
+| Norte · idealista | 1953 | +467 | 493 | 79.6% |
+| Norte · imovirtual | 2419 | +587 | — | — |
+
+**+1246 new, 617 culled, 628 found dead by the liveness probes** (110 Algarve, 518 Norte).
+Stores: Algarve 2307 → **2498**, Norte 8192 → **9246**. Maintenance: descriptions +83,
+photos +190 Algarve / +1044 Norte.
+
+**Ranked after enrich: Algarve 509** (under 135 · fair 198 · over 176), **100% located**;
+**Norte 2057** (under 595 · fair 845 · over 610), 2056 located. Both pools came out roughly
+flat despite the 1246 new — the churn and the liveness purge cancel it out. `suspect` stayed
+`none` on every one of ~140 pages. 276 tests pass; publish gate clear.
+
+### Three collection lessons, all now in RECOLLECT.md
+- **Imovirtual silently drops the query filters past the last page** and serves the unfiltered
+  search — no error, same-looking cards. The documented "stop after two zero-add pages" cannot
+  catch it, because an unfiltered page keeps adding rows; the Faro moradia run took on 23
+  out-of-filter rows before it was spotted. Checking `location.search.includes('priceMax')`
+  every page catches it on the first bad page, and did so twice more the same day.
+- **`totalPages` from `__NEXT_DATA__` is accurate** (43 for Porto apartamento, which was
+  exactly the last filtered page) — the older note saying it under-reports is wrong.
+- **The recorded page counts drift badly.** Faro idealista was "~456 / 16 pages" and is now
+  **615 / 21**; the old `--pages 18` would have missed ~80 and, with `--cull`, delisted them.
+
+Step 0 ran first and added **no rules** — the month-span candidate was tested and rejected on
+evidence (see its own entry). `feedback block` had nothing new to block.
+
 ## Norte expansion — live (2026-08-06)
 A second, separate pool (Porto + Douro + Minho), valued against itself, optimised for
 greenery/nature/quiet + river/ocean water. **Published** — selectable in the hosted app

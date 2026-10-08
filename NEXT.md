@@ -4,16 +4,12 @@
 reading the 👎 notes (step 0 of RECOLLECT.md). Both pools are live; the Norte tail below is
 the only unfinished build work.
 
-> 🛑 **Skip the 2026-10-05 re-collection — Alexander's call, 2026-10-04.** Everything that
-> run would have delivered is already live: the 38-listing block was published the same day
-> (snapshot `8c7f1ee`), so the hosted app is current at Algarve **528** / Norte **2058**.
-> Nothing is waiting on a publish.
+> ✅ **Pulled 2026-10-08** (both pools, both sites) and published — `deploy` `cd8595b`. This
+> covered the skipped 10-05. Algarve **509** ranked / Norte **2057**; +1246 new, 617 culled,
+> 628 probed dead. Numbers and the three collection lessons are in STATUS.md.
 >
-> The cost of skipping is pool freshness, not correctness — listings decay ~13% per 11 days,
-> and the last pull was 09-26, so by 10-12 the pool is ~2.5 weeks stale. That is the thing to
-> weigh when deciding whether 10-12 also slips. *(If the intent was only "don't publish
-> again tomorrow" rather than "skip the run", the collect + maintenance passes are still
-> worth doing — just stop before `scripts/publish.sh`.)*
+> Next Monday on the standing cadence is **10-12**, four days out — probably skip it and go
+> again **10-19**, since the pool was just refreshed end to end.
 
 ## ▶ QT-058 — the dismiss button becomes the instrument (started 2026-10-08)
 Malia does the bulk of the searching, so the 👎 *is* the data collection. Three tiers, by
@@ -84,7 +80,7 @@ maintenance passes (descriptions, liveness, photos) and `scripts/publish.sh` →
 auto-redeploy. **09-07, 09-14 and 09-21 were missed** — the 09-26 run covered 22 days of
 churn in one go (145 + 691 culled, 121 + 1899 probed dead). **10-05 is deliberately skipped**
 (see the banner at the top). Remaining Mondays: ~~10-05~~, 10-12, 10-19, 10-26.
-Reassess after October.
+Reassess after October. **10-08 was an extra off-cadence run** covering the skipped 10-05.
 
 ## ▶ Feedback loop (QT-044, shipped 2026-08-25) — wired up
 - [x] 👎 asks why (reason + note), logged in the shared prefs store; report / block / resolve CLI.
