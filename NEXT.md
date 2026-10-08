@@ -37,28 +37,15 @@ how much effort she feels like spending. See STATUS.md for the numbers behind th
 - [x] **`feedback inspect`** — each dismissal with its note, snapshot, the text the
       detector read, the screener's verdict and our derived attributes. `--reason`,
       `--chars 0`, `--json`. 6 tests.
-- [ ] **Candidate from its first run, for the 10-12 pull:** `_SEASONAL_SPAN` only covers
-      **winter** lets (Sep–Dec → Mar–Jul), so a same-month window ("de 1 de setembro a 30
-      de setembro") and any *summer* span ("junho a setembro" — the actual holiday let)
-      slip through. An any-month-to-any-month span matches 344 Algarve listings, 323
-      already caught, **21 new**. Prove it with `rules test` and read the 21 before
-      touching `screening.py` — a full-year span ("janeiro a dezembro") must not match.
-- [x] **RECOLLECT.md step 0 rewritten** as 0a read → 0b prove → 0c write → 0d block → 0e
-      resolve, with the sink decision table and per-sink verification in step 5. Every
-      command was run before being written down. **QT-058 is complete.**
-- [x] **Pets regex fix — done 2026-10-08.** Forward-order + "proibido" + English denial
-      patterns, and conditionals ("sem prévia autorização") now read `unknown` instead of
-      `yes`. **91 verdicts changed across both pools** — 58 to `no` (43 from `yes`), 33 to
-      `unknown`; all 91 hand-read, no false positives. See STATUS.md.
-- [x] **Published 2026-10-08.** The fix reaches her through the code on `deploy` (the app
-      derives at load time), so no data change was needed. Effect: **13** listings newly
-      hidden — Algarve `pets=no` 12 → 19 of 528 ranked, Norte 3 → 9 of 2058. *(Not the ~58
-      stated earlier: that counted raw-store flips, most of which are already delisted,
-      screened or bed-filtered out before ranking.)*
-- [ ] **Short-term has no text to match on.** The 15 still-slipping seasonal listings are
-      idealista cards with no description. No rule can reach them; the only lever is
-      capturing more from the search card (platform name / minimum stay in days). Unverified
-      whether those fields are on the card — check the fixtures before assuming.
+- [ ] **Month-span screening rule — tested 2026-10-08 and rejected, do not add as a regex.**
+      `_SEASONAL_SPAN` only covers winter lets (Sep–Dec → Mar–Jul) so summer and same-month
+      spans slip, and a general any-month span matches 21 new Algarve listings. But it also
+      matches a full year ("janeiro a dezembro"; a real *Arrendamento Anual* listing), a
+      year-long span with no "anual" wording (2 in Norte), and — with no clean fix — across
+      clause boundaries and against place names (*"Campo 24 de Agosto"* vs an availability
+      month). 2 of 8 Norte catches wrong. Full write-up in RECOLLECT.md step 0. Doing it
+      properly means a span-parsing function in `screening.py` (≤9 months, long-let veto,
+      same-clause requirement), not a pattern — budget a session.
 
 ## ▶ Shipped 2026-09-30 — one thing left to eyeball
 - [x] **Published.** QT-053/054/055/056 are on `deploy` (snapshot `d325b65` on `0b9f1c0`),

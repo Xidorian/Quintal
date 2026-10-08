@@ -126,12 +126,27 @@ python -m quintal.feedback resolve --all --pool algarve --note "QT-xxx: added <r
 Unresolved notes resurface next week on purpose. Resolving something you did not fix is how
 a miss becomes invisible.
 
-> **Pending candidate (filed 2026-10-08, not applied).** `_SEASONAL_SPAN` only covers
-> *winter* lets (Sep–Dec → Mar–Jul), so a same-month window ("de 1 de setembro a 30 de
-> setembro") and any *summer* span ("junho a setembro" — the actual holiday let) slip
-> through. An any-month-to-any-month span matches 344 Algarve listings, 323 already caught,
-> **21 new**. Read those 21 first, and make sure a full-year span ("janeiro a dezembro")
-> cannot match — that is a long let.
+> **Candidate TESTED AND REJECTED (2026-10-08).** The any-month-to-any-month span. It looked
+> strong — 344 Algarve matches, 323 already caught, 21 new — and it is wrong in three ways
+> that only reading the samples shows:
+> 1. **A full year matches.** `"disponível de janeiro a dezembro"` and a real listing,
+>    *"Apartamento T2 para **Arrendamento Anual** … julho de 2026 até 30 de junho"*. A veto on
+>    `arrendamento anual|longa duração|…` rescues that one.
+> 2. **A year-long span with no "anual" wording still matches.** Norte has two: *"para
+>    estudantes ou professores de setembro até agosto"* (academic year) and *"outubro de 2026
+>    a setembro"*. Fixable by computing the span from the month names and keeping only ≤9
+>    months — which makes this a function, not a `SHORT_TERM_PATTERNS` entry.
+> 3. **It matches across clauses and against place names, and that has no clean fix.**
+>    *"visitas só a partir da última semana de **agosto**, entrada a partir 1 **setembro**"*
+>    is a long let with a move-in date. *"Campo 24 de **Agosto**, Bonfim … disponível a partir
+>    de **novembro**"* matches a Porto square against an availability month. Same failure mode
+>    as QT-054's "casa". 2 of 8 Norte catches were wrong — 25%.
+>
+> Same-month spans *are* genuine (*"semana 8 a 15 de setembro"*, *"junho a 29 de junho"*), so
+> the fix is span length, not month identity. **Do not add this as a regex.** If it is worth
+> doing, it is a function in `screening.py` that parses the span, bounds it at ≤9 months, vetoes
+> long-let wording, and requires the two months to sit in one clause. Budget a session for it;
+> it is not a step-0 job.
 
 ## 1 · Collect (per site: idealista, then imovirtual)
 Extraction is versioned in [`src/quintal/collect/extract.js`](src/quintal/collect/extract.js) —
