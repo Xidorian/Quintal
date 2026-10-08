@@ -201,6 +201,26 @@ animais pequeno porte"). `RULES` staying empty is the expected state — it is f
 that appears *later* and is too idiosyncratic for a built-in. The runbook now says that,
 plus the escalation rule: wanting several rules at once means `normalize.py` has a gap.
 
+## Published 2026-10-08 — QT-058 is live
+`scripts/publish.sh` → `deploy` `8c7f1ee` → **`886d590`** (code `a207ad4`). Verified on
+`origin/deploy`: the four new pets patterns, `rules.py`, and the app's one-tap pill row +
+`hide_short_term` filter are all present. Publish gate passed (min required 3.10).
+
+**No data change, by design.** The app derives at load time, so the pets fix reaches Malia
+through the *code* on `deploy`; the snapshot is byte-identical to 10-04's — 2307 Algarve /
+8192 Norte rows, `blocklist-norte` still 460.
+
+That last number took a correction mid-run. Verifying the fix, a pipeline run **without**
+`--min-beds` screened the T1 listings the app filters out anyway and added **438** entries
+to `data/blocklist-norte.json` (460 → 898). Legitimately short-term, but a data change
+caused by a verification run's flags, not by the fix — and blocklist side effects are what
+QT-047 and QT-056 both were. Restored from backup and confirmed every sidecar byte-identical
+before publishing. A real blocklist refresh belongs in the 10-12 pull, run deliberately.
+
+**Not verified: the live app.** The deploy URL is recorded nowhere in this repo, so
+confirming Streamlit Cloud actually redeployed and that Malia sees Algarve 528 / Norte 2058
+is still open — same gap as the 09-30 entry. Worth writing the URL down somewhere.
+
 ## Norte expansion — live (2026-08-06)
 A second, separate pool (Porto + Douro + Minho), valued against itself, optimised for
 greenery/nature/quiet + river/ocean water. **Published** — selectable in the hosted app

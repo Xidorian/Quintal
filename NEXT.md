@@ -63,7 +63,11 @@ how much effort she feels like spending. See STATUS.md for the numbers behind th
 ## ▶ Shipped 2026-09-30 — one thing left to eyeball
 - [x] **Published.** QT-053/054/055/056 are on `deploy` (snapshot `d325b65` on `0b9f1c0`),
       so Malia has the short-term fix, the house/apartamento fix and the working "why".
-- [ ] **Open the hosted app and confirm the pool sizes:** Algarve **534**, Norte **2064**
+- [ ] **Record the deploy URL somewhere in the repo.** It has now blocked post-publish
+      verification twice (09-30 and 10-08). `DEPLOY.md` is the obvious home.
+- [ ] **Open the hosted app and confirm the pool sizes:** Algarve **528**, Norte **2058**
+      as of the 10-08 publish *(the 534/2064 below predates the 10-04 block)*. Previously:
+      Algarve **534**, Norte **2064**
       (down from 646 / 2188 — that drop is the short-term purge, not data loss). The deploy
       URL is not recorded in this repo; it is the Streamlit Cloud app on branch `deploy`.
 - [ ] **Tell Malia the 👎 button changed** — Pass and Hide are now one "🙈 Not for us", and it
