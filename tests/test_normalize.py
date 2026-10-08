@@ -81,6 +81,104 @@ def test_pets_allow_survives_unrelated_negation():
     assert listing.pets.value == "yes"
 
 
+# --- Pets: the forward-order gap (QT-058, 2026-10-08) -------------------------
+# Every phrasing below is quoted from the live pool. Before this, `_PETS_DENY_REVERSED`
+# only handled "<noun> ... não permitido", so verb-first denials leaked — and because the
+# bare noun "animais de estimacao" sits in PETS_POSITIVE, most leaked as a confident
+# **yes**, which even a strict filter passes. Measured across both pools: 91 listings
+# changed verdict — 58 now read `no` (43 of them from `yes`) and 33 conditionals moved
+# from `yes` to `unknown`. All 91 were read by hand; none was a false positive.
+
+PETS_DENIALS_FROM_THE_POOL = [
+    "nao serao aceites animais de estimacao",
+    "nao sao aceites animais de estimacao",
+    "nao sao aceiteis animais de estimacao so peixes",  # sic
+    "nao serao aceite animais de estimacao",
+    "nao aceitamos animais de estimacao",
+    "nao aceito animais",
+    "nao se aceitam animais domesticos",
+    "nao se aceita animais de estimacao",
+    "nao e permitido animais e ou eventos",
+    "nao sao permitidos animais de estimacao",
+    "nao sao admitidos animais",
+    "nao se admite animais de estimacao",          # "admite", not "admitidos"
+    "estritamente proibido a animais de estimacao",
+    "estritamento proibido a animais de estimacao",  # typo, live in the pool
+    "animais proibido caes",
+    "nao sao permitidas festas e animais de estimacao",  # coordinated noun
+    "da se preferencia a quem nao tenha animais de estimacao",  # refusal as preference
+    "pets are not allowed",
+    "pets will not be accepted",
+    "no pets or children",
+]
+
+
+@pytest.mark.parametrize("description", PETS_DENIALS_FROM_THE_POOL)
+def test_pets_denials_from_the_pool_read_as_no(description):
+    listing = normalize(
+        {"description_raw": description, "price_eur_month": 800, "concelho": "Loulé"}
+    )
+    assert listing.pets.value == "no", description
+
+
+PETS_CONDITIONALS_FROM_THE_POOL = [
+    "nao incluem a possibilidade de trazer animais de estimacao sem a previa autorizacao",
+    "animais de estimacao necessidade a ser confirmado antes",
+    "animais so com autorizacao",
+    "animais de estimacao podem ser permitidos mediante autorizacao previa",
+    "animais de estimacao a confirmar",
+]
+
+
+@pytest.mark.parametrize("description", PETS_CONDITIONALS_FROM_THE_POOL)
+def test_pets_conditionals_read_as_unknown_not_yes(description):
+    """"Pets, with prior authorisation" is not "pets allowed" — and it is not a refusal
+    either. `unknown` is the bucket this project keeps and flags, which is the honest answer
+    and the legally safer one in a PT long-let."""
+    listing = normalize(
+        {"description_raw": description, "price_eur_month": 800, "concelho": "Loulé"}
+    )
+    assert listing.pets.value == "unknown", description
+    # Lower confidence than an unmentioned unknown: this one was mentioned, just unclear.
+    assert listing.pets.confidence < 0.9
+    assert listing.pets.evidence, "a conditional should say what it matched"
+
+
+PETS_ALLOWS_FROM_THE_POOL = [
+    "animais de estimacao permitido fumadores nao permitido",
+    "animais de estimacao sao bem vindos pets welcome",
+    "aceita animais domesticos sujeito a porte e numero",
+    "aceita animais pequeno porte",
+    "sao aceites animais de estimacao valor mensal 750",
+]
+
+
+@pytest.mark.parametrize("description", PETS_ALLOWS_FROM_THE_POOL)
+def test_pets_allows_are_not_caught_by_the_new_denial_patterns(description):
+    """The expensive mistake would be the other direction — hiding a listing she could
+    have taken. Each of these stays `yes` with the denial patterns live."""
+    listing = normalize(
+        {"description_raw": description, "price_eur_month": 800, "concelho": "Loulé"}
+    )
+    assert listing.pets.value == "yes", description
+
+
+def test_a_different_prohibition_next_to_a_pets_allow_stays_yes():
+    """The trap the forward pattern has to avoid: "não é permitido fumar" is about smoking,
+    and a match window wide enough to reach past "fumar" to a later "animais" would read
+    the whole thing as a pets refusal. `anima` must follow the verb directly."""
+    listing = normalize(
+        {
+            "description_raw": (
+                "Nao e permitido fumar no interior. Animais de estimacao sao permitidos."
+            ),
+            "price_eur_month": 800,
+            "concelho": "Loulé",
+        }
+    )
+    assert listing.pets.value == "yes"
+
+
 def test_pets_unknown_when_unmentioned():
     listing = normalize(
         {"description_raw": "Apartamento mobilado.", "price_eur_month": 800, "concelho": "Lagos"}

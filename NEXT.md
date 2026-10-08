@@ -38,13 +38,13 @@ how much effort she feels like spending. See STATUS.md for the numbers behind th
       *and* the text the detector saw, so a rule can be inferred without hand-digging.
 - [ ] **Rewrite RECOLLECT.md step 0** as the inference workflow: read the dismissals and
       their text, infer the rule, prove it, commit it — instead of reading a miner's output.
-- [ ] **Pets regex fix** — the misses are all verb→noun word order, which
-      `_PETS_DENY_REVERSED` has no twin for. Measured through `rules test` on 2026-10-08, a
-      forward-order pattern would change **27** Algarve listings, **22 of them from `yes`**
-      (confidently backwards, so even a strict filter passes them). Plus ~30 conditional
-      ("sem prévia autorização") currently read as `yes` — those should read `unknown`,
-      which needs no schema change. *(Supersedes an earlier "23 missed / 17 inverted" in
-      this file: that scan read a `description` field the stores do not have.)*
+- [x] **Pets regex fix — done 2026-10-08.** Forward-order + "proibido" + English denial
+      patterns, and conditionals ("sem prévia autorização") now read `unknown` instead of
+      `yes`. **91 verdicts changed across both pools** — 58 to `no` (43 from `yes`), 33 to
+      `unknown`; all 91 hand-read, no false positives. See STATUS.md.
+- [ ] **Re-run the pipeline and republish so Malia gets it.** The fix only reaches her
+      through a publish; until then the hosted app still shows the 43 wrongly-permissive
+      listings. Fold into the 10-12 pull rather than publishing twice.
 - [ ] **Short-term has no text to match on.** The 15 still-slipping seasonal listings are
       idealista cards with no description. No rule can reach them; the only lever is
       capturing more from the search card (platform name / minimum stay in days). Unverified

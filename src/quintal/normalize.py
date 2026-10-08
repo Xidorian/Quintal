@@ -42,6 +42,48 @@ PETS_POSITIVE = [
 # otherwise mis-read as the positive "animais de estimacao". Runs on folded,
 # punctuation-collapsed text; the window is bounded so it stays sentence-local.
 _PETS_DENY_REVERSED = re.compile(r"anima(?:l|is)\b[\w ]{0,20}?\bnao (?:\w+ )?(?:permit|aceit|admit)")
+# The forward twin: "<negated verb> ... animais". Every denial the pool leaked past us was
+# this word order — measured 2026-10-08, a forward pattern changes 27 Algarve listings, 22
+# of them from a confident `yes`. The fixed-phrase list could never cover it without
+# enumerating every conjugation (aceita/aceito/aceites/aceitam/aceitamos/serão aceites)
+# times every verb times both orders.
+#
+# `anima` must follow the verb directly (one optional article between), NOT within a loose
+# window: "não é permitido fumar, animais são permitidos" is an allow, and a window wide
+# enough to reach past "fumar" reads it as a denial. See
+# test_pets_allow_survives_unrelated_negation.
+_PETS_DENY_FORWARD = re.compile(
+    r"\bnao (?:se |me )?(?:sao |serao |foi |e |esta )?"
+    # Whole stems, not just the participle: the pool has "não se admite animais" as well as
+    # "não são admitidos". `tenha/possua` cover the tenant-side phrasing, "a quem não tenha
+    # animais de estimação", which is a refusal written as a preference.
+    r"(?:aceit\w+|permit\w+|admit\w+|autoriz\w+|tenha\w*|possua\w*) "
+    # One coordinated noun may sit in front: "não são permitidas festas e animais".
+    r"(?:[ao]s? )?(?:\w+ e )?anima"
+)
+# "estritamente proibido a animais" (and the "estritamento" typo in the live pool), plus
+# the reverse "animais ... proibido".
+_PETS_DENY_PROHIBITED = re.compile(
+    r"\bproibid\w* (?:[ao]s? )?anima|\banima\w*(?: \w+){0,2} proibid"
+)
+# English: the list had "pets not allowed", which "pets ARE not allowed" does not contain.
+_PETS_DENY_EN = re.compile(r"\bpets?\b[\w ]{0,15}?\bnot (?:be )?(?:allow|accept|permit)")
+# Conditional, not permissive: "animais de estimação sem a prévia autorização",
+# "necessidade a ser confirmado", "mediante autorização prévia", "a confirmar". These read
+# as `yes` today purely because the bare noun "animais de estimacao" sits in PETS_POSITIVE
+# and nothing negates it — about 30 Algarve listings. They are genuinely unknown, which is
+# the bucket this project already keeps and flags (pets are protected in PT long-lets).
+_PETS_CONDITIONAL = re.compile(
+    r"\banima\w*[\w ]{0,45}?(?:sem (?:a )?previa autoriza|mediante (?:a )?autoriza"
+    r"|so com autoriza|a ser confirmad|a confirmar|sujeit\w+ a autoriza)"
+    r"|(?:sem (?:a )?previa autoriza|mediante (?:a )?autoriza)[\w ]{0,45}?\banima"
+)
+_PETS_DENY_PATTERNS = (
+    _PETS_DENY_REVERSED,
+    _PETS_DENY_FORWARD,
+    _PETS_DENY_PROHIBITED,
+    _PETS_DENY_EN,
+)
 
 # --- Property type ---
 # Matched as whole words, and against the TITLE first. Both halves of that matter, because
@@ -89,13 +131,21 @@ def _derive_pets(folded_text: str) -> DerivedPets:
     # the bare noun "animais de estimacao" appears in BOTH allow and deny sentences —
     # so the deny verb, not the noun, is what decides.
     neg = _matches(text, PETS_NEGATIVE)
-    # Reversed order: "<pets noun> ... nao permitido/aceita/admite" (the imovirtual case),
-    # which the fixed-phrase list can't cover without enumerating every noun→verb gap.
-    m = _PETS_DENY_REVERSED.search(text)
-    if m:
-        neg.append(m.group(0))
+    # Both word orders plus "proibido" and the English forms — the fixed-phrase list can
+    # cover none of them without enumerating every conjugation and gap.
+    for pattern in _PETS_DENY_PATTERNS:
+        m = pattern.search(text)
+        if m:
+            neg.append(m.group(0))
     if neg:
         return DerivedPets(value="no", confidence=0.9, evidence=neg)
+    # Conditional is checked BEFORE positive, and the order is the whole point: every
+    # conditional sentence contains the bare noun "animais de estimacao", so PETS_POSITIVE
+    # would claim it as a yes. Lower confidence than an unmentioned unknown, because this
+    # one was mentioned — we just can't call it.
+    cond = _PETS_CONDITIONAL.search(text)
+    if cond:
+        return DerivedPets(value="unknown", confidence=0.5, evidence=[cond.group(0)])
     pos = _matches(text, PETS_POSITIVE)
     if pos:
         return DerivedPets(value="yes", confidence=0.85, evidence=pos)

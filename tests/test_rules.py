@@ -92,12 +92,18 @@ def test_prepare_collapses_punctuation_so_patterns_need_no_separators():
 
 
 def test_rule_overrides_the_keyword_derivation(one_rule):
-    """`nao aceito animais` is a real phrasing the built-in list misses (it has
-    `nao aceita`, not `nao aceito`), so without the rule this derives `unknown`."""
-    text = "estacionamento nao tem piscina nao aceito animais"
+    """The built-in patterns are "animais"-centric, so a refusal written with the species
+    instead — "proibido ter cães ou gatos" — reaches none of them. Exactly the case a rule
+    is for: one listing's phrasing, not worth a pattern of its own.
+
+    (This test used `nao aceito animais` until QT-058 fixed that gap in `normalize.py`.
+    A rules test has to stand on a gap the derivation genuinely has, or it is really a
+    test of the derivation.)
+    """
+    text = "t2 com varanda, proibido ter caes ou gatos"
     assert norm._derive_pets(norm.fold(text)).value == "unknown"  # the gap
 
-    one_rule()
+    one_rule(pattern="proibido ter caes")
     listing = normalize(_raw(text))
     assert listing.pets.value == "no"
     assert listing.pets.confidence == 1.0
@@ -105,12 +111,13 @@ def test_rule_overrides_the_keyword_derivation(one_rule):
 
 
 def test_rule_beats_a_confident_wrong_derivation(one_rule):
-    """The damaging case: the keyword pass says `yes` because the bare noun is in
-    PETS_POSITIVE, and a person who read the listing says otherwise. The person wins."""
-    text = "estritamente proibido a animais de estimacao condominio fechado"
-    assert norm._derive_pets(norm.fold(text)).value == "yes"  # confidently backwards
+    """"cães permitidos apenas no exterior" lands on `caes permitidos` and derives a
+    confident `yes` — but a dog that may not come indoors is not a yes for Luna, and only
+    someone reading the sentence knows that. The person outranks the keyword."""
+    text = "moradia t3, caes permitidos apenas no exterior"
+    assert norm._derive_pets(norm.fold(text)).value == "yes"  # confident, and not useful
 
-    one_rule(pattern="proibido a anima")
+    one_rule(pattern="caes permitidos apenas no exterior")
     assert normalize(_raw(text)).pets.value == "no"
 
 

@@ -99,6 +99,46 @@ exactly — so `rules test` and `normalize` do see the same text. I checked that
 because a guard measuring different text than the pipeline derives from would be worse than
 no guard.
 
+## Pets derivation fixed (2026-10-08, QT-058)
+The keyword pass only ever handled one word order. `_PETS_DENY_REVERSED` caught
+"<noun> … não permitido"; every **verb-first** denial leaked — and because the bare noun
+"animais de estimacao" sits in `PETS_POSITIVE` with nothing to negate it, most leaked as a
+confident **`yes`**, which even the app's "Exclude explicit no-pets" filter passes. The
+fixed-phrase list could never close it: that needs every conjugation
+(aceita/aceito/aceites/aceitam/aceitamos/serão aceites) × every verb × both orders.
+
+Four patterns now, plus a conditional bucket:
+- **`_PETS_DENY_FORWARD`** — negated verb then the noun. `anima` must follow the verb
+  directly (one optional article, or one coordinated noun as in "não são permitidas festas
+  e animais). A loose window would read "não é permitido **fumar** … animais são
+  permitidos" as a refusal, which is the opposite of what it says.
+- **`_PETS_DENY_PROHIBITED`** — "estritamente proibido a animais", including the
+  "estritamento" typo that is live in the pool, and the reverse "animais … proibido".
+- **`_PETS_DENY_EN`** — the list had "pets not allowed", which "pets **are** not allowed"
+  does not contain.
+- **Conditional → `unknown`, checked before positive.** "sem a prévia autorização",
+  "necessidade a ser confirmado", "mediante autorização prévia", "a confirmar". Order is
+  the point: every conditional sentence contains the bare noun, so `PETS_POSITIVE` would
+  claim it. Confidence 0.5 — lower than an unmentioned unknown, because this one *was*
+  mentioned and we still cannot call it.
+
+**Measured old-vs-new across both pools, 91 verdicts changed:** 58 now read `no` (43 of
+them from `yes`), and 33 conditionals moved `yes → unknown`. Only 24 still read `yes`.
+**All 91 were read by hand and none was a false positive** — the catches include "não são
+aceiteis animais de estimação, só peixes", "a quem não tenha animais" (a refusal written as
+a preference) and "não se admite animais" (where the earlier draft's `admitid\w+` missed
+"admite"). 59 tests in `test_normalize.py`, each denial and conditional quoted from the
+live pool, plus the inverse: five real *allows* asserted to survive the new patterns.
+
+**Effect on Malia's view:** roughly 58 fewer listings with the default filter on, every one
+of which explicitly refuses pets. The 33 conditionals stay visible — `unknown` is kept and
+flagged, which is both the honest answer and the legally safer one in a PT long-let.
+
+Two `test_rules.py` tests broke on this and were rewritten: they used real derivation gaps
+as fixtures, and this fix closed those gaps. They now stand on gaps the derivation
+genuinely has — "proibido ter cães ou gatos" (species, not "animais") and "cães permitidos
+apenas no exterior" (a confident `yes` that is useless for a dog).
+
 ## Norte expansion — live (2026-08-06)
 A second, separate pool (Porto + Douro + Minho), valued against itself, optimised for
 greenery/nature/quiet + river/ocean water. **Published** — selectable in the hosted app
