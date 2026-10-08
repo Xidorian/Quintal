@@ -66,6 +66,12 @@ collect (browser session)  →  data/listings.jsonl
   costs nothing, the platform moved once without telling us and can move back, and nothing
   in this codebase wants a 3.11+ feature. Don't "fix" the gate to match the platform —
   the gate is the reason the platform's version stopped mattering.
+- **The two pools have different `min_beds` on purpose — 0 for Algarve, 2 for Norte.** Not
+  an oversight. The Algarve is the expensive market, so the rule there is take what we can
+  get; the Norte is cheaper, and if we are wintering somewhere cold we want room to be
+  comfortable indoors. Imovirtual's `roomsNumber` filter does not hold (the Algarve store
+  already carries ~394 T1s), so Algarve T1s do reach the ranked pool — that is the intended
+  trade, and Malia has the "Min bedrooms" slider. Don't "fix" the asymmetry.
 - Sample data in `data/sample_listings.jsonl` is **synthetic**, clearly flagged — do not
   treat it as collected market data. Real listings arrive via the same schema.
 - With a small pool the hedonic model is low-confidence — the confidence badge is not

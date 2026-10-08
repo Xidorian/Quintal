@@ -187,6 +187,42 @@ that page with a separate navigate-then-eval before concluding the selector brok
   - moradia: `https://www.imovirtual.com/pt/resultados/arrendar/moradia/faro?priceMax=1500&roomsNumber=%5BTWO%2CTHREE%2CFOUR%5D&page=N`
   - Page 1 of the apt run: `quintalReset('imovirtual')` first; moradia pages just `quintalExtract('imovirtual')` (same `q_imv` key → apt+moradia accumulate together).
 
+### Stop at the filter boundary, not at zero-adds (learned 2026-10-08)
+**Imovirtual silently drops the query filters when you page past the end** and serves the
+*unfiltered* search instead — same path, same-looking cards, no error. The documented
+"page until two consecutive pages add zero new rows" walks straight into it: on the Faro
+moradia run it added 23 out-of-filter rows before anyone noticed, because an unfiltered page
+keeps adding new listings and never produces a zero.
+
+**So check the filter is still applied on every page** and stop the moment it is not:
+```js
+eval(localStorage.getItem('q_src'));
+({r: window.quintalExtract('imovirtual'), filtered: location.search.includes('priceMax')})
+```
+`filtered:false` ⇒ **that page's rows are junk and the previous page was the last real one.**
+It fired twice more the same day (Porto apartamento p44, Braga apartamento p13), each time
+one page after the true end. The leakage is additive and imovirtual never culls, so it is
+survivable — but it is pure noise in the store and trivially avoided.
+
+**Better still, read the page count up front.** `totalPages` from the Next.js blob is
+*accurate*, contrary to the older note in this file that it under-reports:
+```js
+JSON.parse(document.getElementById('__NEXT_DATA__').textContent)
+  .props.pageProps.data.searchAds.pagination.totalPages
+```
+It said 43 for Porto apartamento and 43 was exactly the last filtered page. Read it on page 1,
+page 1..N, and keep the `filtered` check as the backstop.
+
+**Idealista has the same shape of trap** — paging past the last page redirects to page 1
+rather than returning nothing, so watch `total` plateau rather than trusting a page count.
+
+### Page counts drift — re-read the `<h1>` every pull
+This file used to say Faro idealista was "~16 pages / ~456 listings". On 2026-10-08 it was
+**615 listings / 21 pages**, so the old `--pages 18` would have missed ~80 — and with
+`--cull`, silently delisted them. Idealista prints its own total in the `<h1>`; read it on
+page 1 and page until `total` matches. Norte on the same day: Porto 1127, Braga 468, Viana do
+Castelo 174, Viseu 130, Vila Real 54. Treat every one of these numbers as a snapshot too.
+
 ## 2 · Download + ingest (per site)
 **FIRST: `rm ~/Downloads/quintal_*.json` BEFORE *every* download — not just the first.** If a
 file with that name exists, Chrome silently saves the new one as `quintal_<site> (1).json` and
