@@ -3,6 +3,18 @@
 Goal: Malia opens a private URL on her laptop or phone — no install — and her 👍/👎 land
 in the same shared store as yours. Hosted on **Streamlit Community Cloud** (free).
 
+## The live app
+<https://quintal-mb6zhcaa3thfhjzazl2pcn.streamlit.app/>
+
+Written down 2026-10-08 because its absence blocked post-publish verification twice
+(09-30 and 10-08) — there was no way to confirm a publish had actually landed. **Streamlit
+Cloud sleeps an idle app**, so a cold open takes a wake plus a full pipeline run (~1–2 min)
+before the listings appear; that is not a failed deploy.
+
+**Opening it is not read-only.** Every 👎, 👍 and area button writes straight to the shared
+Gist, which is Malia's store too. Filters, sort and the region selector are safe. If you
+only need to check that a publish landed, read the page — do not click a card.
+
 ## How it fits together
 - **Code** lives on `main` (runtime data stays gitignored, per the project's design).
 - **Data** (listings, enrichment cache, photos) is carried on a **`deploy` branch** that
