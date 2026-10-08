@@ -194,13 +194,16 @@ def test_every_attribute_has_a_current_verdict_reader():
     """`rules test` prints what we say today for each attribute. An attribute with no
     reader must raise, not inherit some other attribute's answer — this tool's whole job is
     to be trustworthy in the minutes before someone commits a rule off the back of it."""
+    # ATTRIBUTES constrains what a rule may *assert* (short_term: only "yes"); the current
+    # state may legitimately be any of the three. Different vocabularies, same words.
     for attribute in rules.ATTRIBUTES:
-        assert rules._current_verdict(attribute, "casa com quintal e banheira")
+        verdict, _detail = rules.current_verdict(attribute, "casa com quintal e banheira")
+        assert verdict in {"yes", "no", "unknown"}
 
     rules.ATTRIBUTES["telescope"] = frozenset({"yes"})
     try:
         with pytest.raises(ValueError, match="no current-verdict reader"):
-            rules._current_verdict("telescope", "casa com telescopio")
+            rules.current_verdict("telescope", "casa com telescopio")
     finally:
         del rules.ATTRIBUTES["telescope"]
 
@@ -208,7 +211,11 @@ def test_every_attribute_has_a_current_verdict_reader():
 def test_verdict_readers_answer_in_their_attributes_own_terms():
     """A yard reader returning a pets verdict would make the guard's table nonsense."""
     text = "casa com quintal e banheira, nao aceita animais, apenas para ferias"
-    assert rules._current_verdict("pets", text) == "no"
-    assert rules._current_verdict("yard", text) == "True"
-    assert rules._current_verdict("bathtub", text) == "True"
-    assert rules._current_verdict("short_term", text).startswith(("caught", "not caught"))
+    assert rules.current_verdict("pets", text) == ("no", "")
+    assert rules.current_verdict("yard", text) == ("yes", "")
+    assert rules.current_verdict("bathtub", text) == ("yes", "")
+    # short_term answers in the same vocabulary a rule asserts, with the reason alongside
+    # rather than inside the verdict — see the docstring for what comparing them cost.
+    verdict, detail = rules.current_verdict("short_term", text)
+    assert verdict == "yes" and detail
+    assert rules.current_verdict("short_term", "t2 com varanda") == ("no", "")

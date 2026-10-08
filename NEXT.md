@@ -34,8 +34,15 @@ how much effort she feels like spending. See STATUS.md for the numbers behind th
       `pets`/`yard`/`bathtub`/`suspected_short_term`; provenance required; `RULES` ships
       empty. `python -m quintal.rules test --attribute … --pattern …` prints the collateral
       count and sample lines before anything is committed.
-- [ ] **`feedback inspect`** — the remaining half: one view of each dismissal with its note
-      *and* the text the detector saw, so a rule can be inferred without hand-digging.
+- [x] **`feedback inspect`** — each dismissal with its note, snapshot, the text the
+      detector read, the screener's verdict and our derived attributes. `--reason`,
+      `--chars 0`, `--json`. 6 tests.
+- [ ] **Candidate from its first run, for the 10-12 pull:** `_SEASONAL_SPAN` only covers
+      **winter** lets (Sep–Dec → Mar–Jul), so a same-month window ("de 1 de setembro a 30
+      de setembro") and any *summer* span ("junho a setembro" — the actual holiday let)
+      slip through. An any-month-to-any-month span matches 344 Algarve listings, 323
+      already caught, **21 new**. Prove it with `rules test` and read the 21 before
+      touching `screening.py` — a full-year span ("janeiro a dezembro") must not match.
 - [ ] **Rewrite RECOLLECT.md step 0** as the inference workflow: read the dismissals and
       their text, infer the rule, prove it, commit it — instead of reading a miner's output.
 - [x] **Pets regex fix — done 2026-10-08.** Forward-order + "proibido" + English denial

@@ -139,6 +139,37 @@ as fixtures, and this fix closed those gaps. They now stand on gaps the derivati
 genuinely has — "proibido ter cães ou gatos" (species, not "animais") and "cães permitidos
 apenas no exterior" (a confident `yes` that is useless for a dog).
 
+## `feedback inspect` — the raw material for a rule (2026-10-08, QT-058)
+`report` tells you *that* something slipped and hands a miner some prose to guess at.
+`inspect` hands you the listing: its note, its snapshot, **the text the detector actually
+read**, whether the listing is still in the pool, whether the current screener catches it,
+and what we derive for pets/yard/short-term. Grouped by reason, readable ones first,
+`--reason` to filter, `--chars 0` for untruncated, `--json` for a session to parse. A
+truncated preview always states the real character count, because a preview that hides its
+own truncation would have you conclude there is no giveaway when it sits just past the cut.
+
+**It found things the miner could not, on the first run.** The 15 still-slipping seasonal
+Algarve dismissals carry `"Disponível de 1 de setembro a 30 de setembro"` and
+`"monthly rent varies from month to month, check below … the rent for each month"` — a
+same-month availability window and a rent that changes by month. `_SEASONAL_SPAN` only
+covers **winter** lets (Sep–Dec → Mar–Jul), so a same-month window and any *summer* span
+(junho → setembro — the actual holiday let) slip straight through. Measured: an
+any-month-to-any-month span matches 344 Algarve listings, 323 already caught by other
+rules, **21 genuinely new**. A candidate for the 10-12 pull, not applied.
+
+The rest of those 15 confirm what NEXT.md already said: their previews cut off at ~400
+chars and the tell is past it. `inspect` makes that visible instead of leaving it inferred.
+
+### A bug in `rules test`, found by using it
+`current_verdict` returned `"caught (seasonal month-range span)"` for short-term while a
+rule asserts `"yes"`. The two could never compare equal, so the guard reported **every**
+match as a change with "0 already agree" — turning 21 genuinely-new listings into a
+headline of 344, in the one tool meant to be trusted in the minutes before a rule is
+committed. It now returns `(verdict, detail)` with the verdict in the same vocabulary a
+rule asserts, and only the verdict is compared. `ATTRIBUTES` still constrains what a rule
+may *assert* (short_term: only `yes`) — the current state may be any of the three, which is
+a different vocabulary sharing the same words, and the test now says so.
+
 ## Norte expansion — live (2026-08-06)
 A second, separate pool (Porto + Douro + Minho), valued against itself, optimised for
 greenery/nature/quiet + river/ocean water. **Published** — selectable in the hosted app

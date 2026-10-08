@@ -90,6 +90,101 @@ def test_unspecified_is_not_offered_in_the_dropdown():
     assert set(feedback.PICKABLE) | {feedback.UNSPECIFIED} == set(feedback.REASONS)
 
 
+# --- inspect: the raw material for a rule -------------------------------------
+
+
+def test_inspect_joins_the_listing_text_and_our_current_verdicts(tmp_path):
+    """The point of `inspect` over `report`: it hands you the text the detector read and
+    what we concluded from it, which is what you need to write a rule. `report` only tells
+    you that something slipped."""
+    pool = _pool(
+        tmp_path,
+        [_row("https://x/1", "T2 Lagos", "casa com quintal, arrendamento para ferias")],
+    )
+    lid = feedback._id_for_url("https://x/1")
+    p = Preferences(tmp_path / "prefs.json")
+    p.dislike(lid, reason="seasonal", note="só no verão", by="Malia")
+
+    rows = feedback.inspect_entries(p, "Algarve", pool)
+
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["in_pool"] is True
+    assert "arrendamento para ferias" in row["text"]
+    assert row["screener"]  # the current screener does catch this one
+    assert row["verdicts"]["yard"] == "yes"
+    assert row["verdicts"]["pets"] == "unknown"
+    assert row["entry"]["note"] == "só no verão"
+
+
+def test_inspect_marks_a_dismissal_whose_listing_is_gone(tmp_path):
+    """Those cannot yield a rule — there is no text left to read — so they must not look
+    like the ones that can."""
+    pool = _pool(tmp_path, [_row("https://x/1", "Still here", "casa com quintal")])
+    here = feedback._id_for_url("https://x/1")
+    p = Preferences(tmp_path / "prefs.json")
+    p.dislike("vanished", reason="seasonal", context={"title": "Vanished"})
+    p.dislike(here, reason="seasonal")
+
+    rows = feedback.inspect_entries(p, "Algarve", pool)
+
+    # Readable first, regardless of the order they were logged in.
+    assert [r["in_pool"] for r in rows] == [True, False]
+    assert rows[1]["text"] == "" and rows[1]["verdicts"] == {}
+    text = feedback.render_inspect(rows, pool_name="Algarve", store="x")
+    assert "1 with text to read · 1 snapshot-only" in text
+    assert "gone from the pool" in text
+
+
+def test_inspect_filters_by_reason(tmp_path):
+    pool = _pool(tmp_path, [_row("https://x/1", "T2", "casa")])
+    p = Preferences(tmp_path / "prefs.json")
+    p.dislike("a", reason="seasonal")
+    p.dislike("b", reason="no_pets")
+
+    only = feedback.inspect_entries(p, "Algarve", pool, reason="no_pets")
+    assert [r["entry"]["listing_id"] for r in only] == ["b"]
+
+
+def test_inspect_labels_a_reconstructed_receipt(tmp_path):
+    """A backfilled entry's date is the backfill's, not the dismissal's — it must say so,
+    or a later session will read it as "she dismissed this on the 8th"."""
+    pool = _pool(tmp_path, [_row("https://x/1", "T2", "casa com quintal")])
+    lid = feedback._id_for_url("https://x/1")
+    p = Preferences(tmp_path / "prefs.json")
+    p.disliked.add(lid)
+    feedback.backfill_receipts(p, "Algarve", pool, dry_run=False)
+
+    rows = feedback.inspect_entries(p, "Algarve", pool)
+    text = feedback.render_inspect(rows, pool_name="Algarve", store="x")
+    assert "[reconstructed]" in text
+    assert "(unsigned)" in text  # never attributed to anyone
+
+
+def test_inspect_renders_with_nothing_open(tmp_path):
+    pool = _pool(tmp_path, [_row("https://x/1", "T2", "casa")])
+    p = Preferences(tmp_path / "prefs.json")
+    text = feedback.render_inspect(
+        feedback.inspect_entries(p, "Algarve", pool), pool_name="Algarve", store="x"
+    )
+    assert "Nothing open for this pool." in text
+
+
+def test_inspect_truncates_text_but_says_the_real_length(tmp_path):
+    """A truncated preview that hides its own truncation would have you conclude the text
+    holds no giveaway when the giveaway is just past the cut."""
+    body = "palavra " * 200
+    pool = _pool(tmp_path, [_row("https://x/1", "T2", body)])
+    lid = feedback._id_for_url("https://x/1")
+    p = Preferences(tmp_path / "prefs.json")
+    p.dislike(lid, reason="seasonal")
+
+    rows = feedback.inspect_entries(p, "Algarve", pool)
+    text = feedback.render_inspect(rows, pool_name="Algarve", store="x", chars=80)
+    assert f"text ({len(rows[0]['text'])} chars)" in text
+    assert "…" in text
+
+
 def test_backfill_reconstructs_only_the_silent_dismissals(tmp_path):
     """Rebuilds a receipt for a dismissal that recorded nothing, leaves the rest alone,
     and refuses to invent the two things that were never written down."""

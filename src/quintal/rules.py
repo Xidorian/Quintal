@@ -136,28 +136,36 @@ def matching(folded_text: str) -> list[Rule]:
 # scope. The import cycle is real; deferring it is the cheap half of the fix.
 
 
-def _current_verdict(attribute: str, text: str) -> str:
-    """What the pipeline says about this text *today*, before any rule fires.
+_BOOL_WORD = {True: "yes", False: "no", None: "unknown"}
 
-    Raises on an unknown attribute rather than falling through to a default. An earlier
-    version ended with the short-term branch as a catch-all, which meant a new attribute
-    with no reader here would quietly be reported as "not caught" — a wrong answer that
-    looked like a real one, in the exact tool whose job is to be trusted before a rule is
-    written.
+
+def current_verdict(attribute: str, text: str) -> tuple[str, str]:
+    """What the pipeline says about this text today: `(verdict, detail)`.
+
+    The verdict is in **the same vocabulary a rule asserts** — yes / no / unknown — so
+    `rules test` can compare the two directly. That was not true at first: the short-term
+    branch returned "caught (seasonal month-range span)" while a rule asserts "yes", so
+    the two could never be equal, and the guard reported *every* match as a change with
+    "0 already agree". On one candidate that turned 21 genuinely-new listings into a
+    headline of 344 — in the one tool meant to be trusted right before a rule is written.
+    `detail` keeps the human reason, which is worth showing but must not be compared.
+
+    Raises on an unknown attribute rather than falling through to a default, so a new
+    attribute with no reader cannot inherit another one's answer.
     """
     from . import screening
     from .normalize import BATHTUB_KEYWORDS, YARD_KEYWORDS, _derive_bool, _derive_pets, fold
 
     folded = fold(text)
     if attribute == "pets":
-        return _derive_pets(folded).value
+        return _derive_pets(folded).value, ""
     if attribute == "yard":
-        return str(_derive_bool(folded, YARD_KEYWORDS).value)
+        return _BOOL_WORD[_derive_bool(folded, YARD_KEYWORDS).value], ""
     if attribute == "bathtub":
-        return str(_derive_bool(folded, BATHTUB_KEYWORDS).value)
+        return _BOOL_WORD[_derive_bool(folded, BATHTUB_KEYWORDS).value], ""
     if attribute == "short_term":
         reason = screening.short_term_reason(text)
-        return f"caught ({reason})" if reason else "not caught"
+        return ("yes", reason) if reason else ("no", "")
     raise ValueError(f"no current-verdict reader for attribute {attribute!r}")
 
 
@@ -205,13 +213,15 @@ def _cmd_test(args: object) -> int:
         print("(idealista detail pages are DataDome-blocked, so many rows are card previews).")
         return 0
 
-    now = Counter(_current_verdict(attribute, f"{r.get('title', '')} {r.get('text', '')}")
-                  for _, r, _, _ in hits)
+    now: Counter[tuple[str, str]] = Counter()
+    for _, row, _, _ in hits:
+        now[current_verdict(attribute, f"{row.get('title', '')} {row.get('text', '')}")] += 1
     print("\nwhat we say about those today:")
-    for value, count in now.most_common():
+    for (value, detail), count in now.most_common():
+        shown = f"{value} ({detail})" if detail else value
         change = "" if value == verdict else "  ← the rule would change these"
-        print(f"  {value:<24} {count:>4}{change}")
-    already = now.get(verdict, 0)
+        print(f"  {shown:<44} {count:>4}{change}")
+    already = sum(count for (value, _), count in now.items() if value == verdict)
     print(f"\nwould change {len(hits) - already} listing(s); {already} already agree")
 
     limit: int = args.limit  # type: ignore[attr-defined]

@@ -29,12 +29,13 @@ import argparse
 import hashlib
 import json
 import re
+import textwrap
 from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
-from . import config, descriptions
+from . import config, descriptions, rules
 from .normalize import fold
 from .preferences import (
     UNSPECIFIED_REASON,
@@ -536,6 +537,109 @@ def backfill_receipts(
     return added
 
 
+# --- inspect: the raw material for a rule ------------------------------------
+# `report` tells you *that* something slipped and lets a miner guess at phrases. This
+# shows you the listing — its note, its snapshot, the text the detector actually read, and
+# what we say about it today — so a person (or a session) can read it and write the rule.
+# The miner was never going to get there: with no quoted text to anchor on it proposes
+# "a casa e" (47 collateral) and "na rua de" (50). Reading five listings beats it outright.
+
+INSPECT_ATTRIBUTES = ("pets", "yard", "short_term")
+
+
+def inspect_entries(
+    prefs: Preferences,
+    pool_name: str,
+    pool: dict,
+    *,
+    reason: str | None = None,
+    include_resolved: bool = False,
+) -> list[dict]:
+    """Open dismissals for this pool, each joined to its listing text and our verdicts.
+
+    Readable ones (listing still in the store) sort first, because those are the ones a
+    rule can be written from — a dismissal whose listing is gone has only its snapshot.
+    """
+    corpus = load_corpus(pool)
+    rows = []
+    for entry in entries_for_pool(prefs, pool_name, include_resolved=include_resolved):
+        if reason and entry.get("reason") != reason:
+            continue
+        listing_id = entry.get("listing_id", "")
+        row = corpus.get(listing_id)
+        text = (row or {}).get("text", "")
+        rows.append(
+            {
+                "entry": entry,
+                "in_pool": row is not None,
+                "text": text,
+                "screener": short_term_reason(text) if text else None,
+                "verdicts": (
+                    {
+                        a: " ".join(filter(None, rules.current_verdict(a, text)))
+                        for a in INSPECT_ATTRIBUTES
+                    }
+                    if text
+                    else {}
+                ),
+            }
+        )
+    rows.sort(key=lambda r: (not r["in_pool"], r["entry"].get("reason", "")))
+    return rows
+
+
+def render_inspect(rows: list[dict], *, pool_name: str, store: str, chars: int = 360) -> str:
+    out = [f"\nInspect — {pool_name}", f"store: {store}", f"{len(rows)} dismissal(s)"]
+    if not rows:
+        out.append("\nNothing open for this pool.")
+        return "\n".join(out)
+
+    readable = sum(1 for r in rows if r["text"])
+    out.append(f"{readable} with text to read · {len(rows) - readable} snapshot-only")
+    out.append(
+        "\nRead these, find what they share, then prove the pattern before writing it:"
+        "\n  python -m quintal.rules test --attribute <a> --pattern '<p>' --pool <region>"
+    )
+
+    by_reason: dict[str, list[dict]] = {}
+    for row in rows:
+        by_reason.setdefault(row["entry"].get("reason", "other"), []).append(row)
+
+    for code, group in by_reason.items():
+        meta = REASONS.get(code, REASONS["other"])
+        target = f" → {meta.target}" if meta.screenable else ""
+        out.append(f"\n{'=' * 78}\n{meta.label}  ({len(group)}){target}")
+        for row in group:
+            entry = row["entry"]
+            out.append(f"\n  ─ entry {entry.get('entry_id', '?')}  {_fmt_entry(entry)}")
+            who = entry.get("by") or "(unsigned)"
+            stamp = entry.get("at", "")[:10]
+            extra = "  [reconstructed]" if entry.get("backfilled_at") else ""
+            out.append(f"    by {who} · {stamp}{extra}")
+            if entry.get("url"):
+                out.append(f"    {entry['url']}")
+            if entry.get("note"):
+                out.append(f'    note: "{entry["note"]}"')
+            if not row["in_pool"]:
+                out.append("    ✗ gone from the pool — snapshot only, no text to read")
+                continue
+            screener = row["screener"]
+            out.append(
+                "    screener: "
+                + (f"✓ caught ({screener})" if screener else "✗ does not catch it")
+                + "".join(f" · {a}: {v}" for a, v in row["verdicts"].items())
+            )
+            text = row["text"]
+            if not text:
+                out.append("    (no text in the store — card preview missing)")
+                continue
+            shown = text if chars <= 0 or len(text) <= chars else text[:chars] + " …"
+            out.append(f"    text ({len(text)} chars):")
+            for line in textwrap.wrap(shown, width=92):
+                out.append(f"      {line}")
+    return "\n".join(out)
+
+
 def render_report(report: Report) -> str:
     out: list[str] = []
     misses = report.findings
@@ -679,10 +783,16 @@ def _load_prefs(path: str) -> Preferences:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Read the 👎 reason log and harden the pull.")
-    parser.add_argument("command", choices=["report", "block", "resolve", "backfill"])
+    parser.add_argument(
+        "command", choices=["report", "inspect", "block", "resolve", "backfill"]
+    )
     parser.add_argument("--pool", default="algarve", help="region slug (algarve | norte)")
     parser.add_argument("--prefs", default=PREFS_PATH, help="local preferences file (Gist wins)")
     parser.add_argument("--json", action="store_true", help="machine-readable report")
+    parser.add_argument("--reason", default="", help="inspect: only this reason code")
+    parser.add_argument(
+        "--chars", type=int, default=360, help="inspect: text to show per listing (0 = all)"
+    )
     parser.add_argument("--all", action="store_true", help="resolve: every open entry")
     parser.add_argument("--entry", action="append", default=[], help="resolve: one entry id")
     parser.add_argument("--note", default="", help="resolve: what was done about it")
@@ -708,6 +818,24 @@ def main(argv: list[str] | None = None) -> int:
         print(
             _report_json(report) if args.json else render_report(report)
         )
+        return 0
+
+    if args.command == "inspect":
+        rows = inspect_entries(
+            prefs,
+            pool_name,
+            pool,
+            reason=args.reason or None,
+            include_resolved=args.include_resolved,
+        )
+        if args.json:
+            print(json.dumps(rows, ensure_ascii=False, indent=2))
+        else:
+            print(
+                render_inspect(
+                    rows, pool_name=pool_name, store=store_label(prefs), chars=args.chars
+                )
+            )
         return 0
 
     if args.command == "block":
