@@ -40,6 +40,7 @@ def _view(listing: Listing) -> dict:
         "terrace": bool(listing.has_terrace.value),
         "bathtub": bool(listing.has_bathtub.value),
         "pets": listing.pets.value,
+        "short_term": bool(listing.suspected_short_term.value),
         "walk_min": listing.walk_min_beach,
         "dist_beach": listing.dist_beach_m,
         "walk_min_green": listing.walk_min_green,

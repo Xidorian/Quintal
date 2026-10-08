@@ -8,6 +8,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from . import rules
 from .errors import AppError
 from .schema import DerivedBool, DerivedPets, Listing, PropertyType
 
@@ -166,6 +167,41 @@ def _infer_bedrooms(folded_text: str, given: Any) -> int | None:
     return int(m.group(1)) if m else None
 
 
+# rule attribute → the Listing field it overrides. `pets` and `short_term` are handled
+# separately: one carries a string verdict, the other only ever fires positively.
+_RULE_BOOL_FIELDS = {"yard": "has_yard", "bathtub": "has_bathtub"}
+
+
+def _apply_rules(listing: Listing, folded: str) -> None:
+    """Let a searcher-authored rule override the keyword derivation.
+
+    Runs last and wins, because whoever wrote the rule opened the listing and read it —
+    the regex did not. Confidence goes to 1.0 and the evidence names the rule, so a
+    verdict that came from a person is never mistaken for one the keywords produced.
+    """
+    hit = rules.verdict_for("pets", folded)
+    if hit is not None:
+        verdict, rule = hit
+        listing.pets = DerivedPets(value=verdict, confidence=1.0, evidence=[f"rule:{rule.id}"])
+
+    for attribute, field in _RULE_BOOL_FIELDS.items():
+        hit = rules.verdict_for(attribute, folded)
+        if hit is not None:
+            verdict, rule = hit
+            setattr(
+                listing,
+                field,
+                DerivedBool(value=verdict == "yes", confidence=1.0, evidence=[f"rule:{rule.id}"]),
+            )
+
+    hit = rules.verdict_for("short_term", folded)
+    if hit is not None:
+        _, rule = hit
+        listing.suspected_short_term = DerivedBool(
+            value=True, confidence=1.0, evidence=[f"rule:{rule.id}"]
+        )
+
+
 def normalize(raw: dict[str, Any]) -> Listing:
     """Build a validated `Listing` from a raw site dict; derive text features.
 
@@ -196,5 +232,6 @@ def normalize(raw: dict[str, Any]) -> Listing:
     listing.has_terrace = _derive_bool(folded, TERRACE_KEYWORDS)
     listing.has_bathtub = _derive_bool(folded, BATHTUB_KEYWORDS)
     listing.pets = _derive_pets(folded)
+    _apply_rules(listing, folded)  # a person's rule outranks our keywords
     listing.ensure_id()
     return listing

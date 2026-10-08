@@ -61,6 +61,44 @@ data layer can be correct while the UI path is broken:
 closure it captured the loop variable, which is only safe because Streamlit happens to call
 it inside the same iteration.
 
+## Rules module — searcher-authored overrides (2026-10-08, QT-058)
+`src/quintal/rules.py`. A rule is a text pattern plus an attribute verdict, written during
+a pull from a listing she actually read and dismissed. Three properties, each with a test:
+- **In code, not `data/rules.json`** — `data/*.json` is gitignored, so a rules file there
+  would never appear in a diff, never be reviewed, and never reach the `deploy` branch.
+- **They mark, never purge.** A rule sets `pets=no`, `has_yard`, `has_bathtub` or the new
+  `suspected_short_term` flag, and the app filters on it (`Exclude suspected short-term`,
+  default on). A misfired rule mislabels something you can still find by unticking a box;
+  one writing to the blocklist would delete it quietly. Nothing here feeds the screener's
+  hard purge, which stays on the hand-maintained `SHORT_TERM_PATTERNS`.
+- **A rule outranks the derivation** (confidence 1.0, `evidence=["rule:<id>"]`) because
+  whoever wrote it opened the listing; the regex did not. A malformed rule — unknown
+  attribute, illegal verdict, no provenance, uncompilable pattern — raises at construction
+  rather than mid-pull. `RULES` ships **empty**: a rule with no 👎 behind it is a guess.
+
+**`python -m quintal.rules test` is the guard**, and it works. On the Algarve pool a
+candidate forward-order pets denial matched 73 listings: 46 already derive `no`, and it
+would change **27** (22 currently derived **`yes`** — confidently backwards — and 5
+`unknown`). Run carelessly as just `anima` against Norte it matches 41 and would change 29,
+including a listing that says *"animais de estimação **bem vindos**"*. The sample lines make
+that visible before anything is committed, which is the whole point.
+
+### Two of my earlier measurements were wrong — corrected here
+The listing stores have **no `description` key**; the field is **`description_raw`**, and
+`descriptions.apply()` merges the detail-page sidecar *into* it before `normalize` folds
+`title + description_raw`. Scratch scans I ran earlier this session read `description`, so
+they saw title + sidecar only:
+- **"Norte's only animal matches are street names" was wrong.** That was titles only (Norte
+  has no descriptions sidecar). Norte has 8192 card previews (median 68 chars) and **41**
+  listings mention animals, including real denials *and* real welcomes.
+- **"23 missed denials, 17 inverted" understated it.** Measured properly through
+  `rules test`, the candidate pattern would change **27**, 22 of them from `yes`.
+
+`load_corpus` builds its text as `sidecar or description_raw`, which mirrors the pipeline
+exactly — so `rules test` and `normalize` do see the same text. I checked that specifically,
+because a guard measuring different text than the pipeline derives from would be worse than
+no guard.
+
 ## Norte expansion — live (2026-08-06)
 A second, separate pool (Porto + Douro + Minho), valued against itself, optimised for
 greenery/nature/quiet + river/ocean water. **Published** — selectable in the hosted app

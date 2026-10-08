@@ -75,6 +75,10 @@ class Listing(BaseModel):
     has_terrace: DerivedBool = Field(default_factory=DerivedBool)
     has_bathtub: DerivedBool = Field(default_factory=DerivedBool)
     pets: DerivedPets = Field(default_factory=DerivedPets)
+    # Raised only by a searcher-authored rule (see rules.py), never by the built-in
+    # keyword pass. Deliberately softer than `screening.py`'s purge: this marks a listing
+    # so the app can filter it, leaving it recoverable if the rule was wrong.
+    suspected_short_term: DerivedBool = Field(default_factory=DerivedBool)
 
     # --- Valuation (filled by valuation stage) ---
     valuation_pct: float | None = None

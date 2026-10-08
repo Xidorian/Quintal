@@ -150,6 +150,11 @@ size_range = st.sidebar.slider("Size (m²)", 0, size_cap, (0, size_cap), step=5)
 size_active = size_range != (0, size_cap)  # a listing with unknown size is only dropped once this is narrowed
 yard_only = st.sidebar.checkbox("Yard only")
 hide_no_pets = st.sidebar.checkbox("Exclude explicit no-pets", value=True)
+hide_short_term = st.sidebar.checkbox(
+    "Exclude suspected short-term",
+    value=True,
+    help="Listings a rule flagged as seasonal/holiday. Untick to see what a rule caught.",
+)
 bands = st.sidebar.multiselect("Valuation band", ["undervalued", "fair", "overpriced"])
 concelhos = sorted({v["concelho"] for v in views})
 picked_concelhos = st.sidebar.multiselect("Concelho", concelhos)
@@ -225,6 +230,8 @@ def keep(v: dict) -> bool:
     if yard_only and not v["yard"]:
         return False
     if hide_no_pets and v["pets"] == "no":
+        return False
+    if hide_short_term and v.get("short_term"):
         return False
     if bands and v["band"] not in bands:
         return False

@@ -30,16 +30,21 @@ how much effort she feels like spending. See STATUS.md for the numbers behind th
 - [ ] **Check in a week whether the pills actually moved the numbers.** The thing to watch
       is the `unspecified` share of *new* entries (anything after 2026-10-08) — if it stays
       high, the pill row is still too much friction and the next lever is inference, not UI.
-- [ ] **Rules module + `rules test`** (collateral count before anything commits) and
-      `feedback inspect` (the raw material for inference). Rules **mark attributes**;
-      provenance-stamped; tracked in `src/`, because `data/*.json` is gitignored and would
-      never reach the deploy branch.
+- [x] **Rules module + `rules test`** — `src/quintal/rules.py`, 15 tests. Marks
+      `pets`/`yard`/`bathtub`/`suspected_short_term`; provenance required; `RULES` ships
+      empty. `python -m quintal.rules test --attribute … --pattern …` prints the collateral
+      count and sample lines before anything is committed.
+- [ ] **`feedback inspect`** — the remaining half: one view of each dismissal with its note
+      *and* the text the detector saw, so a rule can be inferred without hand-digging.
 - [ ] **Rewrite RECOLLECT.md step 0** as the inference workflow: read the dismissals and
       their text, infer the rule, prove it, commit it — instead of reading a miner's output.
-- [ ] **Pets regex fix** — 23 missed denials in the Algarve pool, **17 of them inverted to
-      `yes`**; the misses are all verb→noun word order, which `_PETS_DENY_REVERSED` has no
-      twin for. Plus ~30 conditional ("sem prévia autorização") currently read as `yes` —
-      those should read `unknown`, which needs no schema change.
+- [ ] **Pets regex fix** — the misses are all verb→noun word order, which
+      `_PETS_DENY_REVERSED` has no twin for. Measured through `rules test` on 2026-10-08, a
+      forward-order pattern would change **27** Algarve listings, **22 of them from `yes`**
+      (confidently backwards, so even a strict filter passes them). Plus ~30 conditional
+      ("sem prévia autorização") currently read as `yes` — those should read `unknown`,
+      which needs no schema change. *(Supersedes an earlier "23 missed / 17 inverted" in
+      this file: that scan read a `description` field the stores do not have.)*
 - [ ] **Short-term has no text to match on.** The 15 still-slipping seasonal listings are
       idealista cards with no description. No rule can reach them; the only lever is
       capturing more from the search card (platform name / minimum stay in days). Unverified
@@ -65,8 +70,9 @@ how much effort she feels like spending. See STATUS.md for the numbers behind th
 - [x] **Liveness for the norte store — done 2026-09-26.** `quintal.liveness --input
       data/listings-norte.jsonl --path data/delisted-norte.json`; first run found **1899** dead
       listings the idealista cull could never see. Add it to the weekly routine.
-- [ ] Imovirtual **descriptions** for the norte store — still deferred (1400+ fetches). Norte
-      yard/pets still derive from titles alone.
+- [ ] Imovirtual **descriptions** for the norte store — still deferred (1400+ fetches).
+      Norte derives from titles + short card previews (median 68 chars), not from titles
+      alone as this said before 2026-10-08 — but not from full descriptions either.
 - [x] Fold Norte into the weekly re-collection runbook (done via the Gotchas Norte block;
       exercised end-to-end on 2026-08-22 and 2026-08-31).
 
@@ -169,7 +175,9 @@ Reassess after October.
 - [x] QT-047: the cull now writes to its store's own delisted sidecar; 1012 undelisted dead
       Norte listings cleared. See STATUS.md.
 - [x] **Liveness half closed 2026-09-26** (1899 dead listings found on the first probe).
-      `descriptions-norte.json` still does not exist — Norte yard/pets derive from titles alone.
+      `descriptions-norte.json` still does not exist. **Not "titles alone", though** — the
+      Norte store carries 8192 card previews in `description_raw` (median 68 chars), which
+      `normalize` does fold; what is missing is the fuller detail-page text (2026-10-08).
 
 ## Soon (do when convenient)
 - [ ] Discover the working Idealista `com-preco-max_…` filter path for every case (some
