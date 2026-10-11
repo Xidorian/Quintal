@@ -29,13 +29,13 @@ only need to check that a publish landed, read the page — do not click a card.
 ## One-time setup
 
 ### 1. GitHub repo + remote  ✅ done
-`Xidorian/Quintal` exists with `origin` wired, `main` + `deploy` pushed. It is **public** —
+`Xidorian/quintal` exists with `origin` wired, `main` + `deploy` pushed. It is **public** —
 Streamlit Community Cloud's free tier won't deploy from a private repo. No secrets are in the
 repo (the token lives only in Streamlit's Secrets box; `preferences.json` lives in the Gist,
 not the repo), so the exposure is the code + the collected listings/photos on `deploy`.
 ```bash
 # for reference, how it was created:
-gh repo create Xidorian/Quintal --public --source=. --remote=origin --push
+gh repo create Xidorian/quintal --public --source=. --remote=origin --push
 ```
 
 ### 2. Shared preferences Gist
@@ -58,7 +58,7 @@ scripts/publish.sh          # pushes a data snapshot to the `deploy` branch
 
 ### 4. Create the Streamlit Cloud app
 1. Go to <https://share.streamlit.io> → sign in with GitHub → **Create app**.
-2. Repo `Xidorian/Quintal`, **branch `deploy`**, main file `app.py`.
+2. Repo `Xidorian/quintal`, **branch `deploy`**, main file `app.py`.
 3. **Advanced → Secrets** — paste (see `.streamlit/secrets.toml.example`):
    ```toml
    QUINTAL_GIST_ID = "<id>"
