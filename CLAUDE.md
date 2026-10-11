@@ -72,6 +72,10 @@ collect (browser session)  →  data/listings.jsonl
   comfortable indoors. Imovirtual's `roomsNumber` filter does not hold (the Algarve store
   already carries ~394 T1s), so Algarve T1s do reach the ranked pool — that is the intended
   trade, and Malia has the "Min bedrooms" slider. Don't "fix" the asymmetry.
+- **Every click in `app.py` re-renders every card on screen**, so the card list is paged
+  (25 by default). Cost per tap scales with the page, not the pool — adding a widget to a
+  card multiplies by the page size. Unpaged it was 509 / 2057 cards a tap and a pass took
+  ~10s (QT-059). Don't remove the paging to "show everything"; raise the page size instead.
 - Sample data in `data/sample_listings.jsonl` is **synthetic**, clearly flagged — do not
   treat it as collected market data. Real listings arrive via the same schema.
 - With a small pool the hedonic model is low-confidence — the confidence badge is not

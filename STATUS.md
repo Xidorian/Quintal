@@ -7,6 +7,38 @@ search is expanding to **Porto + the Douro + the Minho** (Norte), optimising for
 dog-walkable greenery/nature/quiet and river-beach proximity rather than ocean beaches —
 kept as a **separate pool** (`data/listings-norte.jsonl`) so Algarve valuations stay clean.
 
+## "I just don't like it", and the pass stops taking 10 seconds (2026-10-11, QT-059)
+Two asks from Malia, one of them the reason the other matters.
+
+**A dedicated taste verdict.** The pill row had no way to say *nothing is wrong with this
+listing, I just don't want it* — the honest answer most of the time. Without it that pass
+goes down as `unspecified`, which is indistinguishable from never having answered and sends
+the next pull off reading the listing to infer a call she already made. `just_dont_like`
+(bucket `taste`) now leads `PILLS_PRIMARY` and gets its own full-width primary button above
+the pill row, so it is a cheaper tap than Skip. It is first **by request, not by
+measurement** — the 2026-10-08 usage ranking still orders the five behind it.
+
+**The pass took ~10s because the app re-rendered the whole pool on every click.** Every
+click is a rerun and a rerun rebuilds every card on screen, and nothing was paged: **509
+cards in the Algarve, 2057 in the Norte**, each a photo plus seven buttons — roughly 7k and
+29k Streamlit elements rebuilt and re-sent *per tap*. The shared Gist was never the bulk of
+it: a read measures **0.8s** (three samples, 2026-10-11), and the write it pairs with is one
+more round trip of the same kind (inferred — measuring it means writing to the live store).
+The card list is now paged, 25 at a time with a sidebar size control and prev/next above and
+below. Paging, not "show more": a page is a *hard ceiling* on the per-click cost, where a
+growing list climbs back into the same problem one tap at a time. A card held open for its
+reason ask keeps its old rank, so it cannot be paged out from under the ask.
+
+Verified in the real app on 2026-10-11, not just in tests: pass → `unspecified` receipt →
+tap "I just don't like it" → the receipt is retracted and replaced by a `just_dont_like`
+entry in the store. Run against the **local** prefs file, deliberately — the shared Gist was
+not written to.
+
+**Not done, and deliberately:** the remaining per-click cost is the two Gist round trips.
+Caching the `Preferences` object in `st.session_state` would remove the read, but `save()`
+writes the whole payload, so a session-long cache turns the existing seconds-wide clobber
+window into a session-wide one — silent data loss in the source of truth to save 0.8s.
+
 ## The dismiss button now records (2026-10-08, QT-058 tier 1)
 **Half of every dismissal was being thrown away.** `Preferences.dislike()` logged an entry
 only `if reason or note`, so a 👎 with no reason chosen added the id to a set and nothing

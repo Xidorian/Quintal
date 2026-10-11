@@ -245,13 +245,25 @@ def test_every_pickable_reason_reaches_the_pill_row():
         assert len(feedback.pill_of(code)) <= 22, f"{code} pill too long for the row"
 
 
-def test_primary_pills_are_the_reasons_actually_used():
-    """Ordered by measured usage on the shared Gist (2026-10-08), not by guesswork:
-    seasonal 22 · gone 18 · no_pets 3 · wrong_area 1 · not_a_rental 1."""
+def test_primary_pills_lead_with_taste_then_measured_usage():
+    """`just_dont_like` first by request (2026-10-11) — it is the no-thinking answer, so it
+    has to be the cheapest tap on the card. The rest are ordered by measured usage on the
+    shared Gist (2026-10-08), not guesswork: seasonal 22 · gone 18 · no_pets 3 ·
+    wrong_area 1 · not_a_rental 1."""
     assert feedback.PILLS_PRIMARY == [
-        "seasonal", "gone", "no_pets", "wrong_area", "not_a_rental",
+        "just_dont_like", "seasonal", "gone", "no_pets", "wrong_area", "not_a_rental",
     ]
     assert "other" in feedback.PILLS_MORE  # the one path that needs typing stays tucked away
+
+
+def test_just_dont_like_is_a_verdict_not_a_missing_answer():
+    """It must not land in the same bucket as a reasonless pass: `unspecified` sends the
+    next pull off to infer *why* from the listing text, and the whole point of this button
+    is that there is nothing to infer. It is taste, and it is screenable by nothing."""
+    reason = feedback.REASONS["just_dont_like"]
+    assert reason.bucket == "taste"
+    assert not reason.screenable
+    assert feedback.UNSPECIFIED not in feedback.PILLS_PRIMARY
 
 
 def test_report_marks_which_unclassified_are_still_readable(tmp_path):

@@ -11,6 +11,14 @@ the only unfinished build work.
 > Next Monday on the standing cadence is **10-12**, four days out — probably skip it and go
 > again **10-19**, since the pool was just refreshed end to end.
 
+## QT-059 — the card list is paged (2026-10-11)
+Clicking pass took ~10s because every click re-rendered the entire filtered pool (509 / 2057
+cards). Paged at 25, sidebar-adjustable. Numbers in STATUS.md.
+- [ ] **If a click still drags, the remaining cost is the two Gist round trips (~0.8s each),
+      not rendering.** The fix is not a session-state cache of `Preferences` — `save()` writes
+      the whole payload, so caching trades a seconds-wide clobber window for a session-wide
+      one. A narrower fix would be a merge-on-write (re-read, merge, write) in `GistBackend`.
+
 ## ▶ QT-058 — the dismiss button becomes the instrument (started 2026-10-08)
 Malia does the bulk of the searching, so the 👎 *is* the data collection. Three tiers, by
 how much effort she feels like spending. See STATUS.md for the numbers behind this.
@@ -23,6 +31,9 @@ how much effort she feels like spending. See STATUS.md for the numbers behind th
       "Something else…", `PILLS_MORE` derived from `PICKABLE` so none can go missing.
 - [x] **Tier 3 — free text behind "Something else…".** Verified saving `reason="other"`
       with the note intact. Still expect her to use it rarely; the pills carry the load.
+- [x] **Tier 4 — "👎 I just don't like it" (2026-10-11, QT-059).** The taste verdict the
+      row was missing, leading the row on its own full-width button. Watch whether it eats
+      into the `unspecified` share below rather than into the other pills.
 - [ ] **Check in a week whether the pills actually moved the numbers.** The thing to watch
       is the `unspecified` share of *new* entries (anything after 2026-10-08) — if it stays
       high, the pill row is still too much friction and the next lever is inference, not UI.

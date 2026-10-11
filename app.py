@@ -165,6 +165,8 @@ max_green = (
 
 st.sidebar.header("View")
 sort_mode = st.sidebar.radio("Sort", ["Best fit", "Best deal", "Fit + deal"])
+# Raising this makes every click slower in direct proportion — see the paging note below.
+page_size = st.sidebar.selectbox("Cards per page", [10, 25, 50, 100], index=1)
 show_disliked = st.sidebar.checkbox("Show 👎 / disliked areas", value=False)
 # Legacy: "hide" used to be a second, separate dismiss that recorded nothing. The button is
 # gone (it only ever duplicated a pass), but anything hidden back then stays hidden until
@@ -283,15 +285,55 @@ rows.sort(
     reverse=True,
 )
 
+# --- Paging -------------------------------------------------------------------
+# Every click is a rerun, and a rerun rebuilds every card on screen. Unpaged, that was the
+# whole filtered pool — 509 cards in the Algarve and 2057 in the Norte (measured
+# 2026-10-11), each a photo plus seven buttons, roughly 7k and 29k Streamlit elements
+# respectively, rebuilt and re-sent on every tap. *That* is where the ~10s after a pass
+# went, not the network: the shared Gist read measures 0.8s, and the write it pairs with is
+# one more round trip of the same kind (inferred — not separately measured, since measuring
+# it means writing to the live shared store).
+#
+# Paging, not "show more": a page is a hard ceiling on the per-click cost, where a growing
+# list climbs back into the same problem one tap at a time. A card held open for its reason
+# ask keeps the rank it had (`sort_rank`), so it cannot be paged out from under the ask.
+total_pages = max(1, -(-len(rows) // page_size))
+page = min(max(st.session_state.get("page", 1), 1), total_pages)
+st.session_state["page"] = page  # clamped: filtering down to fewer pages must not strand us
+first = (page - 1) * page_size
+page_rows = rows[first : first + page_size]
+
+
+def page_nav(where: str) -> None:
+    prev_col, label_col, next_col = st.columns([1, 2, 1])
+    if prev_col.button(
+        "← Previous", key=f"prev-{where}", disabled=page <= 1, width="stretch"
+    ):
+        st.session_state["page"] = page - 1
+        st.rerun()
+    label_col.markdown(
+        f"<p style='text-align:center;margin:0'>Page <b>{page}</b> of {total_pages}</p>",
+        unsafe_allow_html=True,
+    )
+    if next_col.button(
+        "Next →", key=f"next-{where}", disabled=page >= total_pages, width="stretch"
+    ):
+        st.session_state["page"] = page + 1
+        st.rerun()
+
+
 # --- Header -------------------------------------------------------------------
 st.title(f"{pool_name} rentals")
+shown = f"{first + 1}–{first + len(page_rows)}" if page_rows else "0"
 st.caption(
-    f"Showing **{len(rows)}** of {len(views)} listings · "
+    f"Showing **{shown}** of {len(rows)} matching listings ({len(views)} in the pool) · "
     "Valuation is *relative to the current pool*, not an official appraisal."
 )
+if total_pages > 1:
+    page_nav("top")
 
 # --- Cards --------------------------------------------------------------------
-for v in rows:
+for v in page_rows:
     state = prefs.listing_state(v["id"])
     border = {"liked": "🟩", "disliked": "🟥"}.get(state, "")
     with st.container(border=True):
@@ -398,9 +440,21 @@ for v in rows:
             st.divider()
             st.markdown("**Why not?** One tap — or skip it, the pass already counted.")
 
-            # The five she has actually used, most-used first, plus a way out.
-            pill_cols = st.columns(len(PILLS_PRIMARY) + 1)
-            for col, code in zip(pill_cols[:-1], PILLS_PRIMARY, strict=True):
+            # The first reason gets its own full-width row: it is "nothing is wrong with it,
+            # I just don't like it", the answer with no thinking behind it, and it has to be
+            # a cheaper tap than Skip — a skipped pass stays `unspecified`, which reads
+            # identically to never having answered and sends the next pull off trying to
+            # infer a taste call that was already made. A seventh column in the row below
+            # would have squeezed every label down to a bare emoji at phone width.
+            lead, *rest = PILLS_PRIMARY
+            if st.button(
+                label_of(lead), key=f"pill-{lead}-{v['id']}", type="primary", width="stretch"
+            ):
+                record_reason(v, lead)
+
+            # Then the five she has actually used, most-used first, plus a way out.
+            pill_cols = st.columns(len(rest) + 1)
+            for col, code in zip(pill_cols[:-1], rest, strict=True):
                 if col.button(
                     pill_of(code),
                     key=f"pill-{code}-{v['id']}",
@@ -438,3 +492,9 @@ for v in rows:
                         st.warning("Nothing typed — tap a reason above instead.")
                     else:
                         record_reason(v, "other", note)
+
+# --- Paging, again at the bottom ----------------------------------------------
+# Where you actually are when you reach the end of a page.
+if total_pages > 1:
+    st.divider()
+    page_nav("bottom")

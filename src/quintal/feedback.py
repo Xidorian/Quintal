@@ -147,6 +147,18 @@ REASONS: dict[str, Reason] = {
             "normalize.py pets keywords",
             pill="🐾 No pets",
         ),
+        # The honest answer whenever nothing is *wrong* with the listing. It leads the pill
+        # row because it is the one reason a searcher can give without thinking, and the
+        # alternative to giving it is `unspecified` — which looks identical to never having
+        # answered, and sends the next pull off reading the listing to infer a taste call
+        # that was already made. "No reason beyond taste" is a verdict; record it as one.
+        Reason(
+            "just_dont_like",
+            "👎 I just don't like it — no other reason",
+            "taste",
+            "taste only",
+            pill="👎 Don't like it",
+        ),
         Reason(
             "condition",
             "🔨 Condition / layout",
@@ -178,11 +190,14 @@ UNSPECIFIED = UNSPECIFIED_REASON
 SCREENABLE = [code for code, r in REASONS.items() if r.screenable]
 # What the app offers: everything a human would actually pick.
 PICKABLE = [code for code in REASONS if code != UNSPECIFIED]
-# The one-tap pill row, most-used first — measured against the shared Gist on 2026-10-08:
-# seasonal 22 · gone 18 · no_pets 3 · wrong_area 1 · not_a_rental 1. Every other reason has
-# never been picked once, so it waits behind "Something else" instead of competing for the
-# first tap. Derived, not listed, so a new reason can never be silently dropped from the UI.
-PILLS_PRIMARY = ["seasonal", "gone", "no_pets", "wrong_area", "not_a_rental"]
+# The one-tap pill row. `just_dont_like` leads it by request (2026-10-11) rather than by
+# measurement — it did not exist when the row was measured, and it is the answer with no
+# thinking behind it, so it has to be the easiest tap on the card. Behind it, the five the
+# shared Gist shows actually being picked, most-used first (2026-10-08): seasonal 22 ·
+# gone 18 · no_pets 3 · wrong_area 1 · not_a_rental 1. Every other reason has never been
+# picked once, so it waits behind "Something else" instead of competing for the first tap.
+# PILLS_MORE is derived, not listed, so a new reason can never be silently dropped from the UI.
+PILLS_PRIMARY = ["just_dont_like", "seasonal", "gone", "no_pets", "wrong_area", "not_a_rental"]
 PILLS_MORE = [code for code in PICKABLE if code not in PILLS_PRIMARY]
 
 
