@@ -327,7 +327,7 @@ def test_resolve_closes_entries(tmp_path):
 def test_corpus_id_matches_the_pipeline_listing_id():
     """The report joins the log to store rows by id — it must be the *same* id."""
     url = "https://www.imovirtual.com/pt/anuncio/xyz"
-    assert feedback._id_for_url(url) == Listing(price_eur_month=1, source_url=url).ensure_id()
+    assert feedback._id_for_url(url) == Listing(price_eur_month=1000, source_url=url).ensure_id()
 
 
 def test_load_corpus_prefers_the_detail_description(tmp_path):

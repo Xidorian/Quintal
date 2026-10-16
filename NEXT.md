@@ -4,12 +4,22 @@
 reading the 👎 notes (step 0 of RECOLLECT.md). Both pools are live; the Norte tail below is
 the only unfinished build work.
 
-> ✅ **Pulled 2026-10-08** (both pools, both sites) and published — `deploy` `cd8595b`. This
-> covered the skipped 10-05. Algarve **509** ranked / Norte **2057**; +1246 new, 617 culled,
-> 628 probed dead. Numbers and the three collection lessons are in STATUS.md.
->
-> Next Monday on the standing cadence is **10-12**, four days out — probably skip it and go
-> again **10-19**, since the pool was just refreshed end to end.
+> ✅ **Pulled 2026-10-16** (both pools, both sites, on request — Thursday, not a Monday) and
+> published. Numbers in STATUS.md. Step 0 added the first five authored rules
+> (`rules.py`, all `short_term`) and blocked 20 text-less misses. Next on the standing
+> cadence would be **10-19**, three days out — skip it and go again **10-26**, the last
+> Monday on the cadence; decide then whether to continue.
+
+## QT-060 — undo a pass, and a passed 👍 card stays put (2026-10-16)
+Malia mis-tapped "Not for us" on a listing she had liked and it vanished without the reason
+ask. Her theory was right: `sort_rank` held a passed card at *neutral* rank, which is where a
+neutral card already was and 100 below where a 👍 card was, so it dropped off the page. Fixed
+by capturing the rank at the moment of the pass; plus a sidebar "↩️ Undo a pass" list (last 5
+live passes in the pool) that restores the 👍 the pass replaced (`was_liked` on the receipt).
+Verified in the real app against the local prefs file. Details in STATUS.md.
+- [ ] **Watch whether the undo list gets used, and whether it needs to reach further back
+      than 5.** Reading the shared log tells: a `retracted` entry with no later re-pass is an
+      undo (or an un-pass from the card — the two are not distinguished in the log yet).
 
 ## QT-059 — the card list is paged (2026-10-11)
 Clicking pass took ~10s because every click re-rendered the entire filtered pool (509 / 2057
@@ -34,9 +44,11 @@ how much effort she feels like spending. See STATUS.md for the numbers behind th
 - [x] **Tier 4 — "👎 I just don't like it" (2026-10-11, QT-059).** The taste verdict the
       row was missing, leading the row on its own full-width button. Watch whether it eats
       into the `unspecified` share below rather than into the other pills.
-- [ ] **Check in a week whether the pills actually moved the numbers.** The thing to watch
-      is the `unspecified` share of *new* entries (anything after 2026-10-08) — if it stays
-      high, the pill row is still too much friction and the next lever is inference, not UI.
+- [x] **Checked 2026-10-16: the pills moved the numbers.** 42 new entries since 10-08
+      (27 Algarve, 15 Norte); **`unspecified` is 2 of them** (was ~half). Algarve: seasonal
+      11, "something else" 10 (eight of those typed *"just don't like it"* in the free-text
+      box before the 10-11 pill existed), just_dont_like 2, gone 1, no_pets 1, price 1. Norte:
+      gone 7, seasonal 3, just_dont_like 3. Inference is not the next lever; the UI works.
 - [x] **Rules module + `rules test`** — `src/quintal/rules.py`, 15 tests. Marks
       `pets`/`yard`/`bathtub`/`suspected_short_term`; provenance required; `RULES` ships
       empty. `python -m quintal.rules test --attribute … --pattern …` prints the collateral

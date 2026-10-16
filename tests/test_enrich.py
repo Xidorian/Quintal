@@ -131,7 +131,7 @@ def test_geocode_sets_latlng_and_caches(tmp_path):
     # Second call hits the cache, not the session.
     calls = client.session.get_calls
     GeocodeEnricher(client).apply(
-        Listing(price_eur_month=1, concelho="Portimão", title="T2 em Portimão")
+        Listing(price_eur_month=1000, concelho="Portimão", title="T2 em Portimão")
     )
     assert client.session.get_calls == calls
 
@@ -248,8 +248,8 @@ def test_save_and_apply_geo_roundtrip(tmp_path):
 
 def test_save_geo_skips_unlocated(tmp_path):
     path = tmp_path / "geo.json"
-    located = Listing(source_url="a", price_eur_month=1, lat=37.0, lng=-8.0)
-    unlocated = Listing(source_url="b", price_eur_month=1)
+    located = Listing(source_url="a", price_eur_month=1000, lat=37.0, lng=-8.0)
+    unlocated = Listing(source_url="b", price_eur_month=1000)
     assert save_geo([located, unlocated], path) == 1
     import json
     assert list(json.load(open(path)).keys()) == [located.ensure_id()]
@@ -257,24 +257,24 @@ def test_save_geo_skips_unlocated(tmp_path):
 
 def test_apply_geo_does_not_overwrite_fresh(tmp_path):
     path = tmp_path / "geo.json"
-    stale = Listing(source_url="a", price_eur_month=1, lat=1.0, lng=2.0, walk_min_beach=99.0)
+    stale = Listing(source_url="a", price_eur_month=1000, lat=1.0, lng=2.0, walk_min_beach=99.0)
     save_geo([stale], path)
-    fresh = Listing(source_url="a", price_eur_month=1, lat=1.0, lng=2.0, walk_min_beach=5.0)
+    fresh = Listing(source_url="a", price_eur_month=1000, lat=1.0, lng=2.0, walk_min_beach=5.0)
     apply_geo([fresh], path)
     assert fresh.walk_min_beach == 5.0  # freshly-enriched value wins over the sidecar
 
 
 def test_apply_geo_noop_without_file(tmp_path):
-    assert apply_geo([Listing(source_url="a", price_eur_month=1)], tmp_path / "absent.json") == 0
+    assert apply_geo([Listing(source_url="a", price_eur_month=1000)], tmp_path / "absent.json") == 0
 
 
 def test_apply_geo_overwrites_concelho_but_not_coords(tmp_path):
     # The persisted concelho is the authoritative reverse-geocoded value → it replaces the
     # parsed one even though the listing already has a (junk) concelho set.
     path = tmp_path / "geo.json"
-    src = Listing(source_url="a", price_eur_month=1, lat=41.16, lng=-8.6, concelho="Porto")
+    src = Listing(source_url="a", price_eur_month=1000, lat=41.16, lng=-8.6, concelho="Porto")
     save_geo([src], path)
-    listing = Listing(source_url="a", price_eur_month=1, concelho="Paranhos")  # freguesia junk
+    listing = Listing(source_url="a", price_eur_month=1000, concelho="Paranhos")  # freguesia junk
     apply_geo([listing], path)
     assert listing.concelho == "Porto"  # overwritten from the sidecar
     assert listing.lat == 41.16  # coords filled (were None)

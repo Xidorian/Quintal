@@ -136,9 +136,9 @@ def test_yard_rule_sets_the_boolean(one_rule):
     assert listing.has_yard.evidence == ["rule:r-test-1"]
 
 
-def test_no_rules_means_no_change():
-    """The shipped state: RULES is empty, so derivation is untouched."""
-    assert rules.RULES == []
+def test_no_rules_means_no_change(monkeypatch):
+    """With no rules loaded the derivation is untouched (RULES shipped empty until 2026-10-16)."""
+    monkeypatch.setattr(rules, "RULES", [])
     listing = normalize(_raw("casa com quintal grande, aceita animais"))
     assert listing.pets.value == "yes"
     assert listing.pets.evidence != ["rule:"]
@@ -188,6 +188,20 @@ def test_matching_reports_every_rule_that_fires(monkeypatch):
 
 
 # --- The guard ----------------------------------------------------------------
+
+
+def test_current_verdict_reports_an_authored_rule_like_the_pipeline_does(monkeypatch):
+    """`inspect` and `rules test` must see what `normalize` sees, or a rule looks dead."""
+    rule = rules.Rule(
+        id="st-x", attribute="short_term", verdict="yes", pattern="inserido num glamping",
+        source="test", added="2026-10-16",
+    )
+    monkeypatch.setattr(rules, "RULES", [rule])
+    text = "Casa T2 inserido num glamping com piscina"
+    assert rules.current_verdict("short_term", text) == ("yes", "rule:st-x")
+    assert normalize(_raw(text)).suspected_short_term.evidence == ["rule:st-x"]
+    monkeypatch.setattr(rules, "RULES", [])
+    assert rules.current_verdict("short_term", text) == ("no", "")
 
 
 def test_every_attribute_has_a_current_verdict_reader():

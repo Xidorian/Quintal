@@ -1,6 +1,8 @@
 import pytest
 
+from quintal.errors import AppError
 from quintal.normalize import fold, normalize
+from quintal.schema import MIN_PLAUSIBLE_RENT
 
 
 def test_fold_strips_accents():
@@ -274,3 +276,15 @@ def test_explicit_site_property_type_still_wins():
         }
     )
     assert listing.property_type == "house"
+
+
+@pytest.mark.parametrize("price", [1, 0.63, MIN_PLAUSIBLE_RENT - 1])
+def test_implausible_rent_is_rejected_not_ranked(price):
+    """A €1 placeholder or a €/m² figure must not reach valuation as a bargain."""
+    with pytest.raises(AppError):
+        normalize({"description_raw": "T2 ao ano", "price_eur_month": price, "concelho": "Faro"})
+
+
+def test_rent_at_the_floor_is_accepted():
+    listing = normalize({"price_eur_month": MIN_PLAUSIBLE_RENT, "concelho": "Faro"})
+    assert listing.price_eur_month == MIN_PLAUSIBLE_RENT

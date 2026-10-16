@@ -298,6 +298,17 @@ The enrich run regenerates `data/geo.json` and caches any new ORS routes; `publi
   delisted, ranked). Commit docs. Data is gitignored on `main` — only the `deploy` branch carries it.
 
 ## Gotchas (all learned the hard way)
+- **`few-cards` on the *last* page of an imovirtual search is the "similar listings" block,
+  not a moved selector (2026-10-16, Braga apartamento p12: 7 cards, 4 organic items in
+  `__NEXT_DATA__`, 18 unique `/anuncio/` links).** Past the last organic card imovirtual
+  appends recommendations from other districts, and `expected` counts their links too. Check
+  it the same way — compare `searchAds.items.length` with the card count — and carry on if the
+  organic rows are all captured. On any *other* page it still means stop.
+- **The venv hardcodes absolute paths.** `.venv/bin/activate`, every console script's shebang,
+  `pyvenv.cfg` and the editable-install `.pth` all spelled `~/Projects/Quintal`; the 2026-10-11
+  rename to lowercase left `python` "not found" after `activate`. Fixed by `sed` across
+  `.venv/bin/*`, `pyvenv.cfg` and `site-packages/__editable__.quintal-0.1.0.pth` +
+  `quintal-0.1.0.dist-info/direct_url.json`. Recreating the venv is the other fix.
 - Idealista detail pages 403 server-side (DataDome) — thumbnails come from the captured card
   `image_url`, not a detail fetch. Older records without a captured image stay thumbnail-less.
 - **Imovirtual under-reports its own page count (2026-08-31).** `__NEXT_DATA__`'s

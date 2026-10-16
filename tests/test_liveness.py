@@ -112,7 +112,7 @@ def test_cull_absent_keeps_real_gone_sticky(tmp_path):
 
 def test_probe_skips_known_gone(monkeypatch, tmp_path):
     listings_path = tmp_path / "listings.jsonl"
-    row = {"source": "imovirtual", "source_url": "https://imv/gone", "price_eur_month": 1}
+    row = {"source": "imovirtual", "source_url": "https://imv/gone", "price_eur_month": 1000}
     listings_path.write_text(json.dumps(row), encoding="utf-8")
     liveness.save({"https://imv/gone": "410"}, tmp_path / "d.json")
 

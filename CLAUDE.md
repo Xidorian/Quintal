@@ -57,7 +57,11 @@ collect (browser session)  →  data/listings.jsonl
   Screenable reasons name the module at fault; the report proposes patterns, a human adds them.
 
 ## Gotchas
-- Ubuntu 24 PEP 668: always use `.venv` (see profile).
+- Ubuntu 24 PEP 668: always use `.venv` (see profile). **The venv is path-bound**: it was
+  created under `~/Projects/Quintal` and every shebang/`activate`/`.pth` carried that path until
+  the 2026-10-11 lowercase rename broke it (`python: command not found` after `activate`).
+  Repointed with `sed` on 2026-10-16; if it breaks again, recreate it (`python3 -m venv .venv &&
+  pip install -e . -r requirements-dev.txt`).
 - **Keep `app.py`'s import path 3.10-compatible.** `datetime.UTC` broke the live app on
   2026-08-25; `preferences.py` uses `timezone.utc` for that reason. `scripts/publish.sh`
   fails the publish on a violation (`vermin -t=3.10-`), so it can't reach Malia again.

@@ -7,6 +7,75 @@ search is expanding to **Porto + the Douro + the Minho** (Norte), optimising for
 dog-walkable greenery/nature/quiet and river-beach proximity rather than ocean beaches —
 kept as a **separate pool** (`data/listings-norte.jsonl`) so Algarve valuations stay clean.
 
+## Re-collection 2026-10-16 — both pools, published (`deploy` — sha below)
+Eight days after 10-08, on request (a Thursday; 10-12 was skipped). Both pools, both sites,
+paged to the true end of every search; `suspect` was `none` on every page but one, and that
+one (Braga apartamento p12) was the "similar listings" block on the last page, now a gotcha.
+
+| | pulled | new | culled | cull coverage |
+|---|---|---|---|---|
+| Algarve · idealista | 651 / 651 | +82 | 50 (10 back) | 92.8% |
+| Algarve · imovirtual | 406 | +67 | — | — |
+| Norte · idealista | 1998 / 1998 | +397 | 375 (23 back) | 84.0% |
+| Norte · imovirtual | 2351 | +363 | — | — |
+
+**+909 new, 425 culled, 400 found dead by the liveness probes** (47 Algarve, 353 Norte).
+Stores: Algarve 2498 → **2646**, Norte 9246 → **10006**. Maintenance: descriptions +61,
+photos +148 Algarve / +744 Norte. The district counts drifted again — Faro 615 → 651,
+Porto 1127 → 1181, Braga 468 → 459, Viana 174 → 175, Viseu 130 → 129, Vila Real 54 → 54 —
+and the imovirtual filter-drop trap fired on the first page past the end of every search,
+as documented; the guard skipped each one.
+
+**Ranked after enrich: Algarve 532** (under 135 · fair 210 · over 187), 100% located; **Norte 2115** (under
+605 · fair 878 · over 623 · 9 unbanded), 2114 located. 285 tests pass; publish gate clear.
+
+### Step 0 wrote the first rules
+42 new dismissals since 10-08 (27 Algarve, 15 Norte), only 2 of them `unspecified` — the pill
+row works (NEXT.md has the tally). Eleven Algarve seasonal misses had their tell in the card
+text but outside every `SHORT_TERM_PATTERNS` phrase, and five of those phrasings generalise
+without collateral, so `rules.py` now carries **short-term-001…005**: *arrendamento por
+período até N meses*, *up to N months*, *não é possível arrendamento anual*, *arrendamento ao
+mês*, *glamping*. Each was proved with `rules test` first and the counts are in the rule
+notes; bare `sazonal` was tested and rejected (it matches *"anual ou sazonal"*, a seasonal
+pool, and a landlord saying *not* seasonal). The three entries behind them are resolved;
+`feedback block` took the other 20 text-less misses (10 per pool).
+
+**`inspect` could not see a rule fire.** `rules.current_verdict` — what both `rules test` and
+`feedback inspect` print as "what we say today" — read only the keyword derivation, so the
+five rules looked dead the moment they were added (`short_term: no` on the very listings
+they were written for) while `normalize` was applying them fine. It now consults the rules
+first, exactly as the pipeline does, and names the rule in the detail. RECOLLECT step 5 was
+describing behaviour that did not exist until this fix.
+
+### A €1 rent is not a rent
+Sanity-checking prices found a €1 "price on request" T2 *in the ranked Algarve list* (and a
+second one culled), plus fifteen €0.63 Norte rows — the €/m² figure from the QT-049 bug,
+still in the store because imovirtual never culls. `Listing` now rejects anything under
+`MIN_PLAUSIBLE_RENT` (€100) the way it already drops an implausible size, except the row is
+skipped rather than kept: price is the valuation's target. Algarve ranked 536 → 532.
+
+## Undo a pass, and a passed 👍 card stays put (2026-10-16, QT-060)
+Mid-pull: Malia mis-tapped "Not for us" on a listing she had liked, the reason ask never
+appeared, and she could not find the card again. Her theory — *after you already like a
+place, clicking not for us just removes it* — was exactly right, and the bug was in the
+sentence that claimed to prevent it. `sort_rank` held a just-passed card at the rank of an
+*empty id*, i.e. neutral. For a neutral card that is where it already was; for a 👍 card it
+is 100 below where it was, so the card dropped off the top of the list — usually onto another
+page — with its reason ask attached and nobody looking. Now the pass handler captures the
+card's rank *before* `dislike()` runs and `just_passed` holds it (id → rank), so the card
+stays exactly where it was until the ask is answered or skipped.
+
+**And an undo that does not depend on finding the card.** The sidebar gets "↩️ Undo a pass":
+the last five live passes in the pool from the shared log, each a one-tap restore. The pass
+receipt now records `was_liked`, so undoing a mis-tap on a 👍 listing puts the 👍 back rather
+than leaving it neutral (`Preferences.undo_dislike`; the receipt is retracted, not deleted).
+Verified in the real app on 2026-10-16 against the **local** prefs file: like → pass → the card
+held its top slot with the ask → sidebar undo → "💚 Liked" again, receipt retracted. The
+shared Gist was not written to during the test.
+
+Not changed: the on-card "💔 Passed" toggle still un-passes too; the log cannot yet tell an
+undo from an un-pass (NEXT.md).
+
 ## "I just don't like it", and the pass stops taking 10 seconds (2026-10-11, QT-059)
 Two asks from Malia, one of them the reason the other matters.
 

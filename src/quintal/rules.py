@@ -104,7 +104,59 @@ class Rule:
 # Empty by design. These are written one at a time during a pull, each one traceable to a
 # dismissal that the screener got wrong. A rule added without a 👎 behind it is a guess
 # wearing a provenance string.
-RULES: list[Rule] = []
+RULES: list[Rule] = [
+    # 2026-10-16 pull, step 0. All four come from 👎 "seasonal" entries whose tell sits in
+    # the card preview text but outside every SHORT_TERM_PATTERNS phrase. Each was proved
+    # with `rules test` first; the collateral is recorded in the note.
+    Rule(
+        id="short-term-001",
+        attribute="short_term",
+        verdict="yes",
+        pattern=r"arrendamento por periodos? (de )?ate (de )?\d+ meses",
+        source="feedback entry 04b2ee95ca — Malia, 2026-10-14",
+        added="2026-10-16",
+        note="'arrendamento por período até de 6 meses'; 3 Algarve matches, all one Albufeira T1",
+    ),
+    Rule(
+        id="short-term-002",
+        attribute="short_term",
+        verdict="yes",
+        pattern=r"up to \d+ months",
+        source="feedback entry 04b2ee95ca — Malia, 2026-10-14",
+        added="2026-10-16",
+        note="EN twin: 'lease per period up to 6 months', 'temporary monthly rental up to 5 "
+        "months'; 5 Algarve matches, 3 already caught by 'temporario'",
+    ),
+    Rule(
+        id="short-term-003",
+        attribute="short_term",
+        verdict="yes",
+        pattern=r"nao e possivel arrendamento anual",
+        source="feedback entry 689975f7e7 — Malia, 2026-10-10",
+        added="2026-10-16",
+        note="the landlord saying it outright; 2 Algarve matches, both monthly winter lets",
+    ),
+    Rule(
+        id="short-term-004",
+        attribute="short_term",
+        verdict="yes",
+        pattern=r"arrendamento ao mes",
+        source="feedback entry 689975f7e7 — Malia, 2026-10-10",
+        added="2026-10-16",
+        note="'arrendamento ao mês de 01/10/2026 até 31/05/2027'; also hits Norte 'ao mês ou "
+        "à noite' (1). 2 Algarve matches, 1 already caught by 'temporada'",
+    ),
+    Rule(
+        id="short-term-005",
+        attribute="short_term",
+        verdict="yes",
+        pattern=r"glamping",
+        source="feedback entry edb1c86b74 — Malia, 2026-10-10",
+        added="2026-10-16",
+        note="a unit 'inserido num glamping' is a tourist site, not a home; 5 Algarve matches "
+        "(one Boliqueime landlord, five postings), 4 already caught by the month span",
+    ),
+]
 
 
 def for_attribute(attribute: str) -> list[Rule]:
@@ -152,11 +204,22 @@ def current_verdict(attribute: str, text: str) -> tuple[str, str]:
 
     Raises on an unknown attribute rather than falling through to a default, so a new
     attribute with no reader cannot inherit another one's answer.
+
+    An authored rule wins here exactly as it does in `normalize._apply_rules`, and the
+    detail names it (`rule:<id>`). Until 2026-10-16 this read only the keyword derivation,
+    so `feedback inspect` kept printing `short_term: no` for a listing the pipeline had
+    already marked — the first five rules looked dead the moment they were added.
     """
     from . import screening
     from .normalize import BATHTUB_KEYWORDS, YARD_KEYWORDS, _derive_bool, _derive_pets, fold
 
+    if attribute not in ATTRIBUTES:
+        raise ValueError(f"no current-verdict reader for attribute {attribute!r}")
     folded = fold(text)
+    hit = verdict_for(attribute, folded)
+    if hit is not None:
+        verdict, rule = hit
+        return verdict, f"rule:{rule.id}"
     if attribute == "pets":
         return _derive_pets(folded).value, ""
     if attribute == "yard":

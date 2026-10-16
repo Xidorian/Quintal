@@ -13,6 +13,12 @@ from pydantic import BaseModel, Field, field_validator
 MIN_PLAUSIBLE_M2 = 15
 MAX_PLAUSIBLE_M2 = 2000
 
+# Below this a "rent" is not a rent: a €1 placeholder for "price on request" (two Algarve
+# imovirtual cards, 2026-10-16) or a €/m² figure read as the rent (fifteen €0.63 Norte rows
+# left from the QT-049 bug). Unlike size, a bad price is not merely unknown — price is the
+# valuation's target and the deal sort's input — so the row is rejected, not kept.
+MIN_PLAUSIBLE_RENT = 100
+
 PropertyType = Literal["house", "townhouse", "apartment", "studio", "other"]
 PetsValue = Literal["yes", "no", "unknown"]
 Band = Literal["undervalued", "fair", "overpriced"]
@@ -52,6 +58,13 @@ class Listing(BaseModel):
     furnished: bool | None = None
     concelho: str = "unknown"
     freguesia: str | None = None
+
+    @field_validator("price_eur_month")
+    @classmethod
+    def _reject_implausible_rent(cls, v: float) -> float:
+        if v < MIN_PLAUSIBLE_RENT:
+            raise ValueError(f"implausible rent €{v:g}/month (floor €{MIN_PLAUSIBLE_RENT})")
+        return v
 
     @field_validator("size_m2")
     @classmethod
