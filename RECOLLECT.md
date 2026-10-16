@@ -282,6 +282,11 @@ scripts/publish.sh                  # data snapshot → deploy branch → Stream
 The enrich run regenerates `data/geo.json` and caches any new ORS routes; `publish.sh` ships
 `listings.jsonl` + all sidecars + photos. The app needs no ORS key (routes read from the cache).
 
+**If the publish carried a change to any module under `src/quintal/`, reboot the hosted app**
+(Manage app → ⋮ → Reboot app) and then open it: Streamlit Cloud hot-updates `app.py` inside
+the running process and keeps the old modules loaded, so the new `app.py` crashes calling
+methods the old module lacks (2026-10-16 — see DEPLOY.md). Data-only publishes don't need it.
+
 ## 5 · Verify + record
 - **Re-check what you hardened**, per sink — they are verified differently:
   - a `screening.py` phrase: `python -m quintal.feedback report --pool <region>` — the notes

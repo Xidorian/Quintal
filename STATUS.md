@@ -76,6 +76,11 @@ shared Gist was not written to during the test.
 Not changed: the on-card "💔 Passed" toggle still un-passes too; the log cannot yet tell an
 undo from an un-pass (NEXT.md).
 
+**The publish took the live app down for ~40 minutes.** Streamlit Cloud applied the push as a
+hot update inside the process it had started at 13:44, so the new `app.py` ran against the
+old `preferences` module and died on `recent_feedback` at 15:18. Alexander spotted it and
+pasted the log; a Reboot from Manage app fixed it. Now a step in RECOLLECT.md §4 and DEPLOY.md.
+
 ## "I just don't like it", and the pass stops taking 10 seconds (2026-10-11, QT-059)
 Two asks from Malia, one of them the reason the other matters.
 

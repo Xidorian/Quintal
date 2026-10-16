@@ -11,6 +11,15 @@ Written down 2026-10-08 because its absence blocked post-publish verification tw
 Cloud sleeps an idle app**, so a cold open takes a wake plus a full pipeline run (~1–2 min)
 before the listings appear; that is not a failed deploy.
 
+**A publish that changes a module under `src/` needs a Reboot (2026-10-16).** Streamlit
+Cloud picks up a push as a *hot update*: it re-syncs the files and reruns `app.py` in the
+**same Python process**, so `quintal.*` modules imported hours earlier stay loaded at their
+old version. The symptom is an `AttributeError` for a method that plainly exists on `deploy`
+(`'Preferences' object has no attribute 'recent_feedback'`, 15:18 today, 94 minutes after a
+13:44 cold start). The log says `🔄 Updated app!` with no `🚀 Starting up` line — that is the
+tell. Fix: Manage app (bottom right) → ⋮ → **Reboot app** → confirm; ~2 min. A publish that
+only changes `app.py` or data does not need it.
+
 **Opening it is not read-only.** Every 👎, 👍 and area button writes straight to the shared
 Gist, which is Malia's store too. Filters, sort and the region selector are safe. If you
 only need to check that a publish landed, read the page — do not click a card.
