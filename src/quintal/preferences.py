@@ -230,15 +230,42 @@ class Preferences:
         Un-passing retracts the listing's open notes: a reversed 👎 must not go on
         justifying a filter change.
         """
+        was_liked = listing_id in self.liked
         self.liked.discard(listing_id)
         if listing_id in self.disliked:
             self.disliked.discard(listing_id)
             self.retract_feedback(listing_id)
             return
         self.disliked.add(listing_id)
+        # A pass on a 👍 listing is the one most likely to be a mis-tap (2026-10-16: it
+        # happened, and the card had moved — see app.py `sort_rank`). Remember the like so
+        # `undo_dislike` can put it back rather than leave the listing merely neutral.
+        snapshot = dict(context or {})
+        if was_liked:
+            snapshot["was_liked"] = True
         self.add_feedback(
-            listing_id, reason=reason or UNSPECIFIED_REASON, note=note, by=by, context=context
+            listing_id, reason=reason or UNSPECIFIED_REASON, note=note, by=by, context=snapshot
         )
+
+    def undo_dislike(self, listing_id: str) -> bool:
+        """Reverse a 👎: retract its notes and restore the 👍 it replaced, if any.
+
+        Distinct from calling `dislike` again (which also toggles off) because only this
+        path reads `was_liked` back. Returns False when the listing was not passed.
+        """
+        if listing_id not in self.disliked:
+            return False
+        latest = self.latest_feedback(listing_id)
+        self.disliked.discard(listing_id)
+        self.retract_feedback(listing_id)
+        if latest and latest.get("was_liked"):
+            self.liked.add(listing_id)
+        return True
+
+    def recent_feedback(self, limit: int = 5) -> list[dict]:
+        """The newest live (unretracted) entries, newest first — the undo list."""
+        live = [e for e in self.feedback if not e.get("retracted")]
+        return list(reversed(live))[:limit]
 
     def hide(self, listing_id: str) -> None:
         self.hidden.symmetric_difference_update({listing_id})

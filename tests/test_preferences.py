@@ -41,6 +41,36 @@ def test_preference_rank_orders_liked_above_disliked_area(tmp_path):
     assert p.preference_rank("good", "Anywhere") > p.preference_rank("x", "Bad")
 
 
+def test_undo_dislike_restores_the_like_it_replaced(tmp_path):
+    """A mis-tapped pass on a 👍 listing goes back to 👍, not to neutral."""
+    p = Preferences(tmp_path / "prefs.json")
+    p.like("a")
+    p.dislike("a", by="Malia", context={"title": "T2 in Tavira"})
+    assert p.latest_feedback("a")["was_liked"] is True
+    assert p.undo_dislike("a") is True
+    assert p.listing_state("a") == "liked"
+    assert p.latest_feedback("a") is None  # the receipt is retracted, not deleted
+    assert p.feedback[0]["retracted"] is True
+
+
+def test_undo_dislike_on_a_neutral_pass_returns_to_neutral(tmp_path):
+    p = Preferences(tmp_path / "prefs.json")
+    p.dislike("b")
+    assert "was_liked" not in p.latest_feedback("b")
+    assert p.undo_dislike("b") is True
+    assert p.listing_state("b") == "neutral"
+    assert p.undo_dislike("b") is False  # nothing to undo
+
+
+def test_recent_feedback_is_newest_first_and_skips_retracted(tmp_path):
+    p = Preferences(tmp_path / "prefs.json")
+    for lid in ("a", "b", "c"):
+        p.dislike(lid)
+    p.undo_dislike("b")
+    assert [e["listing_id"] for e in p.recent_feedback()] == ["c", "a"]
+    assert [e["listing_id"] for e in p.recent_feedback(limit=1)] == ["c"]
+
+
 def test_roundtrip(tmp_path):
     path = tmp_path / "prefs.json"
     p = Preferences(path)

@@ -173,6 +173,40 @@ show_disliked = st.sidebar.checkbox("Show 👎 / disliked areas", value=False)
 # this is ticked — no stored preference is dropped on the floor.
 show_hidden = st.sidebar.checkbox("Show previously hidden", value=False)
 
+# --- Undo ---------------------------------------------------------------------
+# Listings passed this session, keyed by id → the rank the card had *before* the pass. Read
+# by `keep` (hold the card on screen for its reason ask) and `sort_rank` (keep it where it
+# was); see the comment above `keep` for why it exists at all.
+if not isinstance(st.session_state.get("just_passed"), dict):
+    st.session_state["just_passed"] = {}
+just_passed: dict[str, int] = st.session_state["just_passed"]
+
+# The last few passes, from the shared log, each a one-tap undo. The card itself offers
+# "💔 Passed" to un-pass, but only while it is on screen — and the one time it mattered the
+# card had moved pages (a 👍 listing passed by mis-tap, 2026-10-16). This list is reachable
+# whatever the filters and paging are doing, and it restores a 👍 the pass replaced.
+recent = [
+    e
+    for e in prefs.recent_feedback(limit=8)
+    if (not e.get("pool") or e.get("pool") == pool_name) and e["listing_id"] in prefs.disliked
+][:5]
+if recent:
+    st.sidebar.header("↩️ Undo a pass")
+    for entry in recent:
+        who = f" · {entry['by']}" if entry.get("by") else ""
+        title = (entry.get("title") or entry["listing_id"])[:42]
+        if st.sidebar.button(
+            f"↩️ {title}",
+            key=f"undo-{entry['entry_id']}",
+            help=f"Put it back{who}" + (" (it was a 👍)" if entry.get("was_liked") else ""),
+            width="stretch",
+        ):
+            prefs.undo_dislike(entry["listing_id"])
+            just_passed.pop(entry["listing_id"], None)
+            prefs.save()
+            st.toast(f"Restored: {title}", icon="↩️")
+            st.rerun()
+
 open_notes = [e for e in prefs.open_feedback() if not e.get("pool") or e.get("pool") == pool_name]
 if open_notes:
     with st.sidebar.expander(f"🗒️ Pass notes ({len(open_notes)})"):
@@ -208,7 +242,7 @@ lo, hi = (min(pcts + [0]), max(pcts + [0]))
 # visit that the vanishing card made impossible. The free text is the half the pattern
 # miner runs on, so losing it is what left `feedback report` proposing "na rua de".
 # Session-scoped: a reload clears it.
-just_passed: set[str] = st.session_state.setdefault("just_passed", set())
+# (`just_passed` itself is initialised above the sidebar's undo list, which releases cards.)
 
 
 def keep(v: dict) -> bool:
@@ -262,7 +296,7 @@ def record_reason(v: dict, code: str, note: str = "") -> None:
         context=context_from_view(v, pool_name),
     )
     prefs.save()
-    just_passed.discard(v["id"])  # answered — let the card go
+    just_passed.pop(v["id"], None)  # answered — let the card go
     st.toast(f"Noted: {label_of(code)}", icon="🗒️")
     st.rerun()
 
@@ -272,11 +306,16 @@ def sort_rank(v: dict) -> int:
 
     A listing passed *during this session* keeps the rank it had a moment ago, so the card
     stays put under its reason ask instead of sliding to the bottom of several hundred. The
-    empty id is in neither set, which leaves just the area component. The 👎 penalty applies
-    from the next reload, once the reason has been asked for.
+    rank is captured at the moment of the pass, not recomputed: this used to substitute an
+    empty id (neutral), which is right for a neutral card and wrong for a 👍 one — a liked
+    listing sat at the top on +100, and passing it dropped it to 0, usually onto another
+    page, so the card with its reason ask simply vanished (Malia, 2026-10-16). The 👎
+    penalty applies from the next reload, once the reason has been asked for.
     """
-    listing_id = "" if v["id"] in just_passed else v["id"]
-    return prefs.preference_rank(listing_id, v["concelho"])
+    held = just_passed.get(v["id"])
+    if held is not None:
+        return held
+    return prefs.preference_rank(v["id"], v["concelho"])
 
 
 rows = [v for v in views if keep(v)]
@@ -392,21 +431,22 @@ for v in page_rows:
             pass_label = "💔 Passed" if state == "disliked" else "🙈 Not for us"
             if st.button(like_label, key=f"like-{v['id']}", width="stretch"):
                 prefs.like(v["id"])
-                just_passed.discard(v["id"])
+                just_passed.pop(v["id"], None)
                 prefs.save()
                 st.rerun()
             if st.button(pass_label, key=f"pass-{v['id']}", width="stretch"):
                 # Carries `by` + the listing snapshot even with no reason chosen: this
                 # click is the only one ~half of all dismissals ever get, so it has to be
                 # the one that records. The reason ask below upgrades it if she answers.
+                rank_before = prefs.preference_rank(v["id"], v["concelho"])
                 prefs.dislike(
                     v["id"], by=searcher, context=context_from_view(v, pool_name)
                 )  # toggles; un-passing retracts the note behind it
                 # Hold it open for the reason ask below, or let go of it on un-pass.
                 if v["id"] in prefs.disliked:
-                    just_passed.add(v["id"])
+                    just_passed[v["id"]] = rank_before
                 else:
-                    just_passed.discard(v["id"])
+                    just_passed.pop(v["id"], None)
                 prefs.save()
                 st.rerun()
             area = prefs.area_of(v["concelho"])
@@ -464,7 +504,7 @@ for v in page_rows:
             if pill_cols[-1].button(
                 "Skip", key=f"donepass-{v['id']}", width="stretch"
             ):
-                just_passed.discard(v["id"])
+                just_passed.pop(v["id"], None)
                 st.rerun()
 
             # Everything below her measured usage, plus the one path that needs typing.
