@@ -5,7 +5,7 @@ reading the 👎 notes (step 0 of RECOLLECT.md). Both pools are live; the Norte 
 the only unfinished build work.
 
 > ✅ **Pulled 2026-10-16** (both pools, both sites, on request — Thursday, not a Monday) and
-> published. Numbers in STATUS.md. Step 0 added the first five authored rules
+> published — `deploy` `95f4fdd`. Numbers in STATUS.md. Step 0 added the first five authored rules
 > (`rules.py`, all `short_term`) and blocked 20 text-less misses. Next on the standing
 > cadence would be **10-19**, three days out — skip it and go again **10-26**, the last
 > Monday on the cadence; decide then whether to continue.

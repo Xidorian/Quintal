@@ -7,7 +7,7 @@ search is expanding to **Porto + the Douro + the Minho** (Norte), optimising for
 dog-walkable greenery/nature/quiet and river-beach proximity rather than ocean beaches —
 kept as a **separate pool** (`data/listings-norte.jsonl`) so Algarve valuations stay clean.
 
-## Re-collection 2026-10-16 — both pools, published (`deploy` — sha below)
+## Re-collection 2026-10-16 — both pools, published (`deploy` `95f4fdd`)
 Eight days after 10-08, on request (a Thursday; 10-12 was skipped). Both pools, both sites,
 paged to the true end of every search; `suspect` was `none` on every page but one, and that
 one (Braga apartamento p12) was the "similar listings" block on the last page, now a gotcha.
